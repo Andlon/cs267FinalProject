@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>OSSFIM: html-version</title>
+</head>
+<body>
+
+<h1>OSSFIM: <a href="ossfim_form.html">html-version</a></h1>
+
+<h2>Introduction</h2>
+
+<p>
+When we want to map a spatial attribute, such as a soil property, in a
+given region we can do this by regular sampling of the area. For this, we
+have to choose a sampling density, which leads to the sample size needed.
+In addition, we can choose to map (estimate) the soil property not for
+individual (point-support) locations, but rather for (means of) blocks
+of a larger size. When planning a survey, <a href="spacing.gif">sample
+spacing</a> and <a href="block.gif">block size</a> are two factors that
+can be chosen. Given the variogram of the attribute to be mapped, block
+kriging prediction errors can be calculated ahead of the survey for any
+combination of sample spacing, block size and kriging neighbourhood.
+Often, another ``controllable factor'' is the support of the attribute
+measured. E.g., point samples of a varying physical size (support) can
+be taken, or (random) samples from a small area can be mixed. Varying
+the measurement support has an effect on the variogram of the attribute.
+</p>
+
+<p>Consider the following map:</p>
+
+<p><img src="map.gif"></p>
+
+<p>The program OSSFIM (optimal sampling schemes for isarithmic mapping)
+calculates block kriging standard (prediction) errors as a function of
+<a href="spacing.gif">sample spacing</a> and <a href="block.gif">block
+size</a>. This web version uses <a href="http://www.gstat.org/">gstat</a>
+and <a href="http://www.gnuplot.org/">gnuplot</a> for this. A
+two-dimensional grid is formed by a range of sample spacings (x) and block
+sizes (y), each divided in 10 steps. Given a kriging neigbourhood size,
+ordinary block kriging standard errors are obtained for each combination
+of sample spacing and block size on the grid defined. Output is given as
+a colour graph, or as raw (x,y,z) data. Raw output can be cut and pasted
+into a spreadsheet (such as Excell) and graphed by a contouring program
+(such as S-Plus): see <a href="ossfim.pdf">example</a>.  </p>
+
+<p> Load this <a href="ossfim_form.html">form</a> to run the html-version
+of OSSFIM.  </p>
+
+<h2>Differences from the original OSSFIM version</h2>
+
+<p> The original OSSFIM program by McBratney and Webster has more options
+than this web-version: it can handle triangular grids, it can handle the
+case where the block is centered around a sample point, and it deals with
+variograms with anisotropy. Gstat can calculate block kriging standard
+errors in all these cases, but not through this html-interface.  </p>
+
+<h2>Finer grids</h2>
+
+<p> Finer grids can be obtained by adding for instance 
+
+<pre>-x 100 -y 100</pre> 
+
+to the gstat command line options. This option is not made possible
+here, as it would put too much load on the server. Instead, <a
+href="http://www.gstat.org/">gstat</a> should be run locally.  </p>
+
+<h2>References</h2>
+
+<ul>
+<li>Burrough, P.A., R.A. McDonnell (1999) Principles of Geographical
+Information Systems. Oxford University Press
+(e.g., figure 10.11 on page 261)</li>
+<li>Burgess, T.M., R. Webster, A.B. McBratney (1981) Optimal interpolation
+and isarithmic mapping of soil properties. IV Sampling strategy.
+The journal of soil science 32(4), 643-660.</li>
+<li>McBratney, A.B., R. Webster (1981) The design of optimal sampling
+schemes for local estimation and mapping of regionalized variables: 2 program
+and examples. Computers and Geosciences 7: 335-365.</li>
+</ul>
+
+Mon Jan 22 14:56:45 CET 2001, (c) Edzer J. Pebesma
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MstrError - error message</title>
+</header>
+<body>
+<h1>NAME</h1>
+MstrError - error message
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+const char *MstrError(void);
+</pre>
+<h1>DESCRIPTION</h1>
+MstrError returns the error message belonging to the current Merrno
+value.
+<h1>RETURNS</h1>
+the error message belonging to the current Merrno
+<h1>EXAMPLE</h1>
+<tt><pre>
+#include &lt;stdio.h&gt;
+#include &quot;csf.h&quot;
+
+/* test if files are CSF files
+ * writing error messages to
+ * stdout  
+ */
+
+void main(int argc, char *argv[] )
+{
+  MAP *map;
+  int i;
+
+  for(i=1; i &lt; argc; i++)
+    if ((map = Mopen(argv[1], M_READ)) == NULL)
+    {
+        printf(&quot;%s %s\n&quot;, argv[i], MstrError());
+        ResetMerrno();
+    }
+    else
+    {
+        printf(&quot;%s is a CSF file\n&quot;,argv[i]);
+        Mclose(map);
+    }
+
+  exit(0);
+}
+</pre></tt>
+<h1>SEE ALSO</h1>
+<a href=Mperror.html>Mperror</a>
+,
+<a href=MperrorExit.html>MperrorExit</a>
+
+
+</body>

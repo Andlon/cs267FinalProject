@@ -3,64 +3,27 @@
 #
 MAPS = sqrtdist part_a part_b mask_map
 
-RESULT_MAPS = id_pr \
-	lzn_skvr \
-	lzn_skpr \
-	lzn_uspr \
-	lzn_cspr \
-	lzn_okbv \
-	lzn_okbp \
-	sqd_okvr \
-	sqd_okpr \
-	lzn_okvr \
-	lzn_okpr \
-	znsqdcov \
-	sqd_ckvr \
-	sqd_ckpr \
-	lzn_ckvr \
-	lzn_ckpr \
-	lzn_stvr \
-	lzn_stpr \
-	lzn_ukvr \
-	lzn_ukpr \
-	lzn_vkvr \
-	lzn_vkpr \
-	lzn_trvr \
-	lzn_trpr \
-	lzn_stuv \
-	lzn_stup \
-	lzn_vr3 \
-	lzn_vr2 \
-	lzn_vr1 \
-	lzn_vr0 \
-	lzn_tr3 \
-	lzn_tr2 \
-	lzn_tr1 \
-	lzn_tr0 \
-	i800pr \
-	i400pr \
-	i200pr
+RESULT_MAPS = id_pr lzn_ckpr lzn_ckvr lzn_cspr lzn_okbp lzn_okbv lzn_okpr \
+	lzn_okvr lzn_skpr lzn_skvr lzn_stpr lzn_stvr lzn_tr0 lzn_tr1 lzn_tr2 \
+	lzn_tr3 lzn_trpr lzn_trvr lzn_ukpr lzn_ukvr lzn_uspr lzn_vkpr lzn_vkvr \
+	lzn_vr0 lzn_vr1 lzn_vr2 lzn_vr3 lzn_stup lzn_stuv \
+	sqd_ckpr sqd_ckvr sqd_okpr sqd_okvr znsqdcov
 
-
-RESULT_ASCII = zinc_ok.out zincmap.eas
+RESULT_ASCII = zinc_ok.out
 
 BINDIR = ../src/
 
 REFDIR = ../dos
 
-BIN = gstat
+BIN = gstat -s
 
-GSTAT_OPTS = --silent
+GSTAT = $(BINDIR)$(BIN)
 
-GSTAT = valgrind --leak-check=full $(BINDIR)$(BIN) $(GSTAT_OPTS)
+CMD = ex01.cmd ex02.cmd ex03.cmd ex04.cmd ex05.cmd ex06.cmd ex07.cmd \
+	ex08.cmd ex09.cmd ex10.cmd ex11.cmd ex12.cmd ex13.cmd ex14.cmd ex14a.cmd \
+	ex15.cmd
 
-CMD_BATCH = ex03.cmd ex04.cmd ex05.cmd ex06.cmd ex07.cmd \
-	ex08.cmd ex09.cmd ex10.cmd ex11.cmd ex12.cmd ex13.cmd ex14.cmd \
-	ex14a.cmd ex15.cmd ex16.cmd ex17.cmd
-
-CMD = ex01.cmd ex02.cmd $(CMD_BATCH)
-
-all_separate:
+all:	$(MAPS)
 		$(GSTAT) ex03.cmd
 		$(GSTAT) ex04.cmd
 		$(GSTAT) ex05.cmd
@@ -77,12 +40,6 @@ all_separate:
 		$(GSTAT) ex15.cmd
 		$(GSTAT) ex16.cmd
 		$(GSTAT) ex17.cmd
-
-all:	$(MAPS)
-	make all_together all_separate
-
-all_together:
-		$(GSTAT) $(CMD_BATCH)
 
 ex01:;	$(BINDIR)gstat ex01.cmd
 
@@ -120,16 +77,12 @@ result_maps:
 	grep predictions ex*cmd | awk -F "'" '{print $$2}'  > results
 	grep variances ex*cmd | awk -F "'" '{print $$2}'  >> results
 	grep covariances ex*cmd | awk -F "'" '{print $$2}'  >> results
-	# grep output ex*cmd | awk -F "'" '{print $$2}'  >> results
+	grep output ex*cmd | awk -F "'" '{print $$2}'  >> results
 
 # remove files produced by test runs
 clean:
 	make result_maps
 	rm -f `cat results` results $(RESULT_ASCII) fit.log
-
-show:	
-	make result_maps
-	runapp aguila -2 `cat results`
 
 test:
 	@echo "in case of equal maps, make test should result in Error 1"

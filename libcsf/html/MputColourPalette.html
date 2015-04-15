@@ -1,0 +1,64 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MputColourPalette - put the colour palette</title>
+</header>
+<body>
+<h1>NAME</h1>
+MputColourPalette - put the colour palette
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int MputColourPalette
+(
+	MAP *m,
+	UINT2 *pal,
+	size_t nrTupels
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+the map to get it from
+<dt>
+UINT2 *pal<dd>
+the new palette
+<dt>
+size_t nrTupels<dd>
+the number of 3 UINT2 words tupels of pal
+</dl>
+<h1>DESCRIPTION</h1>
+MputColourPalette writes the pal argument that is filled
+with a number of rgb tupels
+of the colour palette to the map. Each tupel is a sequence of 3 UINT2
+words describing red, green and blue. Thus if the map has 8
+colour palette entries it puts 24 UINT2 values in map palette.
+An existing colour palette is overwritten.
+<h1>RETURNS</h1>
+0 if not available or in case of error,
+nonzero otherwise
+<h1>SEE ALSO</h1>
+<a href=MgetHistorySize.html>MgetHistorySize</a>
+,
+<a href=MgetDescriptionSize.html>MgetDescriptionSize</a>
+,
+<a href=MgetNrColourPaletteEntries.html>MgetNrColourPaletteEntries</a>
+,
+<a href=MgetNrGreyPaletteEntries.html>MgetNrGreyPaletteEntries</a>
+,
+<a href=MgetDescription.html>MgetDescription</a>
+,
+<a href=MgetHistory.html>MgetHistory</a>
+,
+<a href=MgetColourPalette.html>MgetColourPalette</a>
+,
+<a href=MgetGreyPalette.html>MgetGreyPalette</a>
+,
+<a href=MputDescription.html>MputDescription</a>
+,
+<a href=MputHistory.html>MputHistory</a>
+,
+<a href=MputGreyPalette.html>MputGreyPalette</a>
+
+
+</body>

@@ -1,0 +1,50 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MgetNrGreyPaletteEntries - get the number of grey palette entries</title>
+</header>
+<body>
+<h1>NAME</h1>
+MgetNrGreyPaletteEntries - get the number of grey palette entries
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+size_t MgetNrGreyPaletteEntries(MAP *m);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+the map to get it from
+</dl>
+<h1>DESCRIPTION</h1>
+MgetNrGreyPaletteEntries returns the number of grey tupels
+of the grey palette. Each tupel is one UINT2
+words describing the intensity: low, 0 is black, high is white.
+<h1>RETURNS</h1>
+the number of grey tupels,
+or 0 if not available or in case of error
+<h1>SEE ALSO</h1>
+<a href=MgetHistorySize.html>MgetHistorySize</a>
+,
+<a href=MgetDescriptionSize.html>MgetDescriptionSize</a>
+,
+<a href=MgetNrColourPaletteEntries.html>MgetNrColourPaletteEntries</a>
+,
+<a href=MgetDescription.html>MgetDescription</a>
+,
+<a href=MgetHistory.html>MgetHistory</a>
+,
+<a href=MgetColourPalette.html>MgetColourPalette</a>
+,
+<a href=MgetGreyPalette.html>MgetGreyPalette</a>
+,
+<a href=MputDescription.html>MputDescription</a>
+,
+<a href=MputHistory.html>MputHistory</a>
+,
+<a href=MputColourPalette.html>MputColourPalette</a>
+,
+<a href=MputGreyPalette.html>MputGreyPalette</a>
+
+
+</body>

@@ -1,0 +1,174 @@
+.lf 1 RvalueScaleIs.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RvalueScaleIs" 3 "13 August 1999" "c2man vsis.c"
+.SH "NAME"
+RvalueScaleIs \- test value scale on compatibility CSF version 1 and 2
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int RvalueScaleIs
+.br
+(
+.br
+	const MAP *m,
+.br
+	CSF_VS vs
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *m"
+a version 1 map handle
+.TP
+.B "CSF_VS vs"
+a version 2 value scale that is compatible with map's value
+scale yes or no?
+.sp
+Possible values for a \fBCSF_VS\fR are as follows:
+.IP
+* version 1 datatypes, 
+these can be returned by BUT NOT passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'VS_NOTDETERMINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBVS_NOTDETERMINED\fR
+version 1
+.TP \n(TLu
+\fBVS_CLASSIFIED\fR
+version 1
+.TP \n(TLu
+\fBVS_CONTINUOUS\fR
+version 1
+.RE
+.PD
+.IP
+* version 2 datatypes
+these two can be returned by or passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'VS_NOTDETERMINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBVS_BOOLEAN\fR
+boolean, always UINT1, values: 0,1 or MV_UINT1
+.TP \n(TLu
+\fBVS_NOMINAL\fR
+nominal, UINT1 or INT4
+.TP \n(TLu
+\fBVS_ORDINAL\fR
+ordinal, UINT1 or INT4
+.TP \n(TLu
+\fBVS_SCALAR\fR
+scalar, REAL4 or (maybe) REAL8
+.TP \n(TLu
+\fBVS_DIRECTION\fR
+directional REAL4 or (maybe) REAL8, -1 means no direction
+.TP \n(TLu
+\fBVS_LDD\fR
+local drain direction, always UINT1, values: 1-9 or MV_UINT1
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'VS_NOTDETERMINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBVS_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.SH "DESCRIPTION"
+RvalueScaleIs tests if the map's value scale is compatible
+with a certain value scale. Here is list of compatible but
+different value scales:
+
+VS_NOTDETERMINED: always returns 0
+
+VS_CLASSIFIED: VS_NOTDETERMINED
+
+VS_CONTINUOUS: VS_NOTDETERMINED
+
+VS_BOOLEAN: VS_CLASSIFIED, VS_NOTDETERMINED
+
+VS_NOMINAL: VS_CLASSIFIED, VS_NOTDETERMINED
+
+VS_ORDINAL: VS_CLASSIFIED, VS_NOTDETERMINED
+
+VS_LDD:  VS_CLASSIFIED, VS_NOTDETERMINED (only if cell representation is
+UINT1 or INT2)
+
+VS_SCALAR:  VS_CONTINUOUS, VS_NOTDETERMINED
+
+VS_DIRECTION: none
+.SH "RETURNS"
+0 if not compatible or if vs argument is VS_NOTDETERMINED or in case of
+error, nonzero if
+compatible.
+.SH "MERRNO"
+BAD_VALUESCALE
+.SH "EXAMPLE"
+.lf 1 examples/maskdump.tr
+.DS
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include "csf.h"
+ 
+ /* a simple csf-mask to stdout
+  * program, with minimal checking
+  * a mask is boolean-map, here we
+  * use version 1 compatibility. 
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+ 
+   UINT1 *row;
+   MAP *map;                      
+   size_t r,c;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   map = Mopen(argv[1], M_READ);
+ 
+   if (! RvalueScaleIs(map, VS_BOOLEAN))
+   {    /* it's not VS_BOOLEAN, VS_CLASSIFIED 
+         * or VS_NOTDETERMINED 
+         */
+        fprintf(stderr,"'%s' is not a boolean map\\n",argv[1]);
+        exit(1);
+   }
+ 
+   RuseAs(map, VS_BOOLEAN); 
+   row = (UINT1 *)Rmalloc(map, RgetNrCols(map));
+ 
+   for(r=0; r < RgetNrRows(map); r++)
+   {
+    RgetRow(map, r, row);
+    for(c=0; c < RgetNrCols(map); c++)
+      printf("%d ",(int)row[c]);
+    printf("\\n");
+   }
+ 
+   free(row);
+   Mclose(map);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 121 RvalueScaleIs.3

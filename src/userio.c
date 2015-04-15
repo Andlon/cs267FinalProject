@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -48,14 +47,7 @@
 #include "version.h"
 #include "userio.h"
 
-#ifdef USING_R
-void Rprintf(const char *, ...);
-void Rf_error(const char *, ...);
-# define is_openf(f) (f != NULL)
-#else
-# define is_openf(f) (f != NULL && f != stdout && f != stderr)
-#endif
-
+#define is_openf(f) (f != NULL && f != stdout && f != stderr)
 
 static FILE *logfile = NULL;
 
@@ -65,9 +57,6 @@ static struct {
 	void (*printlog_handler)(const char *mess);
 	void (*progress_handler)(unsigned int this, unsigned int total);
 } gstat_handler = { NULL, NULL, NULL, NULL };
-
-static void (*old_progress_handler)(unsigned int this, unsigned int total) 
-		= NULL;
 
 static STRING_BUFFER 
 	*error_prefix = NULL, 
@@ -97,17 +86,12 @@ const char *error_messages[MAX_ERRNO+1] = {
 /* 17 */	"writing to pipe `%s' failed",
 /* 18 */	"reading from pipe `%s' failed",
 /* 19 */    "function call prevented by secure mode%s",
-/* 20 */	"matrix library error: %s",
-/* 21 */	"extdbase error: %s"
+/* 20 */	"matrix library error: %s"
 };
 
 void init_userio(int use_stdio) {
 	if (use_stdio) {
-#ifdef USING_R
-		set_gstat_log_file(NULL);
-#else
 		set_gstat_log_file(stdout);
-#endif
 		set_gstat_warning_handler(default_warning);
 		set_gstat_error_handler(default_error);
 		set_gstat_log_handler(default_printlog);
@@ -118,8 +102,6 @@ void init_userio(int use_stdio) {
 	error_prefix    = resize_strbuf(error_prefix, ERROR_BUFFER_SIZE);
 	error_message   = resize_strbuf(error_message, ERROR_BUFFER_SIZE);
 	warning_message = resize_strbuf(warning_message, ERROR_BUFFER_SIZE);
-	error_prefix->str[0] = error_message->str[0] = 
-			warning_message->str[0] = '\0';
 }
 
 /*
@@ -140,12 +122,8 @@ void gstat_error(char *fname, int line,
 	save_strcat(error_message, "gstat: ");
 	len = strlen(error_message->str);
 	buf = error_message->str + len;
-#ifdef HAVE_SNPRINTF
 	snprintf(buf, ERROR_BUFFER_SIZE - len,
 		error_messages[err_nr], save_string(msg));
-#else
-	sprintf(buf, error_messages[err_nr], save_string(msg));
-#endif
 	if (DEBUG_DUMP || err_nr == ER_NULL) { /* print file&line */
 		save_strcat(error_message, " (");
 		save_strcat(error_message, fname);
@@ -166,7 +144,6 @@ void gstat_error(char *fname, int line,
 	}
 
 	gstat_handler.error_handler(error_message->str, err_nr);
-	error_message->str[0] = '\0';
 	return;
 }
 
@@ -180,16 +157,12 @@ void gstat_clo_error(char *f, int l, enum Gstat_errno err, int a) {
 /* message() calls for messages preceding a call to ErrMsg() */
 void message(char *fmt, ...) {
 	va_list args;
-	/* char *buf = NULL; */
+	char *buf = NULL;
 
 	va_start(args, fmt);
-#ifdef HAVE_VSNPRINTF
 	vsnprintf(error_prefix->str, ERROR_BUFFER_SIZE, fmt, args);
-#else
-	vsprintf(error_prefix->str, fmt, args);
-#endif
 	va_end(args);
-	/* buf = NULL; */
+	buf = NULL;
 }
 
 /* print a warning message to string, and call warning message handler */
@@ -206,11 +179,8 @@ void pr_warning(char *fmt, ...) {
 	buf = warning_message->str + 9;
 
 	va_start(args, fmt);
-#ifdef HAVE_VSNPRINTF
+	/* vsprintf(buf, fmt, args); */
 	vsnprintf(buf, ERROR_BUFFER_SIZE - 9, fmt, args);
-#else
-	vsprintf(buf, fmt, args);
-#endif
 	va_end(args);
 
 	gstat_handler.warning_handler(warning_message->str);
@@ -252,23 +222,6 @@ void set_gstat_progress_handler(
 	gstat_handler.progress_handler = progress;
 }
 
-void push_gstat_progress_handler(
-		void (*progress)(unsigned int this, unsigned int total)) {
-
-	assert(old_progress_handler == NULL);
-
-	old_progress_handler = gstat_handler.progress_handler;
-	set_gstat_progress_handler(progress);
-}
-
-void pop_gstat_progress_handler(void) {
-
-	assert(old_progress_handler != NULL);
-
-	set_gstat_progress_handler(old_progress_handler);
-	old_progress_handler = NULL;
-}
-
 const char *get_gstat_error_message(void) {
 	return (const char *) error_message->str;
 }
@@ -276,22 +229,14 @@ const char *get_gstat_error_message(void) {
 void print_to_logfile_if_open(const char *mess) {
 
 	if (is_openf(logfile))
-#ifdef USING_R
-		Rprintf("%s", mess);
-#else
 		fprintf(logfile, "%s", mess);
-#endif 
 }
 
 void default_warning(const char *mess) {
 
 	print_to_logfile_if_open(mess);
 
-#ifdef USING_R
-	Rprintf("%s\n", mess);
-#else
 	fprintf(stderr, "%s\n", mess);
-#endif
 	return;
 }
 
@@ -299,12 +244,8 @@ void default_error(const char *mess, int level) {
 
 	print_to_logfile_if_open(mess);
 
-#ifdef USING_R
-	Rf_error("%s\n", mess);
-#else
 	fprintf(stderr, "%s\n", mess);
 	exit(level == 0 ? -1 : level);
-#endif
 }
 
 void printlog(const char *fmt, ...) {
@@ -314,11 +255,7 @@ void printlog(const char *fmt, ...) {
 	s = resize_strbuf(NULL, ERROR_BUFFER_SIZE);
 
 	va_start(args, fmt);
-#ifdef HAVE_VSNPRINTF
 	vsnprintf(s->str, ERROR_BUFFER_SIZE, fmt, args);
-#else
-	vsprintf(s->str, fmt, args);
-#endif
 	va_end(args);
 
 	gstat_handler.printlog_handler(s->str);
@@ -333,11 +270,7 @@ void default_printlog(const char *mess) {
 	if (is_openf(logfile))
 		print_to_logfile_if_open(mess);
 	else
-#ifndef USING_R
-		Rprintf("%s", mess);
-#else
 		printf("%s", mess);
-#endif
 }
 
 int set_gstat_log_file(FILE *f) {
@@ -372,20 +305,12 @@ void default_progress(unsigned int current, unsigned int total) {
 	perc = floor(100.0 * current / total);
 	if (perc != perc_last) { /* another percentage -> calculate time: */
 		if (current == total) { /* 100% done, reset: */
-#ifdef USING_R
-			Rprintf("\r%3d%% done\n", 100);
-#else
 			fprintf(stderr, "\r%3d%% done\n", 100);
-#endif
 			perc_last = sec_last = -1;
 		} else {
 			sec = difftime(time(NULL), start);
 			if (sec != sec_last) { /* another second -- don't print too often */
-#ifdef USING_R
-				Rprintf("\r%3d%% done", perc);
-#else
 				fprintf(stderr, "\r%3d%% done", perc);
-#endif
 				perc_last = perc;
 				sec_last = sec;
 			}
@@ -397,7 +322,7 @@ void default_progress(unsigned int current, unsigned int total) {
 /**************************** meschach error functions ****************/
 
 #define SING_ERR \
-"Read the manual at http://www.gstat.org/ ;\n\
+"Read the manual (http://www.geog.uu.nl/gstat/manual)\n\
 look for: Trouble shooting -> Error messages -> From meschach"
 
 #define MEM_ERR \
@@ -412,16 +337,15 @@ fitting method."
 data values, variograms or coordinates. Try to rescale them to a\n\
 reasonable range."
 
-void setup_meschach_error_handler(int using_R) {
+void setup_meschach_error_handler(void) {
  	int code;
  	char *err, *hint = "", buf[100];
 
 #ifndef PCRCALC
  	/* set up meschach error handler: */
- 	if ((code = setjmp(restart)) == 0) {
-		set_err_flag(using_R ? EF_R_ERROR /* avoid longjmp */
-			: EF_JUMP /* make meschach jump on errors */  );
- 	} else {
+ 	if ((code = setjmp(restart)) == 0)
+ 		set_err_flag(EF_JUMP); /* make meschach jump on errors */
+ 	else {
  		/* setjmp() returned non-zero, so we returned from a longjmp(): */
  		switch (code) {
  			case E_MEM:  /* run out of memory */
@@ -455,7 +379,3 @@ void setup_meschach_error_handler(int using_R) {
 #endif /* PCRCALC */
 }
 #endif
-
-void no_progress(unsigned int current, unsigned int total) {
-	return;
-}

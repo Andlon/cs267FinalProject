@@ -1,0 +1,16 @@
+efficient search if data() have equal coordinates and search def. values
+
+add Sun Solaris to platforms (?)
+inverse distance Ref. xxx (design)
+check 7 Mb for 100,000 pts variogram (no_res/res)
+
+AFTER SUBMISSION:
+Isaacs -> Isaaks
+
+--- following comments of an. reviewers:
+defend the need to publish gstat,
+compare it to other free geostats packages
+(be explicit, not general).
+#
+# Check unix GeoEAS: ftp://anonymous@math.arizona.edu/incoming/unixgeoeas
+#

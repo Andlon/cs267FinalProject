@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +28,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 
 #include "defs.h"
 #ifdef HAVE_GETOPT_H
@@ -56,6 +56,10 @@ libgd graphics library by Thomas Boutell, www.boutell.com.
 png support requires additionally:
 - libpng (png library) http://www.cdrom.com/pub/png
 - libz (compression lib used by libpng) http://www.cdrom.com/pub/infozip/zlib
+
+gifmerge, Rev 1.33 (C) 1991,1992 by Mark Podlipec, Rene K. Mueller 
+   (http://the-labs.com/GIFMerge/) for animated gifs (second usage). 
+   Assumes gifmerge is in the search path.
 */
 
 #define OPTIONS "\
@@ -135,8 +139,9 @@ static int find_entry(float *table, int n_table, float value);
  * convert grid map to gif/png image 
  */
 int map2gd(int argc, char *argv[]) {
-	int c, legend = 0, ipal = 0;
-	char *in = NULL, *out = "-";
+	int c, i, legend = 0, ipal = 0;
+	char *gifmerge = "gifmerge", *cmd = NULL, **names = NULL, 
+		*in = NULL, *out = "-", temp_name[10];
 
 #if (!HAVE_GDIMAGEPNG) && (!HAVE_GDIMAGEGIF) /* with gd versions before libgd 1.6.1+ */
 # error gdImagePng/Gif not available -- get gd from http://www.boutell.com/gd/
@@ -164,6 +169,7 @@ int map2gd(int argc, char *argv[]) {
 			case '?': 
 				printf("%s: Copyright 1997 Edzer J. Pebesma\n", argv[0]);
 				printf("usage: %s [options] in_map out_file\n", argv[0]);
+				printf("usage: map2gif [options] anim_gif map1 map2 ... (uses gifmerge)\n");
 				printf("options:\n%s", OPTIONS);
 				return 0;
 				break;
@@ -189,6 +195,7 @@ int map2gd(int argc, char *argv[]) {
 	if (argc - optind == 0) {
 		printf("%s: Copyright 1997 Edzer J. Pebesma\n", argv[0]);
 		printf("usage: %s [options] in_map out_file\n", argv[0]);
+		printf("usage: map2gif [options] anim_gif map1 map2 ... (uses gifmerge)\n");
 		printf("options:\n%s", OPTIONS);
 		return 0;
 	}
@@ -204,7 +211,7 @@ int map2gd(int argc, char *argv[]) {
 static int do_one_map2gd(char *map, const char *f_name, int legend) {
 	GRIDMAP *m = NULL;
 		
-	m = new_map(READ_ONLY);
+	m = new_map();
 	m->filename = map;
 	if ((m = map_read(m)) == NULL)
 		ErrMsg(ER_READ, map);

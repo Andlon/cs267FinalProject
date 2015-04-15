@@ -1,0 +1,26 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RdontTrackMinMax - disable automatic tracking of minimum and maximum value</title>
+</header>
+<body>
+<h1>NAME</h1>
+RdontTrackMinMax - disable automatic tracking of minimum and maximum value
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void RdontTrackMinMax(MAP *m);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+map handle
+</dl>
+<h1>DESCRIPTION</h1>
+A call to RdontTrackMinMax disables the automatic tracking
+of the min/max value in succesive cell writes.
+If used, one must always
+use RputMinVal and RputMaxVal to set the correct values.
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+</body>

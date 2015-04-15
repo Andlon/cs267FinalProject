@@ -1,0 +1,48 @@
+.lf 1 MputLegend.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MputLegend" 3 "13 August 1999" "c2man legend.c"
+.SH "NAME"
+MputLegend \- write a legend
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int MputLegend
+.br
+(
+.br
+	MAP *m,
+.br
+	CSF_LEGEND *l,
+.br
+	size_t nrEntries
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+Map handle
+.TP
+.B "CSF_LEGEND *l"
+read-write, array with name and entries, the entries
+are sorted before writing to the file.
+Strings are padded with zeros.
+.TP
+.B "size_t nrEntries"
+number of array elements. That is name plus real legend entries
+.SH "DESCRIPTION"
+MputLegend writes a (version 2) legend to a map replacing
+the old one if existent.
+See  csfattr.h for the legend structure.
+.SH "RETURNS"
+0 in case of an error,
+nonzero otherwise
+.SH "MERRNO"
+NOACCESS
+WRITE_ERROR
+.SH "SEE ALSO"
+MgetNrLegendEntries(3),
+MgetLegend(3)

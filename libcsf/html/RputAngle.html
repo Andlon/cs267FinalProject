@@ -1,0 +1,38 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RputAngle - put new angle</title>
+</header>
+<body>
+<h1>NAME</h1>
+RputAngle - put new angle
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+REAL8 RputAngle
+(
+	MAP *map,
+	REAL8 angle
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *map<dd>
+map handle
+<dt>
+REAL8 angle<dd>
+new angle
+</dl>
+<h1>DESCRIPTION</h1>
+RputAngle changes the angle
+of the map.
+<h1>RETURNS</h1>
+new angle or -1 in case of an error.
+<h1>MERRNO</h1>
+NOACCESS
+BAD_ANGLE
+<h1>SEE ALSO</h1>
+<a href=RgetAngle.html>RgetAngle</a>
+
+
+</body>

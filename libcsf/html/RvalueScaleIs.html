@@ -1,0 +1,136 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RvalueScaleIs - test value scale on compatibility CSF version 1 and 2</title>
+</header>
+<body>
+<h1>NAME</h1>
+RvalueScaleIs - test value scale on compatibility CSF version 1 and 2
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int RvalueScaleIs
+(
+	const MAP *m,
+	CSF_VS vs
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m<dd>
+a version 1 map handle
+<dt>
+CSF_VS vs<dd>
+a version 2 value scale that is compatible with map's value
+scale yes or no?
+<p>
+Possible values for a <pre>CSF_VS</pre>
+ are as follows:
+	* version 1 datatypes, 
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>VS_NOTDETERMINED - Version 1.<p>
+<li>VS_CLASSIFIED - Version 1.<p>
+<li>VS_CONTINUOUS - Version 1.<p>
+</ul>	* version 2 datatypes
+these two can be returned by or passed to a csf2 function
+<ul><li>VS_BOOLEAN - Boolean, always UINT1, values: 0,1 or MV_UINT1.<p>
+<li>VS_NOMINAL - Nominal, UINT1 or INT4.<p>
+<li>VS_ORDINAL - Ordinal, UINT1 or INT4.<p>
+<li>VS_SCALAR - Scalar, REAL4 or (maybe) REAL8.<p>
+<li>VS_DIRECTION - Directional REAL4 or (maybe) REAL8, -1 means no direction.<p>
+<li>VS_LDD - Local drain direction, always UINT1, values: 1-9 or MV_UINT1.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>VS_UNDEFINED - Just some value different from the rest.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+RvalueScaleIs tests if the map's value scale is compatible
+with a certain value scale. Here is list of compatible but
+different value scales:
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_NOTDETERMINED: always returns 0
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_CLASSIFIED: VS_NOTDETERMINED
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_CONTINUOUS: VS_NOTDETERMINED
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_BOOLEAN: VS_CLASSIFIED, VS_NOTDETERMINED
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_NOMINAL: VS_CLASSIFIED, VS_NOTDETERMINED
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_ORDINAL: VS_CLASSIFIED, VS_NOTDETERMINED
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_LDD:  VS_CLASSIFIED, VS_NOTDETERMINED (only if cell representation is
+UINT1 or INT2)
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_SCALAR:  VS_CONTINUOUS, VS_NOTDETERMINED
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+VS_DIRECTION: none
+<h1>RETURNS</h1>
+0 if not compatible or if vs argument is VS_NOTDETERMINED or in case of
+error, nonzero if
+compatible.
+<h1>MERRNO</h1>
+BAD_VALUESCALE
+<h1>EXAMPLE</h1>
+<tt><pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &quot;csf.h&quot;
+
+/* a simple csf-mask to stdout
+ * program, with minimal checking
+ * a mask is boolean-map, here we
+ * use version 1 compatibility. 
+ */
+
+void main(int argc, char *argv[] )
+{
+
+  UINT1 *row;
+  MAP *map;                      
+  size_t r,c;
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  map = Mopen(argv[1], M_READ);
+
+  if (! RvalueScaleIs(map, VS_BOOLEAN))
+  {    /* it's not VS_BOOLEAN, VS_CLASSIFIED 
+        * or VS_NOTDETERMINED 
+        */
+       fprintf(stderr,&quot;'%s' is not a boolean map\n&quot;,argv[1]);
+       exit(1);
+  }
+
+  RuseAs(map, VS_BOOLEAN); 
+  row = (UINT1 *)Rmalloc(map, RgetNrCols(map));
+
+  for(r=0; r &lt; RgetNrRows(map); r++)
+  {
+   RgetRow(map, r, row);
+   for(c=0; c &lt; RgetNrCols(map); c++)
+     printf(&quot;%d &quot;,(int)row[c]);
+   printf(&quot;\n&quot;);
+  }
+
+  free(row);
+  Mclose(map);
+
+  exit(0);
+}
+</pre></tt>
+
+</body>

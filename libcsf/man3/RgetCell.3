@@ -1,0 +1,96 @@
+.lf 1 RgetCell.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RgetCell" 3 "13 August 1999" "c2man _getcell.c"
+.SH "NAME"
+RgetCell \- read one cell from a CSF raster file
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t RgetCell
+.br
+(
+.br
+	MAP *map,
+.br
+	size_t rowNr,
+.br
+	size_t colNr,
+.br
+	void *cellValue
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "size_t rowNr"
+row number of cell
+.TP
+.B "size_t colNr"
+column number of cell
+.TP
+.B "void *cellValue"
+write-only. buffer, large enough to hold
+the value of the cell in the file and app
+cell representation
+.SH "DESCRIPTION"
+RgetCell reads one cell value from a
+file.
+.SH "RETURNS"
+1 if cell is successfully read,
+0 if not
+.SH "EXAMPLE"
+.lf 1 examples/csfdump1.tr
+.DS
+ #include <stdio.h>
+ #include "csf.h"
+ 
+ /* a simple csf to stdout
+  * program, with minimal 
+  * checking
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+ 
+   REAL8 cellValue;
+   MAP *map;                      
+   size_t r,c;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   map = Mopen(argv[1], M_READ);
+   if (map == NULL)  
+   {  
+      Mperror(argv[1]);
+      exit(1);
+   }
+ 
+   RuseAs(map, CR_REAL8); 
+ 
+   for(r=0; r < RgetNrRows(map); r++)
+   {
+    for(c=0; c < RgetNrCols(map); c++)
+    {
+     RgetCell(map,r,c,&cellValue); 
+     printf("%g ",(double)cellValue);
+    }
+    printf("\\n");
+   }
+ 
+   Mclose(map);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 48 RgetCell.3

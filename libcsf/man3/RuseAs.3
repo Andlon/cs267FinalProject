@@ -1,0 +1,189 @@
+.lf 1 RuseAs.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RuseAs" 3 "13 August 1999" "c2man ruseas.c"
+.SH "NAME"
+RuseAs \- set the cell representation the application will use
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int RuseAs
+.br
+(
+.br
+	MAP *m,
+.br
+	CSF_CR useType
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+map handle
+.TP
+.B "CSF_CR useType"
+CR_UINT1,CR_INT4, CR_REAL4, CR_REAL8, VS_BOOLEAN or VS_LDD
+.sp
+Possible values for a \fBCSF_CR\fR are as follows:
+.IP
+* preferred version 2 cell representations
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_UINT1\fR
+boolean, ldd and small nominal and small ordinal
+.TP \n(TLu
+\fBCR_INT4\fR
+large nominal and large ordinal
+.TP \n(TLu
+\fBCR_REAL4\fR
+single scalar and single directional
+.RE
+.PD
+.IP
+* other version 2 cell representations
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_REAL8\fR
+double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision
+.RE
+.PD
+.IP
+* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_INT1\fR
+.
+.TP \n(TLu
+\fBCR_INT2\fR
+.
+.TP \n(TLu
+\fBCR_UINT2\fR
+.
+.TP \n(TLu
+\fBCR_UINT4\fR
+.
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.SH "DESCRIPTION"
+RuseAs enables an application to use cell values
+in a different format than they are stored in the map.
+Cell values are converted when getting (Rget*-functions) and
+putting (Rput*-functions) cells if necessary.
+Thus no conversions are applied if cell representation and/or
+value scale already match.
+Any conversions between the version 2 cell representations,
+(CR_UINT1, CR_INT4, CR_REAL4 and CR_REAL8) is possible.
+Conversion from a non version 2 cell representation to a version
+2 cell representation is only possible when you don't
+have write access to the cells.
+Conversion rules are exactly as described in K&R 2nd edition section A6.
+
+Two special conversions are possible if you don't
+have write access to the cells or if the in-file cell representation is
+UINT1:
+(1) VS_BOOLEAN: successive calls to the Rget*-functions returns the result of
+value != 0
+, that is 0 or 1 in UINT1 format. The in-file cell representation can be
+anything, except if the value scale is VS_DIRECTION or VS_LDD.
+(2) VS_LDD: successive calls to the Rget*-functions returns the result of
+value % 10
+, that is 1 to 9 in UINT1 format (0's are set to MV_UINT1).
+The in-file cell representation must be CR_UINT1 or CR_INT2 and
+the value scale must be VS_LDD, VS_CLASSIFIED or VS_NOTDETERMINED.
+.SH "RETURNS"
+0 if conversion obeys rules given here. 1 if not (conversions
+will not take place).
+.SH "NOTE"
+that you must use Rmalloc() to get enough space for both the in-file and
+app cell representation.
+.SH "MERRNO"
+CANT_USE_AS_BOOLEAN CANT_USE_WRITE_BOOLEAN
+CANT_USE_WRITE_LDD
+CANT_USE_AS_LDD
+CANT_USE_WRITE_OLDCR
+ILLEGAL_USE_TYPE
+.SH "EXAMPLE"
+.lf 1 examples/maskdump.tr
+.DS
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include "csf.h"
+ 
+ /* a simple csf-mask to stdout
+  * program, with minimal checking
+  * a mask is boolean-map, here we
+  * use version 1 compatibility. 
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+ 
+   UINT1 *row;
+   MAP *map;                      
+   size_t r,c;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   map = Mopen(argv[1], M_READ);
+ 
+   if (! RvalueScaleIs(map, VS_BOOLEAN))
+   {    /* it's not VS_BOOLEAN, VS_CLASSIFIED 
+         * or VS_NOTDETERMINED 
+         */
+        fprintf(stderr,"'%s' is not a boolean map\\n",argv[1]);
+        exit(1);
+   }
+ 
+   RuseAs(map, VS_BOOLEAN); 
+   row = (UINT1 *)Rmalloc(map, RgetNrCols(map));
+ 
+   for(r=0; r < RgetNrRows(map); r++)
+   {
+    RgetRow(map, r, row);
+    for(c=0; c < RgetNrCols(map); c++)
+      printf("%d ",(int)row[c]);
+    printf("\\n");
+   }
+ 
+   free(row);
+   Mclose(map);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 136 RuseAs.3

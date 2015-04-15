@@ -1,0 +1,78 @@
+set term gif transparent
+set size ratio -1
+set xlabel 'x-coordinate (easting)
+set ylabel 'y-coordinate (northing)
+set key out
+set out 's1.gif'
+# awk 'BEGIN{step=0.8;for(i=0;i<30;i++){for(j=0;j<30;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'
+plot [10:20][10:20] "< awk 'BEGIN{step=0.25;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 0.25' , \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's2.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=0.5;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 0.50' , \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's3.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=0.75;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 0.75',  \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's4.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=1;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 1.00',  \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's5.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=1.25;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 1.25',  \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's6.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=1.5;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 1.50',  \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's7.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=1.75;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 1.75',  \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e
+set out 's8.gif'
+plot [10:20][10:20] "< awk 'BEGIN{step=2;for(i=-15;i<15;i++){for(j=-15;j<15;j++){print 15-(i+0.5)*step,15-(j+0.5)*step}}}'" title 'spacing: 2.00',  \
+'-' title '4 x 4 block' with lines
+13 13
+13 17
+17 17
+17 13
+13 13
+e

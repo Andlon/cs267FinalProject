@@ -1,0 +1,39 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RputCellSize - put cell size</title>
+</header>
+<body>
+<h1>NAME</h1>
+RputCellSize - put cell size
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+REAL8 RputCellSize
+(
+	MAP *map,
+	REAL8 cellSize
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *map<dd>
+map handle
+<dt>
+REAL8 cellSize<dd>
+new cell size
+</dl>
+<h1>DESCRIPTION</h1>
+put cell size
+<h1>RETURNS</h1>
+the new cell size or -1
+in case of an error.
+<h1>MERRNO</h1>
+ILLHANDLE
+NOACCESS
+ILL_CELLSIZE
+<h1>SEE ALSO</h1>
+<a href=RgetCellSize.html>RgetCellSize</a>
+
+
+</body>

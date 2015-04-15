@@ -1,0 +1,246 @@
+@Section 
+ @Title { Implementation and efficiency issues }
+ @Tag { implementation }
+@Begin
+
+# discuss singular regression models, both in prediction and in
+# variogram modelling
+
+@DP
+This section discusses implementation issues and some general aspects of
+computational efficiency in geostatistics. In gstat, the general policy
+is that when a certain approach would give a modest gain in efficiency
+at the cost of generality, then this approach is not followed (otherwise
+one would end up with a large collection of highly specialized programs,
+each optimized for a specific purpose, such as GSLIB, Deutsch and Journel,
+1992). Some computational modifications that result in an important
+gain in efficiency are implemented, such as global kriging, copying
+search results when variables have identical locations and neighbourhood
+settings, and generating multiple simulations following a single random
+path (Journel, 1989). In gstat, observational data are not assumed to be
+gridded, i.e. to be configured on a regular lattice. If they are
+gridded, then this fact is not taken into account in the neighbourhood
+search. Especially for sample variogram calculation or simulation on a
+regular grid, taking the grid topology into account would result in
+faster computations.
+
+@IncludeFigures {
+@Figure
+ @Caption { Variogram modelling menu and gnuplot window. Numbers in the
+variogram window refer to the number of point pairs used for each sample
+variogram estimate (+) }
+{ @Fig { 0.5 @Scale @IncludeGraphic { "screen_bw.ps" }} }
+}
+
+@DP
+@I{Modelling}
+@LP
+Computationaly, all the features of geostatistical modelling in gstat
+can be done in batch-mode, i.e. non-interactively. Most of the features
+can also be done interactively, from an user interface. From the
+interface it is possible to enter (read) one or more data variables (if
+they were not specified in a command file), to choose between direct and
+cross variograms and covariograms, to define and modify the cutoff
+distance @E{h sub r + delta} and interval width @E{delta}, to define a
+direction angle and tolerance (in 2 or 3 dimensions) for directional
+variograms, to specify or modify a variogram model and a variogram
+fitting method and to show a plot (Fig. 3). Thus, the user interface
+quickly enables the user to view or modify the most important settings,
+and to view the resulting variogram. From the user interface, data
+definition, parameters and fitted models can be written to a gstat
+command file. This file can be used later on to continue the gstat
+modelling session, or it can be modified for prediction or simulation.
+
+@PP
+By default, OLS residuals are used to estimate the residual variogram,
+optionally WLS or GLS residuals, residuals from a pre-specified mean, or
+raw data can be used.
+
+For the non-linear
+weighted least squares fitting of variogram models to the sample
+variogram (Cressie, 1985, 1991) the Levenberg-Marquart algorithm (Draper
+and Smith, 1981) is used, and for the REML estimation of partial sills
+the ``iterative MINQUE'' procedure (Christensen, 1993, p. 548) is used.
+
+@PP
+Storing point comparison statistics, as done by GeoEAS (Englund and
+Sparks, 1988), Geostatistical Toolbox (Froidevaux, 1990) and Variowin
+(Panatier, 1996), uses an amount of memory (or disc space) that is
+quadratic in the number of observations. In practice, this limits the
+maximum number of observations to a few hundreds or thousands. In gstat,
+point comparison statistics are not stored before sample variograms are
+calculated, and, as memory usage is linear in the number of
+observations, the number of observations for calculating sample
+variograms is virtually unlimited. (For instance, the calculation of a
+sample variogram from 100,000 points needs less than 7 megabytes of
+memory.)
+
+@DP
+@I{Prediction}
+@LP
+For prediction, all prediction locations are visited in turn. If local
+prediction is required, at each prediction location a selection of
+nearby observations is made using selection either on distance or on the
+number of nearest observations, or on both. Given this neighbourhood
+selection, a prediction is made, using the prediction method at hand.
+
+@PP
+For kriging, the prediction equations (3) or (4) are solved. In case
+of simple kriging, covariances are used for @E{V}, in case of ordinary
+or universal kriging generalized covariances @E{d - gamma(h)} are used
+for @E{V}, with @E{d} the sill of the variogram model. The inverse of
+the (generalized) covariance matrix, @E{V sup -1}, is never calculated
+explicitly. Instead, in the univariable case @E{p+2} systems of linear
+equations are solved, @E{p+1} for obtaining @E{V sup -1 X} and one for
+obtaining @E{V sup -1 v sub 0}. All actual matrix calculations are done
+using a matrix library (Stewart and Leyk, 1994). For solving systems of
+linear equations the @E{LDL'} factorisation is used (Golub and Van Loan,
+1990). This method can be seen as the @E{LU} factorisation for symmetric
+matrices, and is twice as fast as the @E{LU} factorisation. (For OLS or
+WLS estimates, QR factorisation of the @Eq{X} matrix is used (Golub and
+Van Loan, 1990).)
+
+@PP
+When no local neighbourhoods are defined, global kriging is used and in
+this case the factorisation of @E{V} and the calculation of @E{beta hat
+sub gls} are done only once. It can easily be shown that the way gstat
+calculates the kriging predictor (3) and (4) is of similar complexity as
+the ``traditional'' way, where @E{V} and @E{X} are combined in the
+``kriging matrix'' (e.g. Journel and Huijbregts, 1978, V.4). An
+advantage of factoring @E{V} instead of the full kriging matrix is that
+rescaling of @E{X} to the units of @E{V} is not required to ensure
+numerically stable results.
+
+@PP
+If global kriging is used with a large number of observations (e.g. a
+few thousands) and the matrix @E{V} contains mainly zeros, then sparse
+matrix routines can be used for @E{V}, for reasons of memory usage and
+computation time. For this, the user has to set an estimate of the number
+of non-zero columns in a row of @E{V}. (As a test, global kriging with
+5000 observations having little spatial correlation was done in less
+then 10 megabytes by using sparse matrices; the dense covariance matrix
+for this would already be 200 megabytes.)
+
+@PP
+If indicator (co)kriging is done, order relation violations can be
+corrected automatically. For this, the methods of GSLIB (Deutsch and
+Journel, 1992) are implemented, both for the cases where the indicators
+represent categorical probabilities as where they represent the
+cumulative distribution of a continuous variable.
+
+@PP
+Kriging block averages for rectangular blocks is done by averaging the
+(generalized) covariances over the blocks (Section @NumberOf{linear}).
+To approximate the integrals, a four-point descretization scheme is used
+in each block dimension (4 points on a line, 16 points in a square, 64
+points in a block); point locations and weights are obtained using the
+Gaussian integration rule (Journel and Huijbregts, 1978, Carr and
+Palmer, 1993). Neighbourhood selection for local prediction is always
+done with respect to the block centre.  For user-specified base
+functions it is assumed that the block average values in @E{x(B sub 0 )}
+are those specified, since gstat can only calculate block average values
+for coordinate polynomial base functions.
+
+@IncludeFigures {
+@Figure
+ @Caption { Example of recursive multi-steps simulation on a grid with
+13 rows and 11 columns (circles in C). The coarsest grid with a factor 2
+grid spacing is randomly placed (A: a 2 @Multiply 2 grid with 8-cell
+grid spacing) and the random path is started through these cells.  Next,
+a grid with a halved cell spacing is randomly placed (4-cell grid
+spacing, black circles in B) and the random path is continued through
+them. Next, the random path is continued through the next randomly
+placed grid with halved grid spacing (2-cell grid spacing, black circles
+in C). Finally, the random path is completed through the remaining cells
+of the simulation grid (grey circles in C) } 
+{ @Fig { -90d @Rotate 0.7 @Scale @IncludeGraphic { "msteps.eps" }} }
+}
+
+@DP
+@I{Simulation}
+@LP
+In the sequential simulation algorithm used by gstat, the prediction
+locations are visited in some random sequence. When a certain location
+is visited, the conditional distribution (conditional to data and
+previously simulated values) at that location is obtained from (@Eqblp)
+and (@Eqblpv), a value is drawn randomly from this distribution and
+added to the conditioning set.  Unconditional simulation starts with an
+empty conditioning set, conditional simulation starts with the
+conditioning data. Because the number of conditioning data may be large,
+and because the conditioning set grows after each location visited, in
+practice it is necessary to apply (@Eqblp) and (@Eqblpv) locally to
+approximate the conditional distribution. This local approximation also
+puts constraints on the visiting sequence (path) chosen: following a
+regular path (e.g. row-wise on a grid) may introduce unwanted structures
+due to the local approximation. To prevent this, a random path can be
+started through a coarse grid, followed by a random path through the
+remaining prediction locations on a finer grid (``multiple grid
+concept'' (Deutsch and Journel, 1992) or ``Multiple-steps simulation'',
+Gom{@Char eacute}z-Hern{@Char aacute}ndez and Journel, 1993). In gstat,
+this is done by following a random path through a recursively refining
+grid: simulation is started with a random path through the coarsest 2
+@Multiply 2 grid with a grid spacing of a factor of 2 that fits on the
+simulation grid. The grid spacing of the random path grid is halved
+until the grid matches the prediction grid (Fig. 4).
+
+@PP
+If the mean of a field is non-stationary and known, then it can be added
+to a stationary realization after it is simulated. Alternatively, if
+enough conditioning data are available, the non-stationary mean can be
+estimated during simulation when (@Eqblup) and (@Eqblupv) are used to
+obtain the conditional distribution. In the latter case, the second
+order spatial moments will not be reproduced correctly (simulations will
+tend to be ``rougher'', because of addition of the last term of
+(@Eqblupv)). 
+
+@PP
+Multivariable (sequential) simulation is the multivariable extension of
+univariable simulation (Myers, 1989; Gom{@Char eacute}z-Hern{@Char
+aacute}ndez and Journel, 1993), and has been implemented in gstat.
+
+@DP
+@I{Debug diagnostics}
+@LP
+For a quick check, gstat prints for each variable the mean and variance
+of the data values and the minimum and maximum of their spatial
+coordinates. During prediction or simulation, the program progress (in
+%) is printed. Except for warning and error messages, printing of all
+messages can be suppressed. Optionally, during the program excecution
+many diagnostics can be written to a log file, including the value of
+all controllable variables, the data read, OLS, WLS and GLS fit
+diagnostics (basic information as @E{Z(s)}, @E{X}, @E{x (s sub 0 )},
+@E{V}, @E{v sub 0}, as well as intermediate results like @E{beta hat},
+@E{x (s sub 0 ) beta hat}, @E{X'V sup -1 X}, @E{(X'V sup -1 X) sup -1}
+and kriging weights), the neighbourhood selection at each prediction
+location, variogram fit diagnostics and order relation violation
+corrections during indicator kriging or simulation. Ten separate debug
+levels can be chosen, or they may be combined.
+
+@DP
+@I{Run-time user customization}
+@LP
+When gstat is started several variables are given default values. Some
+of them are implicit (e.g. a global neighbourhood is used when no
+neighbourhood parameters are defined) others are rather obvious (e.g. no
+log-transformation is applied when it was not requested, random number
+generators are initialised using the computer clock if no seed is set).
+Some variables are given values that are more a matter of convenience,
+for instance the default missing value flag. Most defaults can be
+overriden per user (at run-time) by specifying other defaults in a gstat
+command file "$HOME/.gstatrc" (on unix, with "$HOME" the user home
+directory) or in a file the environment variable GSTATRC points to.
+Before doing anything else, gstat reads this file to adjust compile-time
+defaults to user preferences.
+
+@DP 
+@I{Data and map formats}
+@LP
+The format of input data can be one of several: ascii column file,
+simplified GeoEAS file, PCRaster grid map, Idrisi binary or ascii image
+or ascii vec file, and Arc-Info grid files (gridascii and gridfloat).
+Output files are ascii column or simplified GeoEAS files (when prediction
+locations were defined with @Code{data()}), or they are in the same
+format as the mask map(s) (when prediction locations were defined with
+the @Code{mask} command).
+
+@End @Section

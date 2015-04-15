@@ -1,0 +1,57 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MputHistory - put the history attribute</title>
+</header>
+<body>
+<h1>NAME</h1>
+MputHistory - put the history attribute
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int MputHistory
+(
+	MAP *m,
+	char *history
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+the map to get it from
+<dt>
+char *history<dd>
+the new history string
+Is a C-string, `\0`-terminated
+</dl>
+<h1>DESCRIPTION</h1>
+MputHistory writes the history string to a map.
+An existing history is overwritten.
+<h1>RETURNS</h1>
+0 if not available or in case of error,
+nonzero otherwise
+<h1>SEE ALSO</h1>
+<a href=MgetHistorySize.html>MgetHistorySize</a>
+,
+<a href=MgetDescriptionSize.html>MgetDescriptionSize</a>
+,
+<a href=MgetNrColourPaletteEntries.html>MgetNrColourPaletteEntries</a>
+,
+<a href=MgetNrGreyPaletteEntries.html>MgetNrGreyPaletteEntries</a>
+,
+<a href=MgetDescription.html>MgetDescription</a>
+,
+<a href=MgetHistory.html>MgetHistory</a>
+,
+<a href=MgetColourPalette.html>MgetColourPalette</a>
+,
+<a href=MgetGreyPalette.html>MgetGreyPalette</a>
+,
+<a href=MputDescription.html>MputDescription</a>
+,
+<a href=MputColourPalette.html>MputColourPalette</a>
+,
+<a href=MputGreyPalette.html>MputGreyPalette</a>
+
+
+</body>

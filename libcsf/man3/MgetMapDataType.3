@@ -1,0 +1,22 @@
+.lf 1 MgetMapDataType.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MgetMapDataType" 3 "13 August 1999" "c2man gdattype.c"
+.SH "NAME"
+MgetMapDataType \- data type of the map
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+UINT4 MgetMapDataType(const MAP *map);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *map"
+map handle
+.SH "DESCRIPTION"
+MgetDataType returns the type of the map, which is always
+a raster until now.
+.SH "RETURNS"
+T_RASTER

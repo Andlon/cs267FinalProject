@@ -11,6 +11,6 @@ variogram(ln_zinc): 0.0698 Nug(0) + 0.147 Sph(709);
   # mask maps holding the independent variable values
   # at prediction locations, their order corresponding
   # that of the X-columns:
-mask: 'sqrtdist.tif', 'part_a.tif', 'part_b.tif';
+mask: 'sqrtdist', 'part_a', 'part_b';
 predictions(ln_zinc): 'lzn_vkpr'; 
 variances(ln_zinc):   'lzn_vkvr';

@@ -1,0 +1,59 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>SetMVcellRepr - set a memory location to a missing value</title>
+</header>
+<body>
+<h1>NAME</h1>
+SetMVcellRepr - set a memory location to a missing value
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void SetMVcellRepr
+(
+	CSF_CR cellRepr,
+	void *c
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+CSF_CR cellRepr<dd>
+cell representation, one of the CR_* constants 
+<p>
+Possible values for a <pre>CSF_CR</pre>
+ are as follows:
+	* preferred version 2 cell representations
+<ul><li>CR_UINT1 - Boolean, ldd and small nominal and small ordinal.<p>
+<li>CR_INT4 - Large nominal and large ordinal.<p>
+<li>CR_REAL4 - Single scalar and single directional.<p>
+</ul>	* other version 2 cell representations
+<ul><li>CR_REAL8 - Double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision.<p>
+</ul>	* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>CR_INT1 - <br>
+.<p>
+<li>CR_INT2 - <br>
+.<p>
+<li>CR_UINT2 - <br>
+.<p>
+<li>CR_UINT4 - <br>
+.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>CR_UNDEFINED - Just some value different from the rest.<p>
+</ul><dt>
+void *c<dd>
+write-only. location set to missing value
+</dl>
+<h1>DESCRIPTION</h1>
+SetMVcellRepr sets a memory location to a missing value
+(using the application cell representation).
+In general one should use assignment for
+integers (e.g. v = MV_UINT1) or the macro's
+SET_MV_REAL4 and SET_MV_REAL8
+<h1>SEE ALSO</h1>
+<a href=SetMV.html>SetMV</a>
+
+
+</body>

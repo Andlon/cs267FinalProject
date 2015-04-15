@@ -1,0 +1,23 @@
+def @Not right x { @Null }
+def @Code right x {{ Courier Bold } @Font { x }}
+# def @CodeFrag right x {lines @Break { Courier Bold } @Font { x }}
+def @CodeFrag right x {lines @Break @Code x }
+def @CSep left x right y { x |0.5v y }
+
+def @IncludeFigures right x { @Null }
+# def @IncludeFigures right x { x }
+
+import @DocumentLayout
+def @Neq left x right y { 2c @Wide {} {y} |1rt ({x}) }
+def @Deq right x { 2c @Wide {} {x} }
+
+def @Eqmod   { 1  }
+def @Eqmoda  { 1a }
+def @Eqmodb  { 1b }
+def @Eqmodc  { 1c }
+def @Eqcov   { 2a }
+def @Eqsem   { 2b }
+def @Eqblup  { 3a }
+def @Eqblupv { 3b }
+def @Eqblp   { 4a }
+def @Eqblpv  { 4b }

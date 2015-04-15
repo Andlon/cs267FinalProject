@@ -1,0 +1,46 @@
+@Include { "report" }
+@Report 
+@Title { Gstat, a program for geostatistical modelling, prediction and simulation }
+@Author { Edzer J. Pebesma, Cees G. Wesseling }
+
+@Institution { Netherlands Centre for Geo-ecological Research (ICG) 
+(author addresses follow the references) }
+
+ @DateLine { Yes }
+ @CoverSheet { Yes }
+ @PageHeaders { Simple }
+ @FirstPageNumber { 1 }
+ @ColumnNumber { 1 }
+//
+@Abstract @Begin
+ @Include { "abstract" }
+@End @Abstract
+
+@Include { "s1" }
+@Include { "s2" }
+@Include { "s3" }
+@Include { "s4" }
+@Include { "s5" }
+@Include { "s6" }
+@Include { "s7" }
+@Include { "s8" }
+@Include { "credits" }
+@Include { "referen" }
+@DP
+lines @Break {
+@S{Address of first author:}
+Landscape and Environmental Research Group,
+University of Amsterdam,
+Nieuwe Prinsengracht 130,
+1018 VZ Amsterdam, The Netherlands 
+email: "e.j.pebesma@frw.uva.nl"
+
+@S{Address of second author:}
+Faculty of Geographical Sciences,
+Utrecht University,
+P.O. Box 80.115,
+3508 TC Utrecht, The Netherlands
+}
+
+@Include { "figs" }
+@End @Section

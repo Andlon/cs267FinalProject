@@ -1,0 +1,35 @@
+.lf 1 MputGisFileId.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MputGisFileId" 3 "13 August 1999" "c2man pgisfid.c"
+.SH "NAME"
+MputGisFileId \- put the gis file id
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+UINT4 MputGisFileId
+.br
+(
+.br
+	MAP *map,
+.br
+	UINT4 gisFileId
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "UINT4 gisFileId"
+new gis file id
+.SH "DESCRIPTION"
+put the gis file id
+.SH "RETURNS"
+the "gis file id" field or MV_UINT4
+in case of an error
+.SH "MERRNO"
+NOACCESS

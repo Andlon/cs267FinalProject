@@ -39,18 +39,18 @@ LINUXFILES = /usr/local/bin/gstat \
 
 MESCHACH_HDRS = err.h machine.h matrix.h matrix2.h meminfo.h sparse.h sparse2.h
 
-src/gstat:	@LIB_MESCHACH@
+src/gstat:	@LIB_MESCHACH@ @LIB_CSF@
 	(cd src; make)
 
-#configure:	configure.in
-#	autoconf
+configure:	configure.in
+	autoconf
 
 makefile:		makefile.in configure
 	./configure
 
 install:	src/gstat
 	strip src/gstat
-	$(INSTALL) src/gstat -t $(BINDIR)
+	$(INSTALL) src/gstat $(BINDIR)
 
 config:;	if [ -f meschach/config.status ]; \
 			then echo "already configured"; \
@@ -68,6 +68,16 @@ meschach/meschach.a:
 	./configure @WITH_SPARSE_OPT@ --cache-file=../config.cache; \
 	make @MESCHACH_TARGET@; \
 	cp -p $(MESCHACH_HDRS) ../include)
+
+lib/libcsf.a:	lib libcsf/src/libcsf.a
+	cp libcsf/src/libcsf.a lib
+	cp -p libcsf/include/*.h include
+
+libcsf/src/libcsf.a:
+	(cd libcsf/src; make)
+	
+csf-gcc:
+	(cd libcsf/src; make CC=gcc RANLIB=touch; mv libcsf.a ../../lib)
 
 $(DEST):;	mkdir $(DEST)
 
@@ -93,11 +103,14 @@ byteorder:
 clean:
 	(cd meschach; make clean; rm -f *\.a)
 	(cd cmd; make clean)
+	(cd libcsf/src; make clean; rm -f *\.[oa])
 	(cd src; make clean)
+	(cd S; make clean)
 
 veryclean:
 	make clean
 	rm -f makefile config.status meschach/config.status config.log config.cache
+	(cd libcsf/src; rm -f libcsf.a makefile)
 	(cd meschach; rm -f config.cache config.log meschach.a macheps maxint)
 	rm -f ./src/makefile ./src/config.h ./lib/*\.a ./bin/*
 	(cd include; rm -f $(MESCHACH_HDRS))
@@ -109,19 +122,15 @@ demo:;	(cd cmd; make mask; make)
 
 dist:	configure
 	tar zcf gstat.tgz `cat ./FILES ./DIV ./MAIL` `find ./rtest`
-	scp gstat.tgz gstat@www.gstat.org:
+	rcp gstat.tgz gstat@gstat:
 
 snapshot:	configure
 	rm -f gstat-$(VERSION).tar.gz
-	make ftp-src
-	scp gstat-$(VERSION).tar.gz gstat@www.gstat.org:data/bin
+	make ftp-src debian
+	rcp gstat-$(VERSION).tar.gz gstat@gstat:data/bin
 
 version:
 	(cd src; make version)
-
-cl:
-	svn2cl -i -a -r 'HEAD:1' -o ChangeLog.svn
-	cat ChangeLog.svn ChangeLog.cvs > ChangeLog
 
 www:;	tar zcf html.tgz html
 
@@ -135,11 +144,30 @@ flop:;	mcopy gstat.tgz a:
 ftp:
 	make ftp-src ftp-linux ftp-manual
 
+gstatlib:
+	make gstat-lib
+
+gstat-lib:	meschach/meschach.a
+	if [ -f ./libgstat ];\
+	then true;\
+	else ./configure --with-csf --without-gd --without-gsl --without-netcdf \
+		--without-curses --with-debug --with-libgstat;\
+	fi
+	(cd src; make gstat-lib)
+	(cd qt; make gstat-lib)
+	(cd meschach; make gstat-lib)
+	tar zcvf libgstat.tgz ./lib/libmeschach.a ./lib/libgstat.a ./gstatinc
+	touch ./libgstat
+
 ftp-src:
 	tar cf gstat.tar `cat ./FILES`
 	(mkdir gstat-$(VERSION); cd gstat-$(VERSION); tar xf ../gstat.tar)
 	tar zcf gstat-$(VERSION).tar.gz gstat-$(VERSION)
 	rm -r gstat-$(VERSION) gstat.tar
+
+debian:;	
+	./deb
+	rcp gstat.deb gstat@gstat:data/bin/linux/debian/dists/stable/main/binary-i386
 
 ftp-linux:
 	mkdir linux

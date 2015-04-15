@@ -1,0 +1,90 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>Rmalloc - allocate dynamic memory large enough to hold in-file and app cells</title>
+</header>
+<body>
+<h1>NAME</h1>
+Rmalloc - allocate dynamic memory large enough to hold in-file and app cells
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void *Rmalloc
+(
+	const MAP *m,
+	size_t nrOfCells
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m<dd>
+map handle
+<dt>
+size_t nrOfCells<dd>
+number of cells allocated memory must hold
+</dl>
+<h1>DESCRIPTION</h1>
+Rmalloc allocates memory to hold  nrOfCells
+cells in both the in-file and app cell representation. Allocation
+is done by malloc for other users. Our own (utrecht university) applications
+calls ChkMalloc. Freeing memory allocated by Rmalloc is done by free (or Free).
+<h1>RETURNS</h1>
+a pointer the allocated memory or
+NULL
+if the request fails
+<h1>NOTE</h1>
+Note that a possible RuseAs call must be done BEFORE Rmalloc.
+<h1>EXAMPLE</h1>
+<tt><pre>
+
+#include &lt;stdlib.h&gt;
+#include &quot;csf.h&quot;
+
+/* process a raster per row
+ * minimal checking
+ */
+
+extern void DoThatWithRow(REAL4 *, size_t );
+
+void main(int argc, char *argv[] )
+{
+
+  REAL4 *buf;
+  MAP *map;                      
+  size_t r;
+  size_t nrOfCells;
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  map = Mopen(argv[1], M_READ_WRITE);
+  if (map == NULL)  
+  {  
+     Mperror(argv[1]);
+     exit(1);
+  }
+
+  nrOfCells = RgetNrCols(map); 
+
+  (void)RuseAs(map, CR_REAL4); 
+
+  buf = (REAL4 *)Rmalloc(map, nrOfCells);
+
+  for(r=0; r &lt; RgetNrRows(map); r++ )
+  {
+    RgetRow(map, r, buf); 
+    DoThatWithRow(buf, nrOfCells);
+    RputRow(map,r, buf); 
+  }
+
+  Mclose(map);
+  free(buf);
+
+  exit(0);
+}
+</pre></tt>
+
+</body>

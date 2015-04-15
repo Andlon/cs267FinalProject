@@ -1,0 +1,39 @@
+<HTML>
+<title>OSSFIM Form</title>
+<BODY>
+<form method="POST" action="http://www.gstat.org/cgi-bin/ossfimcgi">
+Sample spacing range: minimum
+<input type="text" name="mins" value="1" size=5>
+maximum
+<input type="text" name="maxs" value="10" size=5>
+<p>
+Block size range: minimum
+<input type="text" name="minb" value="1" size=5>
+maximum
+<input type="text" name="maxb" value="10" size=5>
+<p>
+Variogram model: 
+nugget variance <input type="text" name="nug" value="1" size=5>,
+partial sill <input type="text" name="sill" value="1" size=5>,
+model <select name="model">
+<option value="Exp">exponential
+<option value="Sph">spherical
+<option value="Gau">Gaussian
+<option value="Cir">circular
+</select>
+range <input type="text" name="range" value="1" size=5>
+<p>
+Neighbourhood size:
+use the nearest <input type="text" name="nbh" value="25" size=3>
+data points (max. 100).
+<p>Output requested:
+<input type="radio" name="out" value="outgraph">graph
+<input type="radio" name="out" value="outdata">data
+<input type="radio" name="out" value="outvgm">variogram
+<input type="radio" name="out" value="all" checked>all.
+<p>
+<input type="submit" name="submit1" value="Submit Request">
+<input type="reset" value="Reset Request">
+</form>
+</BODY>
+</HTML>

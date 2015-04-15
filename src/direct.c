@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,6 +30,7 @@
  */
 #include <stdio.h>
 #include <math.h>
+#include <errno.h>
 #include <string.h>
 
 #include "defs.h"
@@ -82,27 +82,25 @@ void set_direction_values(double a, double b, double t_h, double t_v) {
 	return;
 }
 
-double valid_direction(DPOINT *a, DPOINT *b, int symmetric, const DATA *d) {
+double valid_direction(DPOINT *p, int symmetric, const DATA *d) {
 /*
  * return distance when vector is within the tolerance section;
  * return -1.0 when vector is outside tolerance section.
  */
-	double norm, inprod, dist, px, py, pz;
+	double norm, inprod, dist, px, py;
 	/* Changed K.M. Fri Feb 27 11:06:07 1998 */
 	
-	/* dist = d->point_norm(p); */
-	dist = sqrt(d->pp_norm2(a, b));
+	dist = d->point_norm(p);
 	
 	if (all_directions == 1)
 		return dist;
 	
-	px = a->x - b->x;
-	py = a->y - b->y;
-	pz = a->z - b->z;
+	px = p->x;
+	py = p->y;
 
 	if (tol_hor >= MAX_ANG && tol_ver >= MAX_ANG)
 		return dist;
-	if (tol_hor >= MAX_ANG && pz == 0.0)
+	if (tol_hor >= MAX_ANG && p->z == 0.0)
 		return dist;
 	if (tol_ver >= MAX_ANG && px == 0.0 && py == 0.0)
 		return dist;
@@ -135,12 +133,12 @@ double valid_direction(DPOINT *a, DPOINT *b, int symmetric, const DATA *d) {
 		errors afterwards. */
 
 	}
-	if (tol_ver < MAX_ANG && (px != 0.0 || py != 0.0 || pz != 0.0)) { 
+	if (tol_ver < MAX_ANG && (px != 0.0 || py != 0.0 || p->z != 0.0)) { 
 		/* 
 		 * inproduct in <xy, z> 
 		 */
 		/* Changed K.M. Fri Feb 27 15:47:13 1998 */
-		inprod = (sqrt(px * px + py * py) * dir_v[0] + pz * dir_v[1])/dist;
+		inprod = (sqrt(px * px + py * py) * dir_v[0] + p->z * dir_v[1])/dist;
 		if (symmetric) { /* the most often case */
 			if ( fabs(inprod) < cos_tol_ver) /* if cos(alpha) < cos(tol) then alpha > tol! */
 			  return -1.0;

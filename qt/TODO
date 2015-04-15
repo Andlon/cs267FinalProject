@@ -1,0 +1,23 @@
+check meschach errors (force one during a fit--is this possible?)
+
+check refit and recalc more thoroughly (now everything is redone always)
+
+After decreasing cutoff, the x-axis maximum is not reset
+
+allow for fit=5 (reml fit)
+
+load data - fit varriogram - load data - click nugget -> core
+(assertion gstatwrp.cc 567 where >= 0)
+
+Auto fit gives 3 repaints before the fit starts
+
+If variogram model widget is active but behind the main widget, pressing
+the model button does not push it to the foreground (linux & windows)
+
+NT -- if mask map definition is in command file, exit with
+file read error (converting null characters to space...).
+
+
+LATER -------------:
+
+Modify (or allow a choice) of fit methods -- this one may be unstable.

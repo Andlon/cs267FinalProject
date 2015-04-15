@@ -1,0 +1,283 @@
+.lf 1 Rcreate.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "Rcreate" 3 "13 August 1999" "c2man create2.c"
+.SH "NAME"
+Rcreate \- Create a new CSF-Raster-file
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+MAP *Rcreate
+.br
+(
+.br
+	const char *fileName,
+.br
+	size_t nrRows,
+.br
+	size_t nrCols,
+.br
+	CSF_CR cellRepr,
+.br
+	CSF_VS dataType,
+.br
+	CSF_PT projection,
+.br
+	REAL8 xUL,
+.br
+	REAL8 yUL,
+.br
+	REAL8 angle,
+.br
+	REAL8 cellSize
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const char *fileName"
+name of the file to be created
+.TP
+.B "size_t nrRows"
+the number of rows
+.TP
+.B "size_t nrCols"
+the number of columns
+.TP
+.B "CSF_CR cellRepr"
+the cell representation must be complaint with the data type
+.sp
+Possible values for a \fBCSF_CR\fR are as follows:
+.IP
+* preferred version 2 cell representations
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_UINT1\fR
+boolean, ldd and small nominal and small ordinal
+.TP \n(TLu
+\fBCR_INT4\fR
+large nominal and large ordinal
+.TP \n(TLu
+\fBCR_REAL4\fR
+single scalar and single directional
+.RE
+.PD
+.IP
+* other version 2 cell representations
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_REAL8\fR
+double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision
+.RE
+.PD
+.IP
+* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_INT1\fR
+.
+.TP \n(TLu
+\fBCR_INT2\fR
+.
+.TP \n(TLu
+\fBCR_UINT2\fR
+.
+.TP \n(TLu
+\fBCR_UINT4\fR
+.
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.TP
+.B "CSF_VS dataType"
+a.k.a. the value scale.
+.sp
+Possible values for a \fBCSF_VS\fR are as follows:
+.IP
+* version 1 datatypes, 
+these can be returned by BUT NOT passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'VS_NOTDETERMINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBVS_NOTDETERMINED\fR
+version 1
+.TP \n(TLu
+\fBVS_CLASSIFIED\fR
+version 1
+.TP \n(TLu
+\fBVS_CONTINUOUS\fR
+version 1
+.RE
+.PD
+.IP
+* version 2 datatypes
+these two can be returned by or passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'VS_NOTDETERMINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBVS_BOOLEAN\fR
+boolean, always UINT1, values: 0,1 or MV_UINT1
+.TP \n(TLu
+\fBVS_NOMINAL\fR
+nominal, UINT1 or INT4
+.TP \n(TLu
+\fBVS_ORDINAL\fR
+ordinal, UINT1 or INT4
+.TP \n(TLu
+\fBVS_SCALAR\fR
+scalar, REAL4 or (maybe) REAL8
+.TP \n(TLu
+\fBVS_DIRECTION\fR
+directional REAL4 or (maybe) REAL8, -1 means no direction
+.TP \n(TLu
+\fBVS_LDD\fR
+local drain direction, always UINT1, values: 1-9 or MV_UINT1
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'VS_NOTDETERMINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBVS_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.TP
+.B "CSF_PT projection"
+Possible values for a \fBCSF_PT\fR are as follows:
+.IP
+* these two can be returned by or passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_YINCT2B\fR
+Y increase from top to bottom
+.TP \n(TLu
+\fBPT_YDECT2B\fR
+Y decrease from top to bottom
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.TP
+.B "REAL8 xUL"
+x co-ordinate of upper left
+.TP
+.B "REAL8 yUL"
+y co-ordinate of upper left
+.TP
+.B "REAL8 angle"
+counter clockwise rotation angle
+of the grid top compared to the
+x-axis in radians. Legal value are
+between -0.5 pi and 0.5 pi
+.TP
+.B "REAL8 cellSize"
+cell size of pixel
+.SH "DESCRIPTION"
+The Rcreate function
+creates a new CSF-Raster-file of nrRows by nrCols where each
+cell is of type cellRepr. If the file already exists its
+contents is destroyed. The value of
+the pixels is undefined. MinMaxStatus is MM_KEEPTRACK. The
+access mode is M_READ_WRITE.
+It is not
+known if a file is created after a NOSPACE message.
+.SH "RETURNS"
+if the file is created successfully, Rcreate returns
+a map handle. In case of an error Rcreate returns NULL.
+.SH "MERRNO"
+NOCORE, BAD_CELLREPR, BAD_PROJECTION, OPENFAILED, NOSPACE.
+CONFL_CELLREPR and BAD_VALUESCALE will generate a failed assertion in DEBUG mode.
+.SH "EXAMPLE"
+.lf 1 examples/create2.tr
+.DS
+ #include "csf.h" 
+ 
+ extern void DoSomethingToFillTheMap(MAP *map);
+ 
+ void main(void) 
+ {    
+ 
+  MAP *map; 
+ 
+  /* create a boolean map named "map.dat"
+   * with 250 rows and 200 columns
+   * the projection has its y co-ordinate increasing
+   * from top to bottom 
+   * the top left co-ordinate is (X,Y) = (1200,1000)
+   * the map is rotated counter clockwise 1.34 radians 
+   * with the top left as rotation point
+   * cells are 25 units wide
+   */
+  map = Rcreate("map.dat",250, 200, CR_UINT1, VS_BOOLEAN, 
+                  PT_YINCT2B, 1200.0, 1000.0, 1.34, 25.0);
+ 
+  if (map == NULL) 
+  {     
+   Mperror("map.dat"); 
+   exit(1);
+  }
+ 
+  DoSomethingToFillTheMap(map);
+ 
+  /* close CSF-file before exiting  
+   */
+  Mclose(map); 
+ 
+  exit(0);
+ }
+ 
+.DE
+.lf 244 Rcreate.3

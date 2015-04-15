@@ -1,0 +1,97 @@
+@Section 
+ @Title { Discussion }
+ @Tag { discussion }
+@Begin
+
+@DP
+For a geostatistics program, gstat is fairly complete. It provides
+modelling, prediction and simulation under the linear models with
+independent or stationary, spatially correlated residuals, and allows
+the comparison of different, classical statistical or geostatistical,
+models in terms of (a) residuals and residual variograms (using OLS, WLS
+or GLS residuals), (b) predictions under the given model, (c)
+simulations given that model (d) cross validation statistics. The
+methods known as universal kriging, ``@I{irf-k}'', kriging with external
+drift, kriging the trend, simple, ordinary or universal kriging (or
+cokriging), collocated cokriging, standardized cokriging, indicator
+kriging (or cokriging) and probability kriging, as well as
+``traditional'' regression or ANOVA-based prediction can all be
+expressed in terms of the linear model framework provided by gstat.
+
+@PP
+Features of gstat that are not found in the geostatistical software
+packages GSLIB (Deutsch and Journel, 1992) and GeoEAS (Englund and
+Sparks, 1988) are:
+(i) the availability of a complete, simple and human-readable command
+syntax that covers the full functionality,
+(ii) support for reading and writing GIS data (map) formats, and
+(iii) absence of built-in limits.
+Also, gstat is not a software @I{package} because a single binary takes
+care of the full functionality. Only for plotting variograms an
+additional program is used, but it is called by gstat in such a way that
+the user does not have to be aware of it.  Obviously, for specialized
+processing of the results, like printing the output maps, other programs
+(or a GIS) should be used.
+
+@PP
+In GSLIB, flexibility comes from providing the source code (Deutsch and
+Journel, 1992, p. i): the code is meant as example programs that should
+be customized to specific problems. This requires from users that they
+are experienced Fortran programmers, or at least that they know how to
+handle a compiler. In gstat, once the binary executable of the program
+is available, its full potential is acquired: in contrast to GSLIB,
+flexibility in gstat comes from program design and the availability of a
+custom-designed command language for any problem ranging from trivial to
+very complex (section 4). Such a flexibility not only allows users who
+can program to concentrate on the real (geostatistical) problem instead
+of having to bother about source code, compilers or data conversion, it
+also allows users with no programming expertise to acces the whole
+framework of functions offered. (The price to pay for this flexibility
+is some run-time performance: some GSLIB programs written for special
+cases, like calculation of variograms from gridded data, will outperform
+gstat in those special cases.) The authors of GSLIB (Deutsch and
+Journel, 1992) do acknowledge other shortcomings of GSLIB, notably the
+absence of (i) dynamic memory allocation (p. 6), (ii) a portable
+graphical user interface (p. 21), (iii) ``an intelligent interpretation
+program that would read each parameter file and create a verbose English
+language description of the job being described by the parameters'' (p.
+21) and (iv) an implementation of the multiple grid concept (p. 124,
+187). Gstat fills most of these gaps.
+
+@PP
+In contrast to GSLIB, GeoEAS is a software package that is completely
+menu-driven and that does not provide non-interactive use. This makes it
+unsuitable for larger projects (section 6): there's no way to guarantee
+the prevention of input errors. This, together with the data and grid
+limits of the original MS-DOS version of GeoEAS, were the initial
+reasons for writing gstat. (Recently, GeoEAS has been ported to Sun and
+Data General workstations, but we had no succes in compiling the source
+code on other unix platforms.)
+
+@PP
+The gstat source code is easily extensible due to a clean modular setup
+of the components such as "I/O" (data and grid map formats), variogram
+model functions, prediction methods and the command file syntax. This
+allows programmers to add new functionality that is accessible for
+non-programmers through a modified gstat executable. Because the source
+code is copyrighted by the first author under the GNU General Public
+License, it can be freely obtained, redistributed and modified. The
+meschach matrix library and the PCRaster map library used by gstat, and
+the plotting program gnuplot are available under similar conditions.
+
+@PP
+By the authors knowledge there is no other (free) geostatistical program
+or package that offers the same functionality on so many different
+platforms. Having a single @S ansi-c source makes porting to new
+platforms fairly trivial. The gnuplot program, needed for graphical
+display of variograms, is actively being maintained by a large user base
+on the internet, which guarantees that it will work on about any
+platform currently available.
+
+@PP
+We do not doubt that for a considerable group of practitioners in the
+field of geostatistics, and for a certain set of practical problems,
+gstat is the best choice software with respect to time or money
+investments, or with respect to the computer skills required from the
+practitioners. Since it's free and easy to use, it is also very suitable
+for educational purposes.

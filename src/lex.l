@@ -1,5 +1,4 @@
 %{
-  /* NOTE CEES REMOVED section from distro */
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
     Copyright 1992, 2003 (C) Edzer J. Pebesma
@@ -91,7 +90,6 @@ static void reset_lex(void);
 # define output(c)  MY_output(c)
 #endif /* else FLEX_SCANNER */
 
-
 #ifdef LDEBUG
 #	define SCANNED(a) { if (*a) printlog("scanned %s [%s]\n", a, (char *) yytext); \
 	else printlog("scanned %s\n", (char *) yytext); }
@@ -100,8 +98,17 @@ static void reset_lex(void);
 #endif
 
 %}
-
-
+	/* 
+	 * regular expressions for primary types:
+	 * 
+ 	 * (1) I use the definition for white space to allow dos command files
+ 	 * on unix machines (although DJGPP can cope with it)
+ 	 * W				[ \t\032\015]*
+ 	 * \032 is EOF (^Z), \015 is CR (^M)
+ 	 * for unix-only or dos-only ``W	[ \t\n]'' will do.]
+ 	 * (2) IDENT (from the flex info files): []] is the `]' character,
+ 	 * [[] the ']' character, ^ inside [] is only special as first character.
+ 	 */
 D				[0-9]
 INT				[+-]?{D}+
 UINT			{D}+[U]
@@ -159,11 +166,7 @@ NL				"\n"
 				return(QSTR);
 			}
 {IDENT}     {	/* SCANNED("IDENT"); */
-#ifdef USING_R /* don't leak memory */
-				yylval.sval = (char *) yytext;
-#else /* avoid trouble if we don't duplicate the string: */
 				yylval.sval = string_dup((char *) yytext);
-#endif
 				if (almost_equals((char *) yytext, "data") ||
 						almost_equals((char *) yytext, "points")) {
 					SCANNED("data"); return(ID_DATA);
@@ -341,7 +344,7 @@ static char *bquote(char *command) {
  * substitute back-quoted string with result from shell command
  * uses pipe or temporary file 
  */
-	int size = 0; 
+	int size = 0, where = 0;
 	char *cp = NULL;
 	FILE *f;
 
@@ -355,14 +358,11 @@ static char *bquote(char *command) {
 	size = file_size(fn);
 	cp = (char *) erealloc(cp, (size + 1) * sizeof(char));
 	f = efopen(fn, "r");
-	if (fread(cp, 1, size, f) != size)
-		ErrMsg(ER_READ, fn);
+	fread(cp, 1, size, f);
 	efclose(f);
 	eremove(fn);
 #else
 #define STEP 1000
-	int where = 0;
-
 	f = epopen(command, "r");
 	do {
 		cp = (char *) erealloc(cp, where + STEP);

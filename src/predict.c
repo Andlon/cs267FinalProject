@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,7 +87,6 @@ unsigned int n_pred_locs = 0;
 
 void map_sign(GRIDMAP *m, const char *what);
 
-#ifndef USING_R
 void predict_all(DATA **data) {
 	int i = 0, random_path = 0;
 	DPOINT *here = NULL, *where = NULL;
@@ -157,7 +155,6 @@ void predict_all(DATA **data) {
 				select_at(data[where->u.stratum], where);
 			get_est(data, get_method(), where, est);
 		}
-		/* printf("%g %g\n", est[0], est[1]); */
 		write_output(est, at_what, where, row, col);
 	}
 	exit_predictions(at_what);
@@ -279,10 +276,6 @@ static DPOINT *next_location(DPOINT *loc, PRED_AT what, int random_path,
 
 	switch (what) {
 		case AT_POINTS:
-			if (DEBUG_TRACE) {
-				nr++;
-				printlog("\rbusy with loc: %3u", nr);
-			}
 			return get_point_location(random_path);
 		case AT_GRIDMAP:
 			if (get_map_location(loc, random_path, row, col)) {
@@ -406,7 +399,8 @@ int is_valid_strata_map(const char *name, int n_vars) {
 	GRIDMAP *mp;
 	int check_failed = 1;
 
-	mp = new_map(READ_ONLY);
+	mp = new_map();
+	mp->is_write = 0;
 	mp->filename = name;
 	if ((mp = map_read(mp)) == NULL)
 		ErrMsg(ER_READ, name);
@@ -420,7 +414,6 @@ int is_valid_strata_map(const char *name, int n_vars) {
 	map_free(mp);
 	return (check_failed == 0);
 }
-#endif
 
 unsigned int *get_n_sim_locs_table(unsigned int *size) {
 	unsigned int i, j, *table;
@@ -455,13 +448,13 @@ unsigned int *get_n_sim_locs_table(unsigned int *size) {
 	return table;
 }
 
-#ifndef USING_R
 static GRIDMAP *check_open(const char *name, int i) {
 	GRIDMAP *mask;
 	unsigned int r, c;
 
-	mask = new_map(READ_ONLY);
+	mask = new_map();
 	mask->filename = name;
+	mask->is_write = 0;
 	if ((mask = map_read(mask)) == NULL)
 		ErrMsg(ER_READ, name);
 	if (i == 0) {
@@ -528,20 +521,14 @@ static int get_map_location(DPOINT *loc, int random_path,
 	loc->u.stratum = -1; /* in case of MV in mask map: skip get_est() */
 	if (!at_end && !map_cell_is_mv(masks[0], *row, *col)) {
 		value = map_get_cell(masks[0], *row, *col);
-		if (((int) STRATUM(value)) >= 0) 
-			loc->u.stratum = (int) STRATUM(value);
-		else {
-			if (get_mode() == STRATIFY)
-				pr_warning("negative stratum value %g set to zero", value);
-			loc->u.stratum = 0;
-		}
+		loc->u.stratum = (int) STRATUM(value); /* always >= 0 */
+		assert(loc->u.stratum >= 0);
 		est[0] = value;
 		if (! DEBUG_TRACE)
 			print_progress(n_done++, n_pred_locs);
 	} 
 	return (at_end == 0);
 }
-#endif
 
 static int get_random_cell(GRIDMAP *m, unsigned int *row, unsigned int *col) {
 	static char **u = NULL, *tmp = NULL;
@@ -627,15 +614,7 @@ void map_sign(GRIDMAP *m, const char *what) {
 	if ((timestring = asctime(localtime(&tm))) == NULL)
 		timestring = "";
 	m->history = (char *) emalloc(1024 * sizeof(char));
-#ifdef HAVE_SNPRINTF
-	snprintf
-#else 
-	sprintf
-#endif
-		(m->history,
-#ifdef HAVE_SNPRINTF
-		1024,
-#endif
+	snprintf(m->history, 1024,
 		"%s%s\n%s %s %s\n%s%s\n%s %s\n%s %s\n%s %s (seed %lu)\n",
 		*user ? 
 		"creator:       " : "", user, 
@@ -650,12 +629,7 @@ void map_sign(GRIDMAP *m, const char *what) {
 		m->description[0] = '\0';
 	} else {
 		m->description = (char *) emalloc((strlen(what) + 1) * sizeof(char));
-#ifdef HAVE_SNPRINTF
 		snprintf(m->description, strlen(what) + 1, "%s\n", what);
-#else
-		sprintf(m->description, "%s\n", what);
-#endif
-
 	}
 }
 

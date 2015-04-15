@@ -1,0 +1,3429 @@
+%!PS-Adobe-3.0
+%%Creator: Basser Lout Version 3.08 (May 1996)
+%%CreationDate: Tue Oct 14 11:26:21 1997
+%%DocumentData: Binary
+%%DocumentNeededResources: (atend)
+%%DocumentSuppliedResources: (atend)
+%%Pages: (atend)
+%%BoundingBox: 0 0 595 842
+%%EndComments
+
+%%BeginProlog
+%%BeginResource: procset LoutStartUp
+/m  { 3 1 roll moveto show } bind def
+/s  { exch currentpoint exch pop moveto show } bind def
+/k  { exch neg 0 rmoveto show } bind def
+/ul { gsave setlinewidth dup 3 1 roll
+      moveto lineto stroke grestore } bind def
+/in { 1440 mul } def
+/cm { 567 mul } def
+/pt { 20 mul } def
+/em { 120 mul } def
+/sp { louts mul } def
+/vs { loutv mul } def
+/ft { loutf mul } def
+/dg {           } def
+
+/LoutGraphic {
+  /louts exch def
+  /loutv exch def
+  /loutf exch def
+  /ymark exch def
+  /xmark exch def
+  /ysize exch def
+  /xsize exch def
+} def
+
+/LoutFont
+{ findfont exch scalefont setfont
+} bind def
+
+/LoutRecode {
+  { findfont dup length dict begin
+    {1 index /FID ne {def} {pop pop} ifelse} forall
+    /Encoding exch def
+    currentdict end definefont pop
+  }
+  stopped pop
+} bind def
+
+/BeginEPSF {
+  /LoutEPSFState save def
+  /dict_count countdictstack def
+  /op_count count 1 sub def
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [] 0 setdash newpath
+  /languagelevel where
+  { pop languagelevel
+    1 ne
+    { false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pop } repeat
+  countdictstack dict_count sub { end } repeat
+  LoutEPSFState restore
+} bind def
+%%EndResource
+
+%%BeginResource encoding vec2
+/vec2 [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright
+/parenleft /parenright /asterisk /plus /comma /hyphen /period /slash
+/zero /one /two /three /four /five /six /seven
+/eight /nine /colon /semicolon /less /equal /greater /question
+/at /A /B /C /D /E /F /G
+/H /I /J /K /L /M /N /O
+/P /Q /R /S /T /U /V /W
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore
+/quoteleft /a /b /c /d /e /f /g
+/h /i /j /k /l /m /n /o
+/p /q /r /s /t /u /v /w
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef
+/.notdef /.notdef /.notdef /.notdef /.notdef /quotedblleft /quotedblright /fi
+/fl /endash /emdash /bullet /dagger /daggerdbl /florin /fraction
+/dotlessi /grave /acute /circumflex /tilde /macron /breve /dotaccent
+/dieresis /.notdef /ring /cedilla /.notdef /hungarumlaut /ogonek /caron
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /periodcentered
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis
+] def
+%%EndResource
+
+%%BeginResource: procset LoutMarginNotes
+% @PrependGraphic file /usr/local/lib/lout.lib/include/dl.lpg
+
+% path for @Box symbol
+/LoutBox
+{ 0 0 moveto xsize 0 lineto
+  xsize ysize lineto 0 ysize lineto
+  closepath
+} def
+
+% path for @CurveBox symbol
+/LoutCurveBox
+{ xmark 0 moveto
+  xsize xmark sub xmark xmark 270 360 arc
+  xsize xmark sub ysize xmark sub xmark 0 90 arc
+  xmark ysize xmark sub xmark 90 180 arc
+  xmark xmark xmark 180 270 arc
+  closepath
+} def
+
+% path for @ShadowBox symbol
+/LoutShadowBox
+{ xmark 2 mul 0 moveto xsize 0 lineto
+  xsize ysize xmark 2 mul sub lineto
+  xsize xmark sub ysize xmark 2 mul sub lineto
+  xsize xmark sub xmark lineto
+  xmark 2 mul xmark lineto
+  closepath
+} def
+
+% set up dictionary containing margin note data: parity LoutMargSet -
+/LoutMargSet
+{ /LoutMargDict 12 dict def
+  LoutMargDict begin
+    /parity exch def
+    /matr matrix currentmatrix def
+    /rightx xsize def
+    /lefty ysize def   % highest allowable point for top of next left note
+    /righty ysize def  % highest allowable point for top of next right note
+    /max { 2 copy gt { pop } { exch pop } ifelse } def
+    /min { 2 copy lt { pop } { exch pop } ifelse } def
+  end
+} def
+
+%translate coordinate system for marginal notes:  type LoutMargShift -
+% where type 0 is left margin, 1 is right margin, 2 is outer, 3 is inner
+/LoutMargShift
+{ LoutMargDict begin
+
+    % y coordinate of top of note, in margin coords, before vertical adjust
+    0 ysize transform matr itransform exch pop
+
+    % decide whether left or right margin based on type and parity
+    exch [ 0 1 parity 1 parity sub ] exch get 0 eq
+    {
+      % left margin: adjust top of note downwards if overlaps previous note
+      lefty min
+
+      % bottom of note is new lefty position and also translate position
+      ysize sub dup /lefty exch def
+
+      % want right edge of note at coordinate zero
+      xsize neg exch
+    }
+    {
+      % right margin: adjust top of note downwards if overlaps previous note
+      righty min
+
+      % bottom of note is new righty position and also translate position
+      ysize sub dup /righty exch def
+
+      % want left edge of note at coordinate rightx
+      rightx exch
+    } ifelse
+
+    % stack now contains coord of bottom left corner in margin coordinates
+    matr setmatrix translate
+  end
+} def
+
+% create LoutPageDict with left, right, foot, top for @Place symbol users
+/LoutPageSet
+{
+  /LoutPageDict 5 dict def
+  LoutPageDict begin
+    /matr matrix currentmatrix def
+    /left 0 def
+    /right xsize def
+    /foot 0 def
+    /top ysize def
+  end
+
+} def
+
+%%EndResource
+
+%%BeginResource: procset LoutTabPrependGraphic
+% @PrependGraphic file /usr/local/lib/lout.lib/include/tab.lpg
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                  %
+%  PostScript @SysPrependGraphic file for @Tab     %
+%                                                  %
+%  To assist in avoiding name clashes, the names   %
+%  of all these symbols begin with "ltab".         %
+%                                                  %
+%  Jeffrey H. Kingston                             %
+%  24 September 1991                               %
+%  22 December 1992                                %
+%                                                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% linewidth ltabhs -
+% horizontal single line
+/ltabhs
+{  0 0 moveto xsize 0 lineto
+   setlinewidth 0 setlinecap stroke
+} def
+
+% linewidth ltabhsp -
+% horizontal single line with projecting ends
+/ltabhsp
+{  0 0 moveto xsize 0 lineto
+   setlinewidth 2 setlinecap stroke
+} def
+
+% linewidth ltabhd -
+% horizontal double line
+/ltabhd
+{  dup dup
+   0 0 moveto xsize 0 lineto
+   0 exch 3 mul moveto xsize exch 3 mul lineto
+   setlinewidth 0 setlinecap stroke
+} def
+
+% linewidth ltabhdb -
+% horizontal double line below mark
+/ltabhdb
+{  dup dup
+   0 0 moveto xsize 0 lineto
+   0 exch -3 mul moveto xsize exch -3 mul lineto
+   setlinewidth 0 setlinecap stroke
+} def
+
+% linewidth ltabhdnw -
+% horizontal double line with northwest corner
+/ltabhdnw
+{  dup dup dup dup
+   0 0 moveto xsize 0 lineto
+   xsize exch 3 mul moveto
+   -3 mul exch 3 mul lineto
+   -3 mul 0 lineto
+   setlinewidth 0 setlinejoin 2 setlinecap stroke
+} def
+
+% linewidth ltabhdne -
+% horizontal double line with northeast corner
+/ltabhdne
+{  dup dup dup dup
+   0 0 moveto xsize 0 lineto
+   0 exch 3 mul moveto
+   3 mul xsize add exch 3 mul lineto
+   3 mul xsize add 0 lineto
+   setlinewidth 0 setlinejoin 2 setlinecap stroke
+} def
+
+% linewidth ltabhdsw -
+% horizontal double line with southwest corner
+/ltabhdsw
+{  dup dup dup dup
+   0 0 moveto xsize 0 lineto
+   xsize exch -3 mul moveto
+   -3 mul exch -3 mul lineto
+   -3 mul 0 lineto
+   setlinewidth 0 setlinejoin 2 setlinecap stroke
+} def
+
+% linewidth ltabhdse -
+% horizontal double line with southeast corner
+/ltabhdse
+{  dup dup dup dup
+   0 0 moveto xsize 0 lineto
+   0 exch -3 mul moveto
+   3 mul xsize add exch -3 mul lineto
+   3 mul xsize add 0 lineto
+   setlinewidth 0 setlinejoin 2 setlinecap stroke
+} def
+
+% linewidth ltabvs -
+% vertical single line
+/ltabvs
+{  0 0 moveto 0 ysize lineto
+   setlinewidth 0 setlinecap stroke
+} def
+
+% linewidth ltabvd -
+% vertical double line
+/ltabvd
+{  dup dup
+   0 0 moveto 0 ysize lineto
+   -3 mul 0 moveto -3 mul ysize lineto
+   setlinewidth 0 setlinecap stroke
+} def
+
+% linewidth ltabvdr -
+% vertical double line to right of mark
+/ltabvdr
+{  dup dup
+   0 0 moveto 0 ysize lineto
+   3 mul 0 moveto 3 mul ysize lineto
+   setlinewidth 0 setlinecap stroke
+} def
+%%EndResource
+
+%%BeginResource: procset LoutFigPrependGraphic
+% @PrependGraphic file /usr/local/lib/lout.lib/include/fig.lpg
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                    %
+%  PostScript @SysPrependGraphic file for @Fig  Jeffrey H. Kingston  %
+%  Version 2.0 (includes CIRCUM label)                 January 1992  %
+%                                                                    %
+%  To assist in avoiding name clashes, the names of all symbols      %
+%  defined here begin with "lfig".  However, this is not feasible    %
+%  with user-defined labels and some labels used by users.           %
+%                                                                    %
+%  <point>      is two numbers, a point.                             %
+%  <length>     is one number, a length                              %
+%  <angle>      is one number, an angle in degrees                   %
+%  <dashlength> is one number, the preferred length of a dash        %
+%                                                                    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+errordict begin
+   /handleerror
+   {
+      {  /Times-Roman findfont 8 pt scalefont setfont
+	 0 setgray 4 pt 4 pt moveto
+	 $error /errorname get
+	 dup lfigdict exch known
+	 { lfigdict exch get }
+	 { 30 string cvs } ifelse
+	 show
+	 (  Command: ) show
+	 $error /command get 30 string cvs show
+      } stopped {} if
+      showpage stop
+   } def
+end
+
+% concat strings: <string> <string> lfigconcat <string>
+% must be defined outside lfigdict since used in lfigpromotelabels
+/lfigconcat
+{ 2 copy length exch length add string
+  dup 0 4 index putinterval
+  dup 3 index length 3 index putinterval
+  3 1 roll pop pop
+} def
+
+% <string> lfigdebugprint -
+% must be defined outside lfigdict since used in arbitrary places
+% /lfigdebugprint
+% { print
+%   (;  operand stack:\n) print
+%   count copy
+%   count 2 idiv
+%   { ==
+%     (\n) print
+%   } repeat
+%   (\n) print
+% } def
+
+/lfigdict 120 dict def
+lfigdict begin
+
+% error messages
+/dictfull (dictfull error:  too many labels?) def
+/dictstackoverflow (dictstackoverflow error:  labels nested too deeply?) def
+/execstackoverflow (execstackoverflow error:  figure nested too deeply?) def
+/limitcheck (limitcheck error:  figure nested too deeply or too large?) def
+/syntaxerror (syntaxerror error:  syntax error in text of figure?) def
+/typecheck (typecheck error:  syntax error in text of figure?) def
+/undefined (undefined error:  unknown or misspelt label?) def
+/VMError (VMError error:  run out of memory?) def
+
+% push pi onto stack:  - lfigpi <num>
+/lfigpi 3.14159 def
+
+% arc directions
+/clockwise     false def
+/anticlockwise true  def
+
+% maximum of two numbers:  <num> <num> lfigmax <num>
+/lfigmax { 2 copy gt { pop } { exch pop } ifelse } def
+
+% minimum of two numbers:  <num> <num> lfigmin <num>
+/lfigmin { 2 copy lt { pop } { exch pop } ifelse } def
+
+% add two points:  <point> <point> lfigpadd <point>
+/lfigpadd { exch 3 1 roll add 3 1 roll add exch } def
+
+% subtract first point from second:  <point> <point> lfigpsub <point>
+/lfigpsub { 3 2 roll sub 3 1 roll exch sub exch } def
+
+% max two points:  <point> <point> lfigpmax <point>
+/lfigpmax { exch 3 1 roll lfigmax 3 1 roll lfigmax exch } def
+
+% min two points:  <point> <point> lfigpmin <point>
+/lfigpmin { exch 3 1 roll lfigmin 3 1 roll lfigmin exch } def
+
+% scalar multiplication: <point> <num> lfigpmul <point>
+/lfigpmul { dup 3 1 roll mul 3 1 roll mul exch } def
+
+% point at angle and distance:  <point> <length> <angle> lfigatangle <point>
+/lfigatangle { 2 copy cos mul 3 1 roll sin mul lfigpadd } def
+
+% angle from one point to another:  <point> <point> lfigangle <angle>
+/lfigangle { lfigpsub 2 copy 0 eq exch 0 eq and {pop} {exch atan} ifelse } def
+
+% distance between two points:  <point> <point> lfigdistance <length>
+/lfigdistance { lfigpsub dup mul exch dup mul add sqrt } def
+
+% difference in x coords: <point> <point> lfigxdistance <length>
+/lfigxdistance { pop 3 1 roll pop sub } def
+
+%difference in y coords: <point> <point> lfigydistance <length>
+/lfigydistance { 3 1 roll pop sub exch pop } def
+
+% stroke a solid line:  <length> <dashlength> lfigsolid -
+/lfigsolid
+{  pop pop [] 0 setdash stroke
+} def
+
+% stroke a lfigdashed line:   <length> <dashlength> lfigdashed -
+/lfigdashed
+{  2 copy div 2 le 1 index 0 le or
+   {  exch pop 1 pt lfigmax [ exch dup ] 0 setdash }
+   {  dup [ exch 4 2 roll 2 copy div
+      1 sub 2 div ceiling dup 4 1 roll
+      1 add mul sub exch div ] 0 setdash
+   } ifelse stroke
+} def
+
+% stroke a lfigcdashed line:  <length> <dashlength> lfigcdashed -
+/lfigcdashed
+{  2 copy le 1 index 0 le or
+   { exch pop 1 pt lfigmax [ exch dup ] dup 0 get 2 div setdash }
+   { dup [ 4 2 roll exch 2 copy exch div
+     2 div ceiling div 1 index sub
+     ] exch 2 div setdash
+   } ifelse stroke
+} def
+
+% stroke a dotted line:  <length> <dashlength> lfigdotted -
+/lfigdotted
+{  2 copy le 1 index 0 le or
+   { exch pop 1 pt lfigmax [ exch 0 exch ] 0 setdash }
+   { 1 index exch div ceiling div
+     [ 0 3 2 roll ] 0 setdash
+   } ifelse stroke
+} def
+
+% stroke a noline line:  <length> <dashlength> lfignoline -
+/lfignoline
+{ pop pop
+} def
+
+% painting (i.e. filling): - lfigwhite - (etc.)
+/lfignopaint		{			       } def
+/lfignochange		{ 			  fill } def
+/lfigdarkblue		{ 0.0 0.0 0.5 setrgbcolor fill } def
+/lfigblue		{ 0.0 0.0 1.0 setrgbcolor fill } def
+/lfiglightblue		{ 0.5 0.5 1.0 setrgbcolor fill } def
+/lfigdarkgreen		{ 0.0 0.5 0.0 setrgbcolor fill } def
+/lfiggreen		{ 0.0 1.0 0.0 setrgbcolor fill } def
+/lfiglightgreen		{ 0.5 1.0 0.5 setrgbcolor fill } def
+/lfigdarkred		{ 0.5 0.0 0.0 setrgbcolor fill } def
+/lfigred		{ 1.0 0.0 0.0 setrgbcolor fill } def
+/lfiglightred		{ 1.0 0.5 0.5 setrgbcolor fill } def
+/lfigdarkcyan		{ 0.0 0.5 0.5 setrgbcolor fill } def
+/lfigcyan		{ 0.0 1.0 1.0 setrgbcolor fill } def
+/lfiglightcyan		{ 0.5 1.0 1.0 setrgbcolor fill } def
+/lfigdarkmagenta	{ 0.5 0.0 0.5 setrgbcolor fill } def
+/lfigmagenta		{ 1.0 0.0 1.0 setrgbcolor fill } def
+/lfiglightmagenta	{ 1.0 0.5 1.0 setrgbcolor fill } def
+/lfigdarkyellow		{ 0.5 0.5 0.0 setrgbcolor fill } def
+/lfigyellow		{ 1.0 1.0 0.0 setrgbcolor fill } def
+/lfiglightyellow	{ 1.0 1.0 0.5 setrgbcolor fill } def
+/lfigdarkgray		{ 0.2 0.2 0.2 setrgbcolor fill } def
+/lfiggray		{ 0.5 0.5 0.5 setrgbcolor fill } def
+/lfiglightgray		{ 0.8 0.8 0.8 setrgbcolor fill } def
+/lfigdarkgrey		{ 0.2 0.2 0.2 setrgbcolor fill } def
+/lfiggrey		{ 0.5 0.5 0.5 setrgbcolor fill } def
+/lfiglightgrey		{ 0.8 0.8 0.8 setrgbcolor fill } def
+/lfigblack		{ 0.0 0.0 0.0 setrgbcolor fill } def
+/lfigwhite		{ 1.0 1.0 1.0 setrgbcolor fill } def
+
+% line caps (and joins, not currently used)
+/lfigbutt       0 def
+/lfiground      1 def
+/lfigprojecting 2 def
+/lfigmiter      0 def
+/lfigbevel      2 def
+
+% shape and labels of the @Box symbol
+/lfigbox
+{
+   0     0     /SW  lfigpointdef
+   xsize 0     /SE  lfigpointdef
+   xsize ysize /NE  lfigpointdef
+   0     ysize /NW  lfigpointdef
+   SE 0.5 lfigpmul /S   lfigpointdef
+   NW 0.5 lfigpmul /W   lfigpointdef
+   W SE lfigpadd   /E   lfigpointdef
+   S NW lfigpadd   /N   lfigpointdef
+   NE 0.5 lfigpmul /CTR lfigpointdef
+   [ CTR NE lfigpsub /lfigboxcircum cvx ] lfigcircumdef
+   SW SE NE NW SW
+} def
+
+% shape and labels of the @CurveBox symbol
+/lfigcurvebox
+{
+
+   xsize 0.5 mul	ysize 0.5 mul	/CTR lfigpointdef
+   xsize 0.5 mul	0		/S   lfigpointdef
+   xsize		ysize 0.5 mul	/E   lfigpointdef
+   xsize 0.5 mul	ysize		/N   lfigpointdef
+   0			ysize 0.5 mul	/W   lfigpointdef
+
+   xmark 0.293 mul		xmark 0.293 mul		  /SW  lfigpointdef
+   xsize xmark 0.293 mul sub	xmark 0.293 mul		  /SE  lfigpointdef
+   xsize xmark 0.293 mul sub	ysize xmark 0.293 mul sub /NE  lfigpointdef
+   xmark 0.293 mul		ysize xmark 0.293 mul sub /NW  lfigpointdef
+
+   [ xsize ysize 0.5 lfigpmul xmark /lfigcurveboxcircum cvx ] lfigcircumdef
+
+   xmark		0
+   xsize xmark sub	0
+   [ xsize xmark sub	xmark		]
+   xsize		xmark
+   xsize		ysize xmark sub
+   [ xsize xmark sub	ysize xmark sub	]
+   xsize xmark sub	ysize
+   xmark		ysize
+   [ xmark		ysize xmark sub	]
+   0			ysize xmark sub
+   0			xmark
+   [ xmark		xmark		]
+   xmark		0
+} def
+
+% shadow of the @ShadowBox symbol
+% its shape and labels are done, somewhat inaccurately, with lfigbox
+/lfigshadow
+{ xmark 2 mul 0 moveto xsize 0 lineto
+  xsize ysize xmark 2 mul sub lineto
+  xsize xmark sub ysize xmark 2 mul sub lineto
+  xsize xmark sub xmark lineto
+  xmark 2 mul xmark lineto closepath fill
+} def
+
+% shape and labels of the @Square symbol
+/lfigsquare
+{
+   xsize ysize 0.5 lfigpmul /CTR lfigpointdef
+   CTR xsize xsize ysize ysize lfigpmax 0.5 lfigpmul lfigpadd /NE lfigpointdef
+   CTR 0 0 CTR NE lfigdistance 135 lfigatangle lfigpadd /NW lfigpointdef
+   CTR 0 0 CTR NE lfigdistance 225 lfigatangle lfigpadd /SW lfigpointdef
+   CTR 0 0 CTR NE lfigdistance 315 lfigatangle lfigpadd /SE lfigpointdef
+   SW 0.5 lfigpmul SE 0.5 lfigpmul lfigpadd /S lfigpointdef
+   NW 0.5 lfigpmul NE 0.5 lfigpmul lfigpadd /N lfigpointdef
+   SW 0.5 lfigpmul NW 0.5 lfigpmul lfigpadd /W lfigpointdef
+   SE 0.5 lfigpmul NE 0.5 lfigpmul lfigpadd /E lfigpointdef
+   [ CTR NE lfigpsub /lfigboxcircum cvx ] lfigcircumdef
+   SW SE NE NW SW
+} def
+
+% shape and labels of the @Diamond symbol
+/lfigdiamond
+{
+   xsize 0 0.5 lfigpmul /S   lfigpointdef
+   0 ysize 0.5 lfigpmul /W   lfigpointdef
+   S W         lfigpadd /CTR lfigpointdef
+   CTR W       lfigpadd /N   lfigpointdef
+   CTR S       lfigpadd /E   lfigpointdef
+   [ xsize ysize 0.5 lfigpmul /lfigdiamondcircum cvx ] lfigcircumdef
+   S E N W S
+} def
+
+% shape and labels of the @Ellipse symbol
+/lfigellipse
+{
+   xsize 0 0.5 lfigpmul /S   lfigpointdef
+   0 ysize 0.5 lfigpmul /W   lfigpointdef
+   S W         lfigpadd /CTR lfigpointdef
+   CTR W       lfigpadd /N   lfigpointdef
+   CTR S       lfigpadd /E   lfigpointdef
+   CTR xsize 0 0.3536 lfigpmul lfigpadd 0 ysize 0.3536 lfigpmul lfigpadd /NE lfigpointdef
+   0 ysize 0.3536 lfigpmul CTR xsize 0 0.3536 lfigpmul lfigpadd lfigpsub /SE lfigpointdef
+   xsize 0 0.3536 lfigpmul CTR lfigpsub 0 ysize 0.3536 lfigpmul lfigpadd /NW lfigpointdef
+   0 ysize 0.3536 lfigpmul xsize 0 0.3536 lfigpmul CTR lfigpsub lfigpsub /SW lfigpointdef
+   [ xsize ysize 0.5 lfigpmul /lfigellipsecircum cvx ] lfigcircumdef
+   S [ CTR ] E [ CTR ] N [ CTR ] W [ CTR ] S
+} def
+
+% shape and labels of the @Circle symbol
+/lfigcircle
+{
+   xsize ysize 0.5 lfigpmul /CTR lfigpointdef
+   CTR xsize 0 ysize 0 lfigpmax 0.5 lfigpmul lfigpadd /E lfigpointdef
+   CTR 0 0 CTR E lfigdistance 45 lfigatangle lfigpadd /NE lfigpointdef
+   CTR 0 0 CTR E lfigdistance 90 lfigatangle lfigpadd /N lfigpointdef
+   CTR 0 0 CTR E lfigdistance 135 lfigatangle lfigpadd /NW lfigpointdef
+   CTR 0 0 CTR E lfigdistance 180 lfigatangle lfigpadd /W lfigpointdef
+   CTR 0 0 CTR E lfigdistance 225 lfigatangle lfigpadd /SW lfigpointdef
+   CTR 0 0 CTR E lfigdistance 270 lfigatangle lfigpadd /S lfigpointdef
+   CTR 0 0 CTR E lfigdistance 315 lfigatangle lfigpadd /SE lfigpointdef
+   [ S E lfigpsub /lfigellipsecircum cvx ] lfigcircumdef
+   S [ CTR ] E [ CTR ] N [ CTR ] W [ CTR ] S
+} def
+
+% shape and labels of the @HLine and @HArrow symbols
+/lfighline
+{
+   0 ymark lfigprevious /FROM lfigpointdef
+   xsize ymark lfigprevious /TO lfigpointdef
+} def
+
+% shape and labels of the @VLine and @VArrow symbols
+/lfigvline
+{
+   xmark ysize lfigprevious /FROM lfigpointdef
+   xmark 0 lfigprevious /TO lfigpointdef
+} def
+
+% points of a polygon around base with given no of sides, vert init angle:
+% <sides> <angle> figpolygon <point> ... <point>
+/lfigpolygon
+{  xsize ysize 0.5 lfigpmul /CTR lfigpointdef
+   90 sub CTR 2 copy lfigmax 5 3 roll
+   [ 4 copy pop /lfigpolycircum cvx ] lfigcircumdef
+   exch dup 360 exch div exch
+   1 1  3 2 roll
+   {  4 string cvs (P) exch lfigconcat cvn
+      6 copy pop pop lfigatangle 2 copy 10 2 roll
+      3 2 roll lfigpointdef
+      dup 3 1 roll add exch
+   }  for
+   pop lfigatangle
+} def
+
+% next array element:  <array> <index> lfiggetnext <array> <index> <any> true
+%                                               or <array> <index> false
+/lfiggetnext
+{  2 copy exch length ge
+   { false }
+   { 2 copy get exch 1 add exch true } ifelse
+} def
+
+% check whether thing is number:  <any> lfigisnumbertype <any> <bool>
+/lfigisnumbertype
+{  dup type dup
+   /integertype eq exch /realtype eq or
+} def
+
+% check whether thing is an array:  <any> lfigisarraytype <any> <bool>
+/lfigisarraytype { dup type /arraytype eq } def
+
+% get next item:  <array> <index> lfiggetnextitem <array> <index> 0
+%                                              or <array> <index> <array> 1
+%                                              or <array> <index> <point> 2
+/lfiggetnextitem
+{   lfiggetnext
+    {	lfigisarraytype
+	{   1
+	}
+	{   lfigisnumbertype
+	    {	3 1 roll
+		lfiggetnext
+		{   lfigisnumbertype
+		    {	4 3 roll exch  2
+		    }
+		    {	pop 3 2 roll pop  0
+		    } ifelse
+		}
+		{   3 2 roll pop  0
+		} ifelse
+	    }
+	    {	pop 0
+	    } ifelse
+	} ifelse
+    }
+    {	0
+    } ifelse
+} def
+
+% set arc path:  bool x1 y1  x2 y2  x0 y0  lfigsetarc  <angle> <angle> <dist>
+% the path goes from x1 y1 to x2 y2 about centre x0 y0,
+% anticlockwise if bool is true else clockwise.
+% The orientations of backwards pointing and forwards pointing
+% arrowheads are returned in the two angles, and
+% the length of the arc is returned in <dist>.
+/lfigsetarc
+{
+  20 dict begin
+     matrix currentmatrix 8 1 roll
+     2 copy translate 2 copy 8 2 roll
+     4 2 roll lfigpsub 6 2 roll lfigpsub
+     dup /y1 exch def dup mul /y1s exch def
+     dup /x1 exch def dup mul /x1s exch def
+     dup /y2 exch def dup mul /y2s exch def
+     dup /x2 exch def dup mul /x2s exch def
+
+     y1s y2s eq
+     {	-1
+     }
+     {	y1s x2s mul y2s x1s mul sub y1s y2s sub div
+     } ifelse
+     /da exch def
+
+     x1s x2s eq
+     {	-1
+     }
+     {	x1s y2s mul x2s y1s mul sub x1s x2s sub div
+     } ifelse
+     /db exch def
+
+     da 0 gt db 0 gt and
+     {	/LMax da sqrt db sqrt lfigmax def
+	/scalex da sqrt LMax div def
+	/scaley db sqrt LMax div def
+	scalex scaley scale
+	0 0 LMax
+	0 0 x1 scalex mul y1 scaley mul lfigangle
+	0 0 x2 scalex mul y2 scaley mul lfigangle
+	2 copy eq { 360 add } if
+	2 copy 8 2 roll
+	5 index { arc } { arcn } ifelse
+	2 index 1 index
+	{ 90 sub } { 90 add } ifelse
+	dup sin scaley mul exch cos scalex mul atan
+	2 index 2 index
+	{ 90 add } { 90 sub } ifelse
+	dup sin scaley mul exch cos scalex mul atan
+	5 2 roll  % res1 res2 ang1 ang2 anticlockwise
+	{ exch sub } { sub } ifelse
+	dup 0 le { 360 add } if  lfigpi mul LMax mul 180 div
+     }
+     {	0 0 x1 y1 lfigdistance 0 0 x2 y2 lfigdistance eq
+	0 0 x1 y1 lfigdistance 0 gt and
+	{	0 0
+		0 0 x1 y1 lfigdistance
+		0 0 x1 y1 lfigangle
+		0 0 x2 y2 lfigangle
+		2 copy eq { 360 add } if
+		2 copy 8 2 roll
+		5 index { arc } { arcn } ifelse
+		2 index 1 index
+		{ 90 sub } { 90 add } ifelse
+		2 index 2 index
+		{ 90 add } { 90 sub } ifelse
+		5 2 roll % res1 res2 ang1 ang2 clockwise
+		{ exch sub } { sub } ifelse
+		dup 0 le { 360 add } if lfigpi mul 0 0 x1 y1 lfigdistance mul 180 div
+	}
+	{	x2 y2 lineto pop
+		x2 y2 x1 y1 lfigangle
+		x1 y1 x2 y2 lfigangle
+		x1 y1 x2 y2 lfigdistance
+	} ifelse
+     } ifelse
+     4 -1 roll setmatrix
+   end
+} def
+
+% lfigsetcurve: set up a Bezier curve from x0 y0 to x3 y3
+% and return arrowhead angles and length of curve (actually 0)
+% x0 y0 x1 y1 x2 y2 x3 y3 lfigsetcurve <angle> <angle> <length>
+/lfigsetcurve
+{ 8 copy curveto pop pop
+  lfigangle
+  5 1 roll
+  4 2 roll lfigangle
+  exch
+  0
+} def
+
+% lfigpaintpath: paint a path of the given shape
+% /paint [ shape ] lfigpaintpath -
+/lfigpaintpath
+{
+  10 dict begin
+    0 newpath
+    /prevseen false def
+    /curveseen false def
+    { lfiggetnextitem
+      dup 0 eq { pop exit }
+      { 1 eq
+        { /curveseen true def
+	  /curve exch def
+	  curve length 0 eq { /curveseen false def } if
+        }
+        { /ycurr exch def
+	  /xcurr exch def
+	  prevseen
+	  { curveseen
+	    { curve length 4 eq
+	      { xprev yprev
+		curve 0 get curve 1 get
+		curve 2 get curve 3 get
+		xcurr ycurr
+		lfigsetcurve pop pop pop
+	      }
+	      { xprev yprev xcurr ycurr
+	        curve length 1 ge { curve 0 get } { 0 } ifelse
+	        curve length 2 ge { curve 1 get } { 0 } ifelse
+	        curve length 3 ge { curve 2 get } { true } ifelse
+	        7 1 roll
+	        lfigsetarc pop pop pop
+	      } ifelse
+	    }
+	    { xcurr ycurr lineto
+	    } ifelse
+	  }
+	  { xcurr ycurr moveto
+	  } ifelse
+	  /xprev xcurr def
+	  /yprev ycurr def
+	  /prevseen true def
+	  /curveseen false def
+        } ifelse
+      } ifelse
+    } loop pop pop cvx exec
+  end
+} def
+
+% stroke a path of the given shape in the given linestyle and dash length.
+% Return the origin and angle of the backward and forward arrow heads.
+% dashlength /linestyle [shape] lfigdopath  [<point> <angle>] [<point> <angle>] 
+/lfigdopath
+{
+  10 dict begin
+    0
+    /prevseen  false def
+    /curveseen false def
+    /backarrow []    def
+    /fwdarrow  []    def
+    {
+	lfiggetnextitem
+	dup 0 eq { pop exit }
+	{
+	    1 eq
+	    {	/curveseen true def
+		/curve exch def
+		curve length 0 eq { /prevseen false def } if
+	    }
+	    {	/ycurr exch def
+		/xcurr exch def
+		prevseen
+		{   newpath xprev yprev moveto
+		    curveseen
+		    {	curve length 4 eq
+			{   xprev yprev
+			    curve 0 get curve 1 get
+			    curve 2 get curve 3 get
+			    xcurr ycurr lfigsetcurve
+			}
+			{   xprev yprev xcurr ycurr
+			    curve length 1 ge { curve 0 get } { 0 } ifelse
+			    curve length 2 ge { curve 1 get } { 0 } ifelse
+			    curve length 3 ge { curve 2 get } { true } ifelse
+			    7 1 roll
+			    lfigsetarc
+			} ifelse
+		    }
+		    {	xcurr ycurr lineto
+			xcurr ycurr xprev yprev lfigangle dup 180 sub
+			xprev yprev xcurr ycurr lfigdistance
+		    } ifelse
+		    6 index 6 index cvx exec
+		    [ xprev yprev 5 -1 roll ]
+		    backarrow length 0 eq
+		    { /backarrow exch def }
+		    { pop } ifelse
+		    [ xcurr ycurr 4 -1 roll ] /fwdarrow exch def
+		} if
+		/xprev xcurr def
+		/yprev ycurr def
+		/prevseen true def
+		/curveseen false def
+	    } ifelse
+	} ifelse
+    } loop
+    pop pop pop pop
+    backarrow length 0 eq { [ 0 0 0 ] } { backarrow } ifelse
+    fwdarrow  length 0 eq { [ 0 0 0 ] } { fwdarrow  } ifelse
+  end
+} def
+
+% lfigdoarrow: draw an arrow head of given form
+% dashlength /lstyle /pstyle hfrac height width [ <point> <angle> ] lfigdoarrow -
+/lfigdoarrow
+{  matrix currentmatrix 8 1 roll
+   dup 0 get 1 index 1 get translate
+   2 get rotate
+   [ 2 index neg 2 index 0 0
+     3 index 3 index neg
+     1 index 10 index mul 0
+     7 index 7 index ]
+   4 1 roll pop pop pop
+   dup 3 1 roll
+   gsave lfigpaintpath grestore lfigdopath pop pop
+   setmatrix
+} def
+
+% arrow head styles
+/lfigopen     0.0 def
+/lfighalfopen 0.5 def
+/lfigclosed   1.0 def
+
+% stroke no arrows, forward, back, and both
+/lfignoarrow { pop pop pop pop pop pop pop pop                        } def
+/lfigforward { 7 -1 roll lfigdoarrow pop                              } def
+/lfigback    { 8 -2 roll pop lfigdoarrow                              } def
+/lfigboth    { 8 -1 roll 7 copy lfigdoarrow pop 7 -1 roll lfigdoarrow } def
+
+% lfigprevious: return previous point on path
+/lfigprevious
+{ lfigisnumbertype
+  { 2 copy }
+  { lfigisarraytype
+    { 2 index 2 index }
+    { 0 0 }
+    ifelse
+  } ifelse
+} def
+
+% label a point in 2nd top dictionary:  <point> /name lfigpointdef -
+/lfigpointdef
+{
+  % (Entering lfigpointdef) lfigdebugprint
+  [ 4 2 roll transform
+    /itransform cvx ] cvx
+    currentdict end
+    3 1 roll
+    % currentdict length currentdict maxlength lt
+    % { def }
+    % { exec moveto (too many labels) show stop }
+    % ifelse
+    def
+    begin
+  % (Leaving lfigpointdef) lfigdebugprint
+} def
+
+% promote labels from second top to third top dictionary
+% <string> lfigpromotelabels -
+/lfigpromotelabels
+{
+  % (Entering lfigpromotelabels) lfigdebugprint
+  currentdict end exch currentdict end
+  { exch 20 string cvs 2 index
+    (@) lfigconcat exch lfigconcat cvn exch def
+  } forall pop begin
+  % (Leaving lfigpromotelabels) lfigdebugprint
+} def
+
+% show labels (except CIRCUM): - lfigshowlabels -
+/lfigshowlabels
+{
+  % (Entering lfigshowlabels) lfigdebugprint
+  currentdict end
+    currentdict
+    { 1 index 20 string cvs (CIRCUM) search % if CIRCUM in key
+      { pop pop pop pop pop }
+      { pop cvx exec 2 copy
+        newpath 1.5 pt 0 360 arc
+        0 setgray fill
+        /Times-Roman findfont 8 pt scalefont setfont
+        moveto 0.2 cm 0.1 cm rmoveto 20 string cvs show
+      }
+      ifelse
+    } forall
+  begin
+  % (Leaving lfigshowlabels) lfigdebugprint
+} def
+
+% fix an angle to 0 <= res < 360:  <angle> lfigfixangle <angle>
+/lfigfixangle
+{
+  % (Entering lfigfixangle) lfigdebugprint
+  { dup 0 ge { exit } if
+    360 add
+  } loop
+  { dup 360 lt { exit } if
+    360 sub
+  } loop
+  % (Leaving lfigfixangle) lfigdebugprint
+} def
+
+% find point on circumference of box:  alpha a b lfigboxcircum x y
+/lfigboxcircum
+{
+  % (Entering lfigboxcircum) lfigdebugprint
+  4 dict begin
+    /b exch def
+    /a exch def
+    lfigfixangle /alpha exch def
+    0 0 a b lfigangle /theta exch def
+
+    % if alpha <= theta, return (a, a*tan(alpha))
+    alpha theta le
+    { a  a alpha sin mul alpha cos div }
+    {
+      % else if alpha <= 180 - theta, return (b*cot(alpha), b)
+      alpha 180 theta sub le
+      { b alpha cos mul alpha sin div  b }
+      {
+        % else if alpha <= 180 + theta, return (-a, -a*tan(alpha))
+        alpha 180 theta add le
+        { a neg  a neg alpha sin mul alpha cos div }
+        {
+	  % else if alpha <= 360 - theta, return (-b*cot(alpha), -b)
+	  alpha 360 theta sub le
+          { b neg alpha cos mul alpha sin div  b neg }
+	  {
+	    % else 360 - theta <= alpha, return (a, a*tan(alpha))
+	    a  a alpha sin mul alpha cos div
+	  } ifelse
+        } ifelse
+      } ifelse
+    } ifelse
+  end
+  % (Leaving lfigboxcircum) lfigdebugprint
+} def
+
+% find quadratic roots (assume a != 0): a b c lfigqroots x1 x2 2
+%                                                     or    x2 1
+%                                                     or       0
+/lfigqroots
+{
+  4 dict begin
+    /c exch def
+    /b exch def
+    /a exch def
+    /disc b b mul 4 a c mul mul sub def
+    disc 0 lt
+    { 0
+    }
+    { disc 0 eq
+      { b neg 2 a mul div
+	1
+      }
+      { b neg disc sqrt add 2 a mul div
+        b neg disc sqrt sub 2 a mul div
+	2
+      }
+      ifelse
+    }
+    ifelse
+  end
+} def
+
+% work our which quadrant: <angle> lfigquadrant <0-3>
+/lfigquadrant
+{ dup 90 lt
+  { pop 0
+  }
+  { dup 180 lt
+    { pop 1
+    }
+    { 270 lt
+      { 2
+      }
+      { 3
+      } ifelse
+    } ifelse
+  } ifelse
+} def
+
+% find curvebox circum, assuming upper right quadrant: alpha a b xmk lfigcb x y
+/lfigcb
+{
+  6 dict begin
+    /xmk exch def
+    /b exch def
+    /a exch def
+    /alpha exch def
+    /theta1 0 0 a b xmk sub lfigangle def
+    /theta2 0 0 a xmk sub b lfigangle def
+    alpha theta1 le
+    { % if alpha <= theta1, return (a, a*tan(alpha))
+      a  a alpha sin mul alpha cos div
+    }
+    { alpha theta2 ge
+      { % else if alpha > theta2, return (b*cot(alpha), b)
+	b alpha cos mul alpha sin div  b
+      }
+      {
+	% else, return the intersection of line and circle
+	a xmk sub b xmk sub xmk  0 0 alpha lfigcircleintersect
+	dup 0 eq
+	{ % should never happen, just return any reasonable point
+	  pop
+	  a b 0.5 lfigpmul
+	}
+	{ 1 eq
+	  { % should never happen, just return the point on top of stack
+	  }
+	  { % the usual case, two points on stack, return the larger
+	    lfigpmax
+	  } ifelse
+	} ifelse
+      } ifelse
+    } ifelse
+  end
+} def
+
+% find point on circumference of curvebox: alpha a b xmk lfigcurveboxcircum x y
+/lfigcurveboxcircum
+{
+  % (Entering lfigcurveboxcircum) lfigdebugprint
+  5 dict begin
+    /xmk exch def
+    /b exch def
+    /a exch def
+    lfigfixangle /alpha exch def
+
+    % work out which quadrant we are in, and reflect accordingly
+    /quad alpha lfigquadrant def
+    quad 0 eq
+    { alpha a b xmk lfigcb
+    }
+    { quad 1 eq
+      { 180 alpha sub a b xmk lfigcb exch neg exch
+      }
+      { quad 2 eq
+	{ alpha 180 sub a b xmk lfigcb neg exch neg exch
+	}
+	{ 360 alpha sub a b xmk lfigcb neg
+	} ifelse
+      } ifelse
+    } ifelse
+  end
+  % (Leaving lfigcurveboxcircum) lfigdebugprint
+} def
+
+% find point on circumference of diamond:  alpha a b lfigdiamondcircum x y
+/lfigdiamondcircum
+{
+  % (Entering lfigdiamondcircum) lfigdebugprint
+  4 dict begin
+    /b exch def
+    /a exch def
+    lfigfixangle /alpha exch def
+    b alpha cos abs mul  a alpha sin abs mul  add  /denom exch def
+    a b mul alpha cos mul denom div
+    a b mul alpha sin mul denom div
+  end
+  % (Leaving lfigdiamondcircum) lfigdebugprint
+} def
+
+% find point on circumference of ellipse:  alpha a b lfigellipsecircum x y
+/lfigellipsecircum
+{
+  % (Entering lfigellipsecircum) lfigdebugprint
+  4 dict begin
+    /b exch def
+    /a exch def
+    lfigfixangle /alpha exch def
+    b alpha cos mul dup mul  a alpha sin mul dup mul  add sqrt /denom exch def
+    a b mul alpha cos mul denom div
+    a b mul alpha sin mul denom div
+  end
+  % (Leaving lfigellipsecircum) lfigdebugprint
+} def
+
+% find point of intersection of two lines each defined by two points
+% x1 y1 x2 y2  x3 y3 x4 y4  lfiglineintersect x y
+/lfiglineintersect
+{
+  % (Entering lfiglineintersect) lfigdebugprint
+  13 dict begin
+    /y4 exch def
+    /x4 exch def
+    /y3 exch def
+    /x3 exch def
+    /y2 exch def
+    /x2 exch def
+    /y1 exch def
+    /x1 exch def
+    x2 x1 sub /x21 exch def
+    x4 x3 sub /x43 exch def
+    y2 y1 sub /y21 exch def
+    y4 y3 sub /y43 exch def
+    y21 x43 mul y43 x21 mul sub /det exch def
+  
+    % calculate x 
+    y21 x43 mul x1 mul
+    y43 x21 mul x3 mul sub
+    y3 y1 sub x21 mul x43 mul add
+    det div
+
+    % calculate y
+    x21 y43 mul y1 mul
+    x43 y21 mul y3 mul sub
+    x3 x1 sub y21 mul y43 mul add
+    det neg div
+
+  end
+  % (Leaving lfiglineintersect) lfigdebugprint
+} def
+
+% find point on circumference of polygon
+% alpha radius num theta lfigpolycircum x y
+/lfigpolycircum
+{
+  % (Entering lfigpolycircum) lfigdebugprint
+  13 dict begin
+    /theta exch def
+    /num exch def
+    /radius exch def
+    /alpha exch def
+
+    % calculate delta, the angle from theta to alpha
+    alpha theta sub lfigfixangle
+
+    % calculate the angle which is the multiple of 360/num closest to delta
+    360 num div div truncate 360 num div mul theta add /anglea exch def
+
+    % calculate the next multiple of 360/num after anglea
+    anglea 360 num div add /angleb exch def
+
+    % intersect the line through these two points with the alpha line
+    anglea cos anglea sin  angleb cos angleb sin
+    0 0  alpha cos 2 mul alpha sin 2 mul
+    lfiglineintersect radius lfigpmul
+
+  end
+  % (Leaving lfigpolycircum) lfigdebugprint
+} def
+
+% find point of intersection of a point and a circle
+% x0 y0 r  x1 y1 theta  lfigcircleintersect xa ya xb yb 2
+%                                        or       xb yb 1
+%                                        or             0
+/lfigcircleintersect
+{
+  % (Entering lfigcircleintersect) lfigdebugprint
+  15 dict begin
+    /theta exch def
+    /y1    exch def
+    /x1    exch def
+    /r     exch def
+    /y0    exch def
+    /x0    exch def
+
+    % if sin(theta) = 0 then line is horizontal and y must be y1
+    theta sin abs 0.00001 lt
+    { 
+      /a 1 def
+      /b -2 x0 mul def
+      /c x0 dup mul y1 y0 sub dup mul add r dup mul sub def
+      a b c lfigqroots dup
+      0 eq
+      { pop
+	0
+      }
+      { 1 eq
+	{ y1 1
+	}
+	{ y1 exch y1 2
+	} ifelse
+      } ifelse
+    }
+    {
+      /ct theta cos theta sin div def
+      /a ct ct mul 1 add def
+      /b ct x1 x0 sub mul y1 add y0 sub 2 mul def
+      /c x1 x0 sub dup mul y1 y0 sub dup mul add r dup mul sub def
+      a b c lfigqroots dup
+      0 eq
+      { pop
+	0
+      }
+      { 1 eq
+	{ y1 add /yb exch def
+	  yb y1 sub ct mul x1 add /xb exch def
+	  xb yb 1
+	}
+	{ y1 add /ya exch def
+	  ya y1 sub ct mul x1 add /xa exch def
+	  y1 add /yb exch def
+	  yb y1 sub ct mul x1 add /xb exch def
+	  xa ya xb yb 2
+	} ifelse
+      } ifelse
+    } ifelse
+  end
+  % (Leaving lfigcircleintersect) lfigdebugprint
+} def
+
+% add CIRCUM operator with this body:  <array> lfigcircumdef -
+/lfigcircumdef
+{   % (Entering lfigcircumdef) lfigdebugprint
+    /CIRCUM exch cvx
+    currentdict end
+    3 1 roll
+    % currentdict length currentdict maxlength lt
+    % { def }
+    % { exec moveto (too many labels) show stop }
+    % ifelse
+    def
+    begin
+    % (Leaving lfigcircumdef) lfigdebugprint
+} def
+
+end
+%%EndResource
+
+%%EndProlog
+
+%%BeginSetup
+%%IncludeResource: font Times-Roman
+/Times-Romanfnt82 vec2 /Times-Roman LoutRecode
+/fnt82 { /Times-Romanfnt82 LoutFont } def
+%%IncludeResource: font Times-Bold
+/Times-Boldfnt84 vec2 /Times-Bold LoutRecode
+/fnt84 { /Times-Boldfnt84 LoutFont } def
+%%IncludeResource: font Times-Italic
+/Times-Italicfnt83 vec2 /Times-Italic LoutRecode
+/fnt83 { /Times-Italicfnt83 LoutFont } def
+%%EndSetup
+
+%%Page: i 1
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Times-Italic
+/pgsave save def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt84 0.0 0.0 0.0 setrgbcolor 2176 12401(Speci\207cation)m 3533(of)s 3805(CSF)s
+4311(v)s 2(ersion)k 5109(2)s 5284(f)s 6(ormat)k
+6041(and)s 6482(API)s 240 fnt83 3819 11901(C.G.)m 4306(W)s 22(esseling)k
+240 fnt82 1773 11400(Department)m 2961(of)s 3232(Ph)s 1(ysical)k
+4096(Geograph)s 1(y)k 15(,)k 5251(Uni)s 6(v)k 3(ersity)k
+6305(of)s 6576(Utrecht)s 3718 10897(14)m 4012(October)s 9(,)k
+4880(1997)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 1 2
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Times-Italic
+/pgsave save def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt84 0.0 0.0 0.0 setrgbcolor 2176 12401(Speci\207cation)m 3533(of)s 3805(CSF)s
+4311(v)s 2(ersion)k 5109(2)s 5284(f)s 6(ormat)k
+6041(and)s 6482(API)s 240 fnt83 3819 11901(C.G.)m 4306(W)s 22(esseling)k
+240 fnt82 1773 11400(Department)m 2961(of)s 3232(Ph)s 1(ysical)k
+4096(Geograph)s 1(y)k 15(,)k 5251(Uni)s 6(v)k 3(ersity)k
+6305(of)s 6576(Utrecht)s 3718 10897(14)m 4012(October)s 9(,)k
+4880(1997)s 240 fnt84 0 9698(1.)m 291(Intr)s 4(oduction)k
+240 fnt82 0 9267(Purpose)m 830(of)s 1104(the)s 1455(Cross)s
+2054(System)s 2822(F)s 3(ormat)k 3572(\(CSF)s 4138(for)s
+4479(short\))s 5088(is)s 5302(a)s 5471(standard)s 6342(binary)s
+7010(endian)s 7708(neutral)s 8430(format)s 0 8979(for)m 320(storing)s
+1019(geographical)s 2291(data)s 2731(used)s 3210(by)s 3486(applications)s
+4673(in)s 4898(the)s 5228(PCRaster)s 6173(package.)s 7043(Other)s
+7629(ASCII)s 8290(formats,)s 0 8691(used)m 509(in)s 764(the)s
+1124(PCRaster)s 2099(package,)s 3002(such)s 3510(as)s 3772(column)s
+4559(\207les,)s 5076(lookup)s 5807(and)s 6223(score)s 6795(tables)s
+7415(are)s 7774(not)s 8152(described)s 0 8403(here.)m 542(F)s 3(or)k
+958(these)s 1533(formats)s 2340(refer)s 2877(to)s 3143(the)s
+3519(PCRaster)s 4509(\(v)s 3(ersion)k 5374(2\))s 5649(manual.)s
+6485(In)s 6768(this)s 7192(document,)s 8270(only)s 8778(the)s
+0 8115(tw)m 2(o)k 431(dimensional)s 1676(raster)s 2286(format)s
+3003(ha)s 4(ving)k 3725(square)s 4426(cells)s 4936(is)s
+5167(described.)s 6208(A)s 6459(binary)s 7145(format)s 7862(for)s
+8222(temporal)s 0 7827(animations)m 1100(of)s 1371(tw)s 2(o)k
+1781(dimensional)s 3005(raster)s 3594(is)s 3804(currently)s 4720(under)s
+5325(de)s 6(v)k 3(elopment.)k 0 7453(This)m 463(document)s
+1453(describes)s 2380(the)s 2714(meaning)s 3578(of)s 3835(the)s
+4170(\207elds)s 4725(in)s 4955(CSF)s 5425(\207les)s 5861(and)s
+6251(the)s 6586(Application)s 7758(Programming)s 0 7165(Interf)m 2(ace)k
+916(\(API\))s 1524(for)s 1877(handling)s 2784(CSF)s 3283(\207les.)s
+3801(By)s 4150(pro)s 3(viding)k 5147(an)s 5446(API)s
+5902(we)s 6253(w)s 2(ant)k 6791(to)s 7046(encourage)s
+8100(the)s 8464(use)s 8855(of)s 0 6877(CSF)m 496(\207les)s
+958(through)s 1772(the)s 2133(API)s 2586(instead)s 3334(getting)s
+4063(at)s 4308(the)s 4669(bytes)s 5237(directly)s 15(.)k
+6068(This)s 6556(allo)s 6(ws)k 7238(a)s 7416(layer)s
+7966(of)s 8250(softw)s 2(are)k 0 6589(\(the)m 427(API\))s
+940(that)s 1358(can)s 1747(deal)s 2200(and)s 2604(if)s
+2821(neccessary)s 3910(\207x)s 4218(things)s 4854(between)s 5708(dif)s 6(ferent)k
+6583(v)s 3(ersions)k 7428(of)s 7699(the)s 8047(format.)s
+0 6215(It)m 196(documents)s 1274(v)s 3(ersion)k 2022(2)s
+2187(of)s 2448(the)s 2786(format)s 3473(and)s 3867(API)s
+4298(and)s 4693(some)s 5244(compatibility)s 6562(issues)s 7175(for)s
+7503(v)s 3(ersion)k 8251(1.)s 8525(Some)s 0 5927(terms)m
+570(no)s 6(w)k 1020(ha)s 4(v)k 3(e)k
+240 fnt83 1510 5929(user)m 1976(names)s 240 fnt82 2583 5927(,)m
+2679(as)s 2918(kno)s 6(wn)k 3611(to)s 3839(them)s
+4366(reading)s 5125(the)s 5462(PCRaster)s 6414(manual,)s 7214(and)s
+240 fnt83 7607 5929(internal)m 8412(names)s 240 fnt82 9019 5927(,)m
+0 5639(for)m 357(programmers,)s 1758(which)s 2420(are)s 2786(the)s
+3154(same)s 3721(as)s 3990(in)s 4253(v)s 3(ersion)k
+5031(1.)s 5275(I)s 5429(w)s 2(ant)k 5972(to)s
+6231(rename)s 7009(most)s 7554(functions)s 8515(in)s 8778(the)s
+0 5351(future)m 626(to)s 865(names)s 1527(used)s 2024(in)s
+2267(the)s 2615(PCRaster)s 3578(manual)s 4337(\(Sorry)s 5001(for)s
+5339(the)s 5687(incon)s 9(vience\).)k 0 4977(I)m 124(start)s
+582(by)s 864(e)s 3(xplaining)k 1913(the)s 2249(structure)s
+3128(and)s 3521(v)s 6(arious)k 4258(\207elds)s 4815(of)s
+5075(the)s 5411(format,)s 6142(although)s 7026(we)s 7349(w)s 2(ant)k
+7860(to)s 8087(encourage)s 0 4689(the)m 348(use)s 723(of)s
+994(the)s 1341(API.)s 1830(This)s 2306(gi)s 6(v)k 3(es)k
+2852(you)s 3267(an)s 3550(idea)s 4007(on)s 4304(what)s
+4829(is)s 5038(around)s 5761(in)s 6004(a)s 6169(CSF)s
+6653(\207le)s 7014(and)s 7417(then)s 7886(I)s 8021(e)s 3(xplain)k
+8778(the)s 0 4401(API)m 441(functions)s 1382(that)s 1800(you)s
+2215(can)s 2604(use)s 2979(to)s 3218(manipulate)s 4336(that)s
+4754(information.)s 240 fnt84 0 3608(2.)m 291(Lay)s 6(out)k
+1077(of)s 1349(a)s 1527(CSF)s 2033(\207le)s 240 fnt82
+0 3131(A)m 239(CSF)s 733(\207le)s 1104(contains)s 1962(3)s
+2136(parts:)s 2716(headers,)s 3563(raster)s 4162(data)s 4629(and)s
+5043(optional)s 5892(attrib)s 4(utes.)k 6950(There)s 7573(are)s
+7930(2)s 8114(headers:)s 8960(a)s 0 2843(main)m 545(header)s
+1252(that)s 1680(contains)s 2538(information)s 3733(necessary)s 4726(for)s
+5074(all)s 5377(sorts)s 5889(of)s 6170(geographic)s 7296(data)s
+7764(and)s 8178(the)s 8537(raster)s 0 2555(header)m 706(with)s
+1198(\207elds)s 1776(speci\207c)s 2569(to)s 2818(raster)s 3416(data.)s
+3928(Size)s 4405(and)s 4818(location)s 5655(of)s 5936(the)s
+6293(header)s 7000(\207elds)s 7579(are)s 7935(gi)s 6(v)k 3(en)k
+8525(in)s 8778(the)s 0 2267(appendix.)m 969(The)s 1383(te)s 3(xt)k
+1784(in)s 2013(this)s 2395(section)s 3115(should)s 3798(be)s
+4066(suf\207cient)s 5001(to)s 5226(use)s 5587(the)s 5921(format)s
+6603(through)s 7391(the)s 7725(API)s 8152(described)s 0 1979(in)m
+243(the)s 591(rest)s 995(of)s 1266(this)s 1662(document.)s
+240 fnt84 0 1380(2.1.)m 471(Basic)s 1073(types)s 1658(and)s
+2099(missing)s 2925(v)s 2(alues)k 240 fnt82 0 903(All)m
+360(\207eld)s 843(and)s 1247(function)s 2101(de\207nitions)s 3162(are)s
+3509(in)s 3752(one)s 4154(of)s 4425(the)s 4773(8)s
+4940(basic)s 5484(csf)s 5834(types)s 6390(plus)s 6840(a)s
+7006(character)s 7940(type:)s 0 400(char)m 480 112(series)m 1074(of)s
+1345(bytes)s 1901(or)s 2160(characters.)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 2 3
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Courier
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4348 13844(-)m 4476(2)s 4650(-)s
+0 13256(INT1,)m 625(INT2)s 1197(and)s 1601(INT4)s 480 12968(signed)m
+1163(inte)s 3(gers)k 1967(of)s 2238(1,)s 2465(2)s
+2639(or)s 2898(4)s 3072(bytes.)s 0 12465(UINT1,)m 798(UINT2)s
+1543(and)s 1947(UINT4)s 480 12177(unsigned)m 1403(inte)s 3(gers)k
+2207(of)s 2478(1,)s 2705(2)s 2879(or)s 3138(4)s
+3312(bytes.)s 0 11675(REAL4,)m 852(REAL8)s 480 11387(\210oating)m 1264(point)s
+1816(\(IEEE-754\))s 2979(4)s 3153(or)s 3412(8)s 3579(bytes.)s
+0 10884(All)m 360(these)s 907(types)s 1463(are)s 1810(de\207ned)s
+2573(by)s 2867(a)s 3033(typedef)s 3822(in)s 4065(the)s
+4413(include)s 5173(\207le)s 5534(of)s 5805(the)s 6153(library)s 15(.)k
+0 10510(The)m 417(lo)s 6(west)k 1084(v)s 6(alue)k
+1641(for)s 1968(signed)s 2639(inte)s 3(gers)k 3432(and)s
+3825(the)s 4162(highest)s 4902(v)s 6(alue)k 5458(for)s
+5785(unsigned)s 6697(inte)s 3(gers)k 7490(are)s 7826(omitted)s
+8602(from)s 0 10222(the)m 351(v)s 6(alid)k 884(range.)s
+1522(These)s 2153(v)s 6(alues)k 2812(are)s 3162(called)s
+3793(missing)s 4594(v)s 6(alues)k 5253(\(MV\))s 5849(and)s
+6256(ha)s 4(v)k 3(e)k 6761(a)s 6930(special)s
+7651(meaning)s 8531(in)s 8778(the)s 0 9934(format.)m 729(The)s 3(y)k
+1260(specify)s 1992(a)s 2146(non)s 2551(speci\207ed)s 3447(feature)s
+4153(or)s 4400(a)s 4554(v)s 6(alue)k 5110(of)s
+5369(no)s 5650(interest.)s 6444(The)s 6860(tw)s 2(o)k
+7258(\210oating)s 8030(point)s 8570(types)s 0 9646(ha)m 4(v)k 3(e)k
+501(a)s 667(bit-pattern)s 1718(\(all)s 2090(bits)s 2486(set)s
+2811(to)s 3050(1\))s 3298(that)s 3716(is)s 3926(a)s
+4092(N)s 8(AN)k 4660(as)s 4910(their)s 5407(missing)s
+6204(v)s 6(alue.)k 240 fnt84 0 8997(2.2.)m 471(Main)s
+1072(header)s 240 fnt82 0 8169(signature)m 480 7881(Internal)m 1277(\207eld)s
+1760(to)s 1999(recognize)s 2984(a)s 3150(CSF)s 3634(\207le.)s
+0 7378(v)m 3(ersion)k 480 7090(V)m 26(ersion)k 1262(of)s
+1526(CSF)s 19(.)k 2031(Current)s 2814(v)s 3(ersion)k
+3565(is)s 3769(2.)s 3986(V)s 26(ersion)k 4767(1)s
+4916(\207les)s 5358(are)s 5698(still)s 6104(readable)s 6962(by)s
+7249(this)s 7639(API)s 8073(b)s 4(ut)k 8428(cannot)s
+480 6802(be)m 785(created)s 1556(by)s 1874(this)s 2294(API.)s
+2807(Minor)s 3489(dif)s 6(ferences)k 4618(between)s 5496(v)s 3(ersion)k
+6278(1)s 6457(and)s 6885(2)s 7083(are)s 7454(e)s 3(xplained)k
+8463(in)s 8730(this)s 480 6514(document.)m 0 6061(gisFileId)m 480 5773(Identi\207cation)m
+1811(\207eld)s 2294(in)s 2537(project)s 3260(conte)s 3(xt.)k
+0 5270(projection)m 480 4982(Map)m 994(projection)s 2042(type.)s 2580(V)s 26(ersion)k
+3390(1)s 3567(had)s 3993(5)s 4181(dif)s 6(ferent)k
+5078(projections.)s 6266(In)s 6544(v)s 3(ersion)k 7324(2)s
+7520(we)s 7877(only)s 8379(discern)s 480 4694(between)m 1346(Y)s
+1588(increasing)s 2636(\(PT_YINCT2B=0\))s 4521(and)s 4938(decreasing)s 6026(\(PT_YDECT2B=1\))s
+7978(from)s 8515(top)s 8887(to)s 480 4406(bottom.)m 1262(V)s 26(ersion)k
+2050(1)s 2205(types)s 2761(are)s 3108(automatically)s 4462(con)s 9(v)k 3(erted.)k
+0 3903(attrT)m 19(able)k 480 3615(Internal)m 1277(\207eld)s 1760(to)s
+1999(\207nd)s 2430(optional)s 3269(attrib)s 4(utes.)k 0 3117(mapT)m 19(ype)k
+480 2829(This)m 956(\207eld)s 1439(is)s 1649(1)s 1804(if)s
+2021(the)s 2369(\207le)s 2730(describes)s 3670(a)s 3836(raster)s 13(.)k
+0 2376(byteOrder)m 480 2088(Detects)m 1265(binary)s 1948(\207le)s 2327(compatibility)s
+3674(\(big)s 4130(v)s 3(ersus)k 4807(little)s 5318(endian\).)s
+6157(This)s 6651(\207eld)s 7152(is)s 7381(used)s 7896(by)s
+200 fnt29 8208 2100(Mopen)m 240 fnt82 8887 2088(to)m 480 1800(determine)m
+1491(ho)s 6(w)k 1953(the)s 2302(\207le)s 2663(must)s
+3189(be)s 3472(read.)s 240 fnt84 3988 1799(V)m 32(AX,)k
+4589(PDP11)s 5342(and)s 5784(other)s 6387(middle)s 7146(endians)s
+7985(ar)s 4(e)k 8370(not)s 8763(y)s 2(et)k
+480 1511(supported)m 0 578(2.3.)m 471(Raster)s 1206(header)s 240 fnt82
+0 147(The)m 428(\207elds)s 996(nrRo)s 6(ws,)k 1842(nrCols,)s
+2586(cellSize,)s 3447(projection,)s 4523(xUL,)s 5068(yUL)s 5564(and)s
+5967(angle)s 6540(describe)s 7392(the)s 7739(e)s 3(xact)k
+8299(location)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 3 4
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Italic
+%%+ font Times-Bold
+%%+ font Symbol
+/pgsave save def
+%%IncludeResource: font Symbol
+/fnt78 { /Symbol LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4353 13844(-)m 4481(3)s 4645(-)s
+0 13251(and)m 422(area)s 898(that)s 1335(is)s 1564(co)s 3(v)k 3(ered)k
+2392(by)s 2705(the)s 3072(map.)s 3607(These)s 4253(\207elds)s
+4841(are)s 5207(called)s 240 fnt83 5854 13253(location)m 6711(attrib)s 4(utes)k
+240 fnt82 7618 13251(.)m 7741(Figure)s 8440(1)s 8614(is)s
+8843(an)s 0 12963(o)m 3(v)k 3(ervie)k 6(w)k
+932(of)s 1203(the)s 1551(location)s 2378(attrib)s 4(utes.)k
+gsave
+4320 9990 translate
+-90.0000 rotate
+240 fnt82
+0.0 0.0 0.0 setrgbcolor
+BeginEPSF
+-2969 -4320 translate
+20.0000 20.0000 scale
+0 0 translate
+%%BeginDocument: location.eps
+%!PS-Adobe-2.0 EPSF-2.0
+%%Title: /tmp/xfig-fig001894
+%%Creator: fig2dev Version 2.1.8 Patchlevel 0
+%%CreationDate: Thu Oct 26 12:08:29 1995
+%%For: cees@pcr1 ()
+%%Orientation: Landscape
+%%BoundingBox: 0 0 297 432
+%%Pages: 0
+%%EndComments
+/$F2psDict 200 dict def 
+$F2psDict begin
+$F2psDict /mtrx matrix put
+/l {lineto} bind def
+/m {moveto} bind def
+/s {stroke} bind def
+/n {newpath} bind def
+/gs {gsave} bind def
+/gr {grestore} bind def
+/clp {closepath} bind def
+/graycol {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+4 -2 roll mul setrgbcolor} bind def
+/col-1 {} def
+/col0 {0 0 0 setrgbcolor} bind def
+/col1 {0 0 1 setrgbcolor} bind def
+/col2 {0 1 0 setrgbcolor} bind def
+/col3 {0 1 1 setrgbcolor} bind def
+/col4 {1 0 0 setrgbcolor} bind def
+/col5 {1 0 1 setrgbcolor} bind def
+/col6 {1 1 0 setrgbcolor} bind def
+/col7 {1 1 1 setrgbcolor} bind def
+/col8 {.68 .85 .9 setrgbcolor} bind def
+/col9 {0 .39 0 setrgbcolor} bind def
+/col10 {.65 .17 .17 setrgbcolor} bind def
+/col11 {1 .51 0 setrgbcolor} bind def
+/col12 {.63 .13 .94 setrgbcolor} bind def
+/col13 {1 .75 .8 setrgbcolor} bind def
+/col14 {.7 .13 .13 setrgbcolor} bind def
+/col15 {1 .84 0 setrgbcolor} bind def
+	end
+/$F2psBegin {$F2psDict begin /$F2psEnteredState save def} def
+/$F2psEnd {$F2psEnteredState restore end} def
+%%EndProlog
+
+$F2psBegin
+0 setlinecap 0 setlinejoin
+-4.0 -4.0 translate 90 rotate 0.900 -0.900 scale
+/Times-Roman findfont 12.00 scalefont setfont
+54 29 m 
+gs 1 -1 scale (xUL,yUL) dup stringwidth pop neg 0 rmoveto  col-1 show gr
+0.500 setlinewidth
+n 419.157 40.435 m 414.000 34.000 l 421.578 37.251 l gs 2 setlinejoin col-1 s gr
+n 372.197 224.901 m 364.000 224.000 l 371.656 220.937 l gs 2 setlinejoin col-1 s gr
+n 349.632 118.640 106.335 82.234 -52.747 arcn
+gs col-1 s gr
+% Polyline
+n 459 34 m 459 54 l gs col-1 s gr
+% Polyline
+n 309 19 m 329 19 l gs col-1 s gr
+n 321.000 17.000 m 329.000 19.000 l 321.000 21.000 l gs 2 setlinejoin col-1 s gr
+% Polyline
+n 44 29 m 84 34 l gs col-1 s gr
+n 76.310 31.023 m 84.000 34.000 l 75.814 34.992 l gs 2 setlinejoin col-1 s gr
+	1 setlinecap [1 3.000000] 3.000000 setdash
+% Polyline
+n 39 4 m 389 244 l gs col-1 s gr
+	[] 0 setdash 0 setlinecap
+% Polyline
+n 144 34 m 144 274 l gs col-1 s gr
+% Polyline
+n 164 34 m 164 274 l gs col-1 s gr
+% Polyline
+n 84 94 m 404 94 l gs col-1 s gr
+% Polyline
+n 84 114 m 404 114 l gs col-1 s gr
+% Polyline
+n 84 54 m 84 54 l  104 54 l gs col-1 s gr
+% Polyline
+n 84 74 m 84 74 l  104 74 l gs col-1 s gr
+% Polyline
+n 84 134 m 84 134 l  104 134 l gs col-1 s gr
+% Polyline
+n 84 34 m 84 34 l  104 34 l gs col-1 s gr
+% Polyline
+n 104 34 m 104 54 l gs col-1 s gr
+% Polyline
+n 124 34 m 124 54 l gs col-1 s gr
+% Polyline
+n 84 54 m 84 54 l  104 54 l gs col-1 s gr
+% Polyline
+n 84 34 m 84 34 l  104 34 l gs col-1 s gr
+% Polyline
+n 84 314 m 84 314 l  104 314 l gs col-1 s gr
+n 6.000 166.000 m 4.000 174.000 l 2.000 166.000 l gs 2 setlinejoin col-1 s gr
+% Polyline
+n 4 174 m 4 154 l gs col-1 s gr
+n 2.000 162.000 m 4.000 154.000 l 6.000 162.000 l gs 2 setlinejoin col-1 s gr
+n 306.000 106.000 m 304.000 114.000 l 302.000 106.000 l gs 2 setlinejoin col-1 s gr
+% Polyline
+n 304 114 m 304 94 l gs col-1 s gr
+n 302.000 102.000 m 304.000 94.000 l 306.000 102.000 l gs 2 setlinejoin col-1 s gr
+n 152.000 156.000 m 144.000 154.000 l 152.000 152.000 l gs 2 setlinejoin col-1 s gr
+% Polyline
+n 144 154 m 164 154 l gs col-1 s gr
+n 156.000 152.000 m 164.000 154.000 l 156.000 156.000 l gs 2 setlinejoin col-1 s gr
+% Polyline
+n 484 334 m 84 334 l  84 34 l  484 34 l  clp gs col-1 s gr
+% Polyline
+n 144 34 m 144 274 l gs col-1 s gr
+% Polyline
+n 164 34 m 164 274 l gs col-1 s gr
+% Polyline
+n 84 74 m 84 74 l  104 74 l gs col-1 s gr
+% Polyline
+n 104 34 m 104 54 l gs col-1 s gr
+% Polyline
+n 124 34 m 124 54 l gs col-1 s gr
+% Polyline
+n 84 134 m 84 134 l  104 134 l gs col-1 s gr
+% Polyline
+n 84 94 m 404 94 l gs col-1 s gr
+% Polyline
+n 84 114 m 404 114 l gs col-1 s gr
+% Polyline
+n 14 104 m 14 124 l gs col-1 s gr
+n 16.000 116.000 m 14.000 124.000 l 12.000 116.000 l gs 2 setlinejoin col-1 s gr
+% Polyline
+n 199 14 m 219 14 l gs col-1 s gr
+n 211.000 12.000 m 219.000 14.000 l 211.000 16.000 l gs 2 setlinejoin col-1 s gr
+/Times-Roman findfont 12.00 scalefont setfont
+94 19 m 
+gs 1 -1 scale (0) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+114 19 m 
+gs 1 -1 scale (1) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+134 19 m 
+gs 1 -1 scale (2) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+154 19 m 
+gs 1 -1 scale (3) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+479 19 m 
+gs 1 -1 scale (nrCols - 1) dup stringwidth pop neg 0 rmoveto  col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+294 19 m 
+gs 1 -1 scale (X direction) dup stringwidth pop neg 0 rmoveto  col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+409 179 m 
+gs 1 -1 scale (angle) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+64 54 m 
+gs 1 -1 scale (0) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+64 74 m 
+gs 1 -1 scale (1) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+64 94 m 
+gs 1 -1 scale (2) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+64 114 m 
+gs 1 -1 scale (3) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+64 134 m 
+gs 1 -1 scale (4) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+4 94 m 
+gs 1 -1 scale (Rows) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+4 194 m 
+gs 1 -1 scale (Y direction ) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+4 212 m 
+gs 1 -1 scale (depends on) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+4 230 m 
+gs 1 -1 scale (projection) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+64 334 m 
+gs 1 -1 scale (nrRows -1) dup stringwidth pop neg 0 rmoveto  col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+146 170 m 
+gs 1 -1 scale  270.0 rotate (cellSize) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+324 114 m 
+gs 1 -1 scale (cellSize) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+169 19 m 
+gs 1 -1 scale (Cols) col-1 show gr
+/Times-Roman findfont 12.00 scalefont setfont
+334 224 m 
+gs 1 -1 scale  324.0 rotate (line y = 0) col-1 show gr
+$F2psEnd
+%%EndDocument
+EndEPSF
+
+grestore
+240 fnt84 0.0 0.0 0.0 setrgbcolor 0 6711(Fig)m 3(.1:)k 240 fnt82
+629 6712(Scheme)m 1442(of)s 1713(a)s 1879(maps)s 2435(location)s
+3262(attrib)s 4(utes.)k 0 5946(nrRo)m 6(ws)k 480 5658(Number)m
+1324(of)s 1595(ro)s 6(ws.)k 0 5204(nrCols)m 480 4916(Number)m
+1324(of)s 1595(columns.)s 0 4463(xUL,)m 546(yUL)s 1042(\(user)s
+1579(name:)s 240 fnt83 2203 4465(x)m 167 fnt83 2309 4378(ul)m
+240 fnt83 2498 4465(y)m 167 fnt83 2600 4378(ul)m 240 fnt82
+2789 4463(ul=UpperLeft\))m 480 4175(Co-ordinate)m 1678(for)s 2016(the)s 2364(upper)s
+2969(left)s 3346(corner)s 4016(of)s 4287(the)s 4635(map.)s
+0 3672(cellSize)m 811(\(user)s 1348(name:)s 1972(cell)s 2371(length\))s
+480 3384(Size)m 952(of)s 1229(cell)s 1633(in)s 1882(x)s
+2062(and)s 2472(y)s 2651(direction.)s 3610(In)s 3871(v)s 3(ersion)k
+4635(1)s 4795(dif)s 6(ferent)k 5676(sizes)s 6196(could)s
+6792(be)s 7079(gi)s 6(v)k 3(en)k 7665(for)s
+8008(the)s 8362(x)s 8542(and)s 8952(y)s 480 3096(direction.)m
+1441(There)s 2063(are)s 2419(still)s 2840(tw)s 2(o)k
+3259(separate)s 4106(\207elds)s 4684(in)s 4936(the)s 5292(raster)s
+5890(header)s 9(,)k 6634(b)s 4(ut)k 7005(the)s 3(y)k
+7477(are)s 7833(al)s 2(w)k 2(ays)k 8553(set)s
+8887(to)s 480 2808(the)m 825(same)s 1369(v)s 6(alue.)k
+1982(If)s 2209(the)s 2554(raster)s 3140(is)s 3347(an)s
+3627(altitude)s 4396(map)s 4858(then)s 5324(these)s 5868(\207elds)s
+6434(must)s 6956(be)s 7235(in)s 7475(the)s 7820(same)s
+8364(units)s 8876(as)s 480 2520(the)m 825(cell-v)s 6(alues,)k
+1956(for)s 2291(correct)s 3009(slope)s 3567(and)s 3967(orient)s
+4581(calculations)s 5769(\(for)s 6183(e)s 3(xample,)k 7093(both)s
+7573(in)s 7812(kilometers)s 8867(or)s 480 2232(meters)m 1167(b)s 4(ut)k
+1529(not)s 1895(in)s 2138(the)s 2486(cellSize)s 3297(in)s
+3540(kilometers)s 4599(units)s 5115(and)s 5519(the)s 5867(dtm)s
+6299(cell)s 6698(v)s 6(alues)k 7354(in)s 7597(meters\).)s
+0 1739(angle)m 480 1451(Counterclockwise)m 2268(rotation)s 3074(angle)s 3653(\()s
+240 fnt78 3792 1445(\316)m 3932([)s 4091(-)s 4318 1553(1)m
+gsave
+4308 1505 translate
+240 fnt83 0.0 0.0 0.0 setrgbcolor 114 0 0 0 240 288 12 LoutGraphic
+gsave
+0 0 moveto xsize 0 lineto 0.05 ft setlinewidth stroke
+grestore
+
+grestore
+240 fnt78 0.0 0.0 0.0 setrgbcolor 4308 1277(2)m 4440 1445(p)m 4585(,)s
+4718 1553(1)m gsave
+4708 1505 translate
+240 fnt83 0.0 0.0 0.0 setrgbcolor 114 0 0 0 240 288 12 LoutGraphic
+gsave
+0 0 moveto xsize 0 lineto 0.05 ft setlinewidth stroke
+grestore
+
+grestore
+240 fnt78 0.0 0.0 0.0 setrgbcolor 4708 1277(2)m 4840 1445(p)m
+4985(])s 240 fnt82 5109 1451(\))m 5303(of)s 5579(grid)s
+6028(with)s 6516(the)s 6869(line)s 240 fnt83 7289 1453(y)m
+240 fnt78 7492 1445(=)m 7722(0)s 240 fnt82 7836 1451(.)m
+7945(This)s 8427(\207eld)s 8916(is)s 480 1054(ne)m 6(w)k
+927(in)s 1170(v)s 3(ersion)k 1928(2.)s 2152(V)s 26(ersion)k
+3000(1)s 3155(\207les)s 3604(ha)s 4(v)k 3(e)k
+4105(an)s 4388(angle)s 4962(of)s 5233(0.)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 4 5
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Times-Italic
+/pgsave save def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4348 13844(-)m 4476(4)s 4650(-)s
+0 13256(cellRepr)m 869(\(user)s 1406(name:)s 2030(cell)s 2429(representation\))s
+480 12968(Speci\207es)m 1377(which)s 2002(of)s 2256(the)s 2587(8)s
+2737(basic)s 3263(types)s 3802(is)s 3995(used)s 4475(to)s
+4697(hold)s 5164(the)s 5494(raster)s 6066(data)s 6507(and)s
+6894(the)s 7225(minV)s 26(al)k 7954(and)s 8340(maxV)s 26(al)k
+480 12680(\207eld.)m 1014(This)s 1496(API)s 1943(\(v)s 3(ersion)k
+2786(2\))s 3040(only)s 3526(supports)s 4394(the)s 4748(four)s
+5212(types)s 5774(listed)s 6355(belo)s 6(w)k 15(.)k
+7029(The)s 7463(other)s 8020(basic)s 8570(types)s 480 12392(can)m
+876(still)s 1295(be)s 1584(read.)s 2106(There)s 2726(a)s
+2899(no)s 3199(applications)s 4413(that)s 4838(need)s 5355(to)s
+5601(create)s 6233(REAL8)s 7032(maps)s 7595(at)s 7834(this)s
+8238(moment.)s 480 12104(The)m 900(REAL8)s 1683(basic)s 2218(type)s
+2677(is)s 2879(ho)s 6(we)k 6(v)k 3(er)k
+3739(important)s 4719(in)s 4953(the)s 5293(RuseAs)s 6080(function)s
+6925(since)s 7463(it)s 7647(is)s 7848(the)s 8187(only)s
+8658(type)s 480 11816(that)m 898(can)s 1287(hold)s 1771(and)s
+2175(con)s 9(v)k 3(ert)k 2940(back)s 3453(and)s
+3857(forw)s 2(ard)k 4729(the)s 5077(other)s 5628(three)s
+6161(types)s 6717(with)s 7199(no)s 7492(loss)s 7915(of)s
+8186(precision)s 0 11313(minV)m 26(al)k 480 11025(V)m 26(alue)k
+1131(smaller)s 1944(than)s 2464(or)s 2774(equal)s 3398(to)s
+3688(the)s 4087(minimum)s 5127(v)s 6(alue)k 5746(in)s
+6040(raster)s 6680(data.)s 7233(See)s 7685(description)s 8855(of)s
+480 10737(maxV)m 26(al.)k 0 10284(maxV)m 26(al)k 480 9996(V)m 26(alue)k
+1086(greater)s 1813(than)s 2287(or)s 2552(equal)s 3130(to)s
+3374(the)s 3727(maximum)s 4763(v)s 6(alue)k 5336(in)s
+5584(raster)s 6178(data.)s 6746(The)s 7179(minV)s 26(al)k
+7930(and)s 8340(maxV)s 26(al)k 480 9708(\207elds)m 1049(are)s
+1395(mainly)s 2112(used)s 2608(in)s 2851(programs)s 3804(who)s
+4269(needs)s 4864(a)s 5030(possible)s 5869(range)s 6455(of)s
+6725(v)s 6(alues,)k 7437(e.g.)s 7826(for)s 8163(the)s
+8510(scalar)s 480 9420(le)m 3(gend)k 1193(in)s 1456(display)s 15(.)k
+2257(The)s 2705(minV)s 26(al)k 3472(and)s 3896(maxV)s 26(al)k
+4703(\207elds)s 5292(are)s 5659(of)s 5951(the)s 6319(same)s
+6887(type)s 7375(as)s 7646(the)s 8014(raster)s 8624(data.)s
+480 9132(In)m 749(v)s 3(ersion)k 1520(1)s 1688(minV)s 26(al)k
+2447(and)s 2865(maxV)s 26(al)k 3664(could)s 4267(be)s
+4562(missing)s 5372(v)s 6(alue.)k 6002(It)s 6220(is)s
+6443(highly)s 7122(recommended)s 8548(to)s 8801(set)s 480 8844(minV)m 26(al)k
+1210(and)s 1597(maxV)s 26(al)k 240 fnt84 2366 8843(always)m
+240 fnt82 3095 8844(to)m 3377(v)s 6(alue)k 3928(such)s
+4407(that)s 4808(all)s 5084(v)s 6(alues)k 5723(in)s
+5949(the)s 6280(raster)s 6852(should)s 7532(f)s 2(all)k
+7885(between)s 8722(and)s 480 8556(including)m 1419(minV)s 26(al)k
+2147(and)s 2533(maxV)s 26(al.)k 3410(If)s 3622(minV)s 26(al)k
+4350(and/or)s 5003(maxV)s 26(al)k 5771(is)s 5963(missing)s
+6742(v)s 6(alue)k 7292(then)s 7743(an)s 8007(application)s
+480 8268(can)m 869(assume)s 1629(that)s 2047(is)s 2257(a)s
+240 fnt83 2423 8270(void)m 2901(map)s 240 fnt82 3307 8268(:)m
+3413(a)s 3579(map)s 4044(with)s 4526(only)s 5006(missing)s
+5803(v)s 6(alues.)k 0 7765(v)m 6(alueScale)k 1085(\(user)s
+1622(name:)s 2246(data)s 2704(type\))s 480 7477(The)m 896(v)s 3(ersion)k
+1642(2)s 1804(v)s 6(alue)k 2360(scales)s 2969(are)s
+3304(listed)s 3867(in)s 4098(the)s 4434(paragraph)s 5435(and)s
+5827(e)s 3(xplained)k 6800(in)s 7031(the)s 7367(PCRaster)s
+8318(manual.)s 480 7189(V)m 26(ersion)k 1275(1)s 1437(types)s
+2000(where)s 2647(classi\207ed,)s 3650(continuous)s 4759(and)s 5170(not)s
+5543(determined.)s 6729(Only)s 7269(v)s 3(ersion)k 8034(2)s
+8215(types)s 8779(are)s 480 6901(accepted)m 1363(in)s 1595(the)s
+1932(creation)s 2747(of)s 3007(maps)s 3552(through)s 4343(the)s
+4680(API)s 5110(described)s 6073(here)s 6529(\(v)s 3(ersion)k
+7355(2\).)s 7647(Read)s 8185(functions)s 480 6613(,)m 587(such)s
+1083(as)s 1333(RgetV)s 26(alueScale)k 2903(will)s 3329(still)s
+3741(return)s 4368(the)s 4716(old)s 5080(types.)s 240 fnt84
+0 6054(cellr)m 4(epr)k 1129(user)s 1625(name)s 240 fnt82
+0 5728(UINT1)m 1129(small)s 1701(inte)s 3(ger)k 0 5399(INT4)m
+1129(lar)s 4(ge)k 1658(inte)s 3(ger)k 0 5070(REAL4)m
+1129(small)s 1701(real)s 0 4791(REAL8)m 1129(lar)s 4(ge)k
+1658(real)s 240 fnt84 0 3510(2.4.)m 471(Raster)s 1206(data)s
+240 fnt82 0 3079(The)m 421(raster)s 1002(data)s 1452(is)s
+1654(a)s 1812(stream)s 2500(of)s 2763(cells)s 3243(in)s
+3478(the)s 3819(basic)s 4355(type)s 4815(denoted)s 5623(by)s
+5909(the)s 6249(cellRepr)s 7110(\207eld)s 7585(of)s 7848(raster)s
+8429(header)s 0 2791(of)m 284(nrCols)s 986(*)s 1163(nrRo)s 6(ws)k
+1967(cells)s 2468(containing)s 3544(v)s 6(alues)k 4214(or)s
+4486(missing)s 5296(v)s 6(alues.)k 6018(Interpretation)s 7388(and)s
+7805(ranges)s 8493(of)s 8778(the)s 0 2503(cell)m 399(v)s 6(alues)k
+1055(depends)s 1891(on)s 2188(the)s 2536(v)s 6(alue)k
+3104(scale:)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 5 6
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Symbol
+/pgsave save def
+%%IncludeResource: font Symbol
+/fnt78 { /Symbol LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4352 13841(-)m 4480(5)s 4646(-)s
+240 fnt84 0 13194(v)m 2(alue)k 599(scale)s 1426(cell)s
+1825(v)s 2(alues)k 2515(ar)s 4(e:)k 240 fnt82
+0 12914(classi\207ed)m 1426(MV)s 30(,)k 1889(all)s 2182(inte)s 3(gers)k
+0 12585(continuous)m 1426(MV)s 30(,)k 1889(all)s 2182(reals)s
+0 12275(boolean)m 1426(MV)s 30(,)k 1889(0,)s 2116(1)s
+0 11965(nominal)m 1426(MV)s 30(,)k 1889(all)s 2182(inte)s 3(gers)k
+0 11636(ordinal)m 1426(MV)s 30(,)k 1889(all)s 2182(inte)s 3(gers)k
+0 11307(scalar)m 1426(MV)s 30(,)k 1889(all)s 2182(reals)s
+0 10997(direction)m 1426(MV)s 30(,)k 1889(-1)s 2123(for)s
+2461(no)s 2754(direction,)s 240 fnt78 3710 10991([)m 3793(0)s
+3919(,)s 4026(2)s 4152(p)s 4363(>)s 240 fnt82
+0 10677(ldd)m 1426(MV)s 30(,)k 1889(inte)s 3(gers)k
+2693([1-9])s 240 fnt84 0 9683(2.5.)m 471(Optional)s 1429(attrib)s 4(utes)k
+240 fnt82 0 9206(The)m 421(attrib)s 4(utes)k 1348(or)s
+1599(\207elds)s 2160(in)s 2395(the)s 2735(headers)s 3508(are)s
+3848(all)s 4133(oblig)s 1(atory)k 15(.)k 5196(Optional)s
+6080(attrib)s 4(utes)k 7007(such)s 7495(as)s 7737(color)s
+8280(pallettes)s 0 8918(and)m 404(le)s 3(gends)k 1183(are)s
+1530(appended)s 2506(to)s 2745(the)s 3093(end)s 3497(of)s
+3768(the)s 4116(\207le.)s 0 8544(Optional)m 900(attrib)s 4(utes)k
+1844(are)s 2200(identi\207ed)s 3170(by)s 3473(an)s 3765(unique)s
+4482(number)s 13(.)k 5313(Ev)s 3(ery)k 5944(optional)s
+6792(attrib)s 4(ute)k 7648(can)s 8046(only)s 8535(occur)s
+0 8256(once)m 508(in)s 751(the)s 1099(\207le.)s 1508(Attrib)s 4(utes)k
+2510(de\207ned)s 3273(are)s 3620(\(See)s 4100(appendix)s 5033(for)s
+5371(details\):)s 0 7753(Description)m 480 7465(The)m 897(description)s 2004(is)s
+2202(a)s 2356(\(short\))s 3029(description)s 4136(of)s 4395(the)s
+4731(map.)s 5235(In)s 5479(most)s 5992(cases)s 6535(this)s
+6919(is)s 7117(the)s 7453(name)s 8015(of)s 8274(the)s
+8610(map.)s 480 7177(F)m 3(or)k 869(e)s 3(xample:)k
+1782(Ele)s 6(v)k 6(ation of the Netherlands.)k 0 6674(Le)m 3(gend)k
+773(without)s 1564(a)s 1730(name)s 480 6386(V)m 26(ersion)k
+1268(1)s 1423(le)s 3(gend.)k 2162(See)s 2563(le)s 3(gend)k
+3256(with)s 3738(a)s 3904(name.)s 0 5883(Le)m 3(gend)k
+773(with)s 1255(a)s 1421(name)s 480 5595(V)m 26(ersion)k
+1263(2)s 1431(le)s 3(gend.)k 2165(A)s 2389(le)s 3(gend)k
+3077(has)s 3441(a)s 3602(name,)s 4221(for)s 4554(e)s 3(xample)k
+5411(soil types)s 6367(or)s 6620( land use,)s 7573(and)s 7971(an)s
+8249(entry)s 8788(for)s 480 5307(each)m 975(v)s 6(alue)k
+1543(that)s 1961(maps)s 2517(a)s 2683(cell)s 3082(v)s 6(alue)k
+3650(to)s 3889(a)s 4055(description.)s 0 4804(History)m 480 4516(History)m
+1264(describes)s 2217(ho)s 6(w)k 2692(the)s 3053(map)s
+3531(is)s 3755(created.)s 4561(W)s 19(e)k 4944(recommend)s
+6144(to)s 6396(use)s 6785(this)s 7194(attrib)s 4(ute)k
+8055(frequently)s 15(.)k 480 4228(If)m 720(your)s 1229(application)s
+2359(creates)s 3082(a)s 3258(map,)s 3788(then)s 4267(use)s
+4653(the)s 5011(history)s 5739(attrib)s 4(ute)k 6597(to)s
+6846(identify)s 7653(that)s 8082(the)s 8440(map)s 8916(is)s
+480 3940(created)m 1244(with)s 1743(your)s 2259(program.)s 3190(HINT)s 12(:)k
+3872(cop)s 2(y)k 4407(the)s 4772(entire)s 5388(command)s
+6407(line)s 6838(\(including)s 7891(the)s 8256(program)s 480 3652(name\))m
+1126(of)s 1397(your)s 1896(program)s 2766(to)s 3005(this)s
+3401(\207eld)s 0 3149(Colour)m 725(P)s 3(alette)k 480 2861(List)m
+911(of)s 1182(red,)s 1594(green)s 2182(and)s 2586(blue)s
+3054(intensities.)s 0 2358(Gre)m 3(y)k 529(P)s 3(alette)k
+480 2070(List)m 911(of)s 1182(white)s 1769(intensities.)s 240 fnt84
+0 1038(3.)m 291(Ho)s 2(w)k 825(to)s 1079(install)s
+1757(the)s 2131(library)s 240 fnt82 0 561(The)m 428(distrib)s 4(ution)k
+1583(contains)s 2431(four)s 2889(directories)s 3947(and)s 4351(one)s
+4753(\207le)s 5114(in)s 5357(the)s 5705(top)s 6064(directory:)s
+
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 6 7
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Courier
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4348 13842(-)m 4476(6)s 4649(-)s
+0 13304(src)m 480 13016(All)m 862(c-\207les)s 1519(\(.c\),)s 1973(cs\207mpl.h)s
+2936(\(local)s 3557(include)s 4340(for)s 4700(library)s 5413(compilation)s
+6635(only\))s 7211(and)s 7638(mak)s 2(e\207le.tem)k 8960(a)s
+480 12728(template)m 1358(mak)s 2(e\207le)k 2235(with)s 2717(the)s
+3065(correct)s 3787(OBJS)s 4391(de\207nition)s 0 12225(include)m 480 11937(csf.h,)m
+1045(csf)s 2(attr)k 13(.h)k 1862(and)s 2266(csftypes.h:)s
+3335(interf)s 2(ace)k 4223(\207les)s 0 11435(man3)m 480 11147(All)m
+840(manual)s 1599(pages)s 0 10644(html)m 480 10356(All)m 862(manual)s
+1644(pages)s 2262(in)s 2528(Html)s 3096(format.)s 3859(Use)s
+4309(the)s 4680(inde)s 3(x,)k 5338(00csf.html)s 6432(or)s
+6713(cs\207nde)s 3(x.html)k 8084(as)s 8357(starting)s 480 10068(point)m
+0 9565(htm)m 480 9277(All)m 896(manual)s 1712(pages)s 2365(in)s
+2665(Html)s 3268(format)s 4021(with)s 4559(DOS)s 5140(\207lenames.)s
+6217(Use)s 6702(the)s 7107(inde)s 3(x,)k 7800(00csf.htm)s
+8867(or)s 480 8989(cs\207nde)m 3(x.htm)k 1767(as)s 2017(starting)s
+2786(point)s 0 8486(csf.ps)m 480 8198(this)m 876(document)s 0 7745(Create)m
+679(a)s 845(mak)s 2(e\207le)k 1722(in)s 1965(src:)s
+0 7371(The)m 460(mak)s 2(e\207le)k 1370(must)s 1928(contain)s
+2721(all)s 3047(c-\207les)s 3714(from)s 4271(this)s 4699(directory)s 15(.)k
+5683(and)s 6120(include)s 6912(on)s 7242(of)s 7546(the)s
+7927(compilation)s 0 7083(directi)m 6(v)k 3(es:)k 1025(CPU_BIG_ENDIAN)s
+3117(or)s 3376(CPU_LITTLE_ENDIAN.)s 0 6709(F)m 3(or)k 412(both)s
+918(using)s 1513(and)s 1940(creating)s 2785(the)s 3156(library)s
+3869(the)s 4240(CPU_BIG_ENDIAN)s 6355(or)s 6637(CPU_LITTLE_ENDIAN)s 0 6421(preprocessor)m
+1287(symbols)s 2142(must)s 2673(be)s 2962(de\207ned)s 3731(\(e.g.)s
+4206(-DCPU_BIG_ENDIAN\).)s 6683(Ho)s 6(we)k 6(v)k 3(er)k 9(,)k
+7649(some)s 8216(cpu')s 13(s)k 8779(are)s 0 6133(probed)m
+722(in)s 964(the)s 1311(MA)s 9(CHINE)k 2475(AND)s
+3045(OPERA)s 26(TING)k 4431(SYSTEM)s 5428(section)s 6161(of)s
+6431(csftypes.h)s 7450(.)s 7553(It)s 7757(is)s 7966(a)s
+8131(good)s 8668(idea)s 0 5845(to)m 237(read)s 704(that)s
+1119(section)s 1851(of)s 2119(csftypes.h)s 3137(\207rst.)s 3669(The)s
+4095(library)s 4782(is)s 4990(strict)s 5523(ANSI)s 6135(C,)s
+6399(add)s 6801(the)s 7146(appropriate)s 8288(\210ags)s 8788(for)s
+0 5557(your)m 499(c-compiler)s 1593(ANSI)s 2207(C)s 2419(compilation.)s
+0 5183(Or)m 300(without)s 1079(mak)s 2(e,)k 1690(create)s
+2302(a)s 2456(project)s 3167(\207le)s 3515(by)s 3797(selecting)s
+4687(all)s 4967(c-\207les)s 5589(from)s 6101(this)s 6484(directory)s
+7388(and)s 7780(select)s 8370(options)s 0 4895(to)m 239(de\207ne)s
+880(one)s 1282(of)s 1553(the)s 1901(endian)s 2596(preprocessor)s
+3877(symbols)s 4726(and)s 5130(set)s 5455(the)s 5803(compiler)s
+6712(to)s 6951(ANSI)s 7565(C.)s 0 4521(Then)m 567(put)s
+952(the)s 1318(created)s 2084(library)s 2793(in)s 3054(the)s
+3421(appropriate)s 4583(place)s 5162(on)s 5478(your)s 5995(system)s
+6738(and)s 7160(mak)s 2(e)k 7751(the)s 8118(manpages)s
+0 4233(\(include)m 871(one)s 1305(directory)s 2253(up)s 2579(of)s
+2882(man3)s 3490(in)s 3766(your)s 4297(MANP)s 22(A)k 26(TH)k
+5521(en)s 9(vironment)k 6814(v)s 6(ariable\))k 7737(and)s
+8173(mak)s 2(e)k 8778(the)s 0 3945(include)m 760(directory)s
+1676(visible)s 2369(in)s 2612(your)s 3111(programming)s 4466(en)s 9(vironment)k
+5726(\(-I\).)s 240 fnt84 0 3152(4.)m 291(Using)s 932(this)s
+1357(API)s 1825(in)s 2080(pr)s 4(ograms)k 240 fnt82
+0 2675(The)m 428(CSF)s 911(library)s 1600(is)s 1809(a)s
+1975(collection)s 2973(of)s 3243(constants,)s 4239(macro')s 13(s)k
+5046(and)s 5449(functions)s 6389(to)s 6627(access)s 7288(CSF)s
+7771(\207les.)s 8272(Here)s 8791(we)s 0 2387(discuss)m 759(the)s
+1124(contents)s 1989(of)s 2277(the)s 2642(library)s 3349(in)s
+3609(thematic)s 4501(order)s 13(.)k 5113(All)s 5490(functions)s
+6448(mentioned)s 7533(are)s 7898(documented)s 0 2099(in)m 257(the)s
+620(online)s 1288(manual)s 2062(pages.)s 2785(Man)s 3(y)k
+3410(manual)s 4183(pages)s 4794(also)s 5246(include)s 6021(some)s
+6596(sample)s 7344(code.)s 7914(Note)s 8450(that)s 8883(in)s
+0 1811(case)m 459(of)s 721(con\210icting)s 1788(information)s 2964(between)s
+3809(this)s 4196(document)s 5191(and)s 5587(the)s 5926(manual)s
+6676(pages,)s 7319(you)s 7725(should)s 8413(rely)s 8829(on)s
+0 1523(the)m 348(manual)s 1107(page)s 1615(for)s 1953(being)s
+2538(most)s 3063(up)s 3356(to)s 3595(date.)s 4156(There)s
+4769(are)s 5116(tw)s 2(o)k 5526(public)s 6177(include)s
+6937(\207les)s 7386(to)s 7625(include)s 8385(in)s 8627(your)s
+0 1235(application:)m 200 fnt29 1194 1247(csf.h)m 1194 959(csftypes.h)m 240 fnt82
+2394 1235(.)m 200 fnt29 2525 1247(csf.h)m 240 fnt82 3212 1235(contains)m
+4086(the)s 4461(function)s 5342(prototypes)s 6429(and)s 6860(includes)s
+200 fnt29 7735 1247(csftypes.h)m 240 fnt82 9022 1235(.)m 200 fnt29
+0 776(csftypes.h)m 240 fnt82 1260 764(contains)m 2108(only)s 2588(typedefs)s
+3449(and)s 3853(constants)s 4794(\(e.g.)s 200 fnt29 5263 776(UINT1)m
+5983(MV_UINT1)s 240 fnt82 6943 764(\).)m 0 390(All)m 383(public)s
+1057(functions)s 2021(are)s 2391(pre\207x)s 3(ed)k 3253(by)s
+3570(either)s 4196(M)s 4486(or)s 4768(R.)s 5055(M-functions,)s
+6367(for)s 6728(e)s 3(xample)k 200 fnt29 7614 402(Mopen,)m
+240 fnt82 8417 390(are)m 8788(for)s 0 102(generic)m 745(map)s
+1198(handling,)s 2131(the)s 2468(R-functions,)s 3692(for)s 4018(e)s 3(xample)k
+200 fnt29 4870 114(RgetRow,)m 240 fnt82 5878 102(are)m 6213(speci\207c)s
+6985(for)s 7311(raster)s 7888(functions.)s 8870(In)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 7 8
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Courier
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4351 13848(-)m 4479(7)s 4647(-)s
+0 13259(addition)m 836(there)s 1364(are)s 1706(functions,)s 2697(typedefs)s
+3553(and)s 3952(constants)s 4888(pre\207x)s 3(ed)k 5721(by)s
+6010(CSF)s 19(.)k 6516(The)s 6939(CSF-pre\207x)s 3(ed)k
+8277(symbols)s 0 12971(are)m 407(only)s 887(for)s 1225(internal)s
+2009(use)s 2384(in)s 2627(the)s 2975(library)s 3665(and)s
+4069(do)s 4362(not)s 4728(belong)s 5433(to)s 5672(the)s
+6020(API.)s 240 fnt84 0 12322(4.1.)m 471(Err)s 4(or)k
+1123(handling)s 240 fnt82 0 11845(Functions)m 995(a)s 4(v)k 6(ailable)k
+1903(for)s 2241(error)s 2764(handling)s 3655(are:)s 0 11347(Mperror)m
+480 11059(Write)m 1079(short)s 1617(error)s 2140(message)s 3006(associated)s
+4046(with)s 4528(current)s 5264(Merrno)s 6034(v)s 6(alue)k
+6602(to)s 6841(stderr)s 13(.)k 0 10556(MperrorExit)m 480 10268(Write)m
+1079(short)s 1617(error)s 2140(message)s 3006(associated)s 4046(with)s
+4528(current)s 5264(Merrno)s 6034(v)s 6(alue)k 6602(to)s
+6841(stderr)s 7444(and)s 7848(e)s 3(xits.)k 0 9770(MstrError)m
+480 9482(Returns)m 1275(error)s 1798(message)s 2664(associated)s 3704(with)s
+4186(current)s 4922(Merrno)s 5692(v)s 6(alue.)k 0 8984(ResetMerrno)m
+480 8696(Reset)m 1071(Merrno)s 1841(v)s 6(ariable)k 2660(to)s
+2899(NO_ERR)s 9(OR.)k 0 8215(Man)m 3(y)k 601(functions)s
+1533(in)s 1767(the)s 2105(library)s 2786(set)s 3102(the)s
+3441(global)s 4084(v)s 6(ariable)k 200 fnt29 4894 8227(Merrno)m
+240 fnt82 5665 8215(\(analog)m 6426(to)s 200 fnt29 6655 8227(errno)m
+240 fnt82 7306 8215(from)m 7821(the)s 8160(C)s 8362(library\))s
+0 7927(to)m 232(a)s 391(v)s 6(alue)k 952(unequal)s
+1757(to)s 1989(zero)s 2446(in)s 2682(case)s 3141(of)s
+3405(an)s 3681(error)s 13(.)k 4227(This)s 4696(v)s 6(alue)k
+5257(gi)s 6(v)k 3(es)k 5797(further)s 6498(information)s
+7676(about)s 8261(the)s 8601(most)s 0 7639(recent)m 646(error)s 13(.)k
+1203(At)s 1506(program)s 2379(initialization,)s 3696(Merrno)s 4469(is)s
+4682(set)s 5011(to)s 5253(0)s 5432(\(NO_ERR)s 9(OR\).)k
+6953(In)s 7212(most)s 7741(of)s 8015(the)s 8367(manual)s
+0 7351(pages)m 606(there)s 1149(is)s 1369(a)s 1545(section)s
+2289(MERRNO)s 3377(that)s 3805(lists)s 4250(the)s 4608(possible)s
+5458(constants)s 6410(set)s 6745(by)s 7049(a)s 7225(speci\207c)s
+8018(function)s 8883(in)s 0 7063(case)m 477(of)s 758(an)s
+1051(error)s 13(.)k 1615(There)s 2238(is)s 2458(no)s
+2761(g)s 1(aranty)k 3541(that)s 3970(Merrno)s 4750(is)s
+4970(al)s 2(w)k 2(ays)k 5691(set)s 6026(in)s
+6279(case)s 6756(e)s 6(v)k 3(ery)k 7342(possible)s
+8192(error)s 9(,)k 8764(b)s 4(ut)k 0 6775(man)m 3(y)k
+569(error)s 1077(conditions)s 2110(speci\207c)s 2878(to)s 3102(using)s
+3659(this)s 4040(API)s 4467(are)s 4799(check)s 2(ed.)k
+5670(The)s 6083(library)s 6758(source)s 7423(code)s 7916(error)s
+8424(checks)s 0 6487(are)m 348(e)s 3(xtensi)k 6(v)k 3(e)k
+1297(in)s 1542(those)s 2105(areas)s 2648(where)s 3290(improper)s
+4228(parameters)s 5328(could)s 5920(create)s 6547(a)s 6715(map)s
+7182(that)s 7602(w)s 2(ould)k 8259(mak)s 2(e)k
+8833(no)s 0 6199(sense)m 574(to)s 813(other)s 1364(applications.)s
+2683(The)s 3111(constants)s 4052(are:)s 200 fnt29 0 5476(NOERROR)m
+240 fnt82 480 5176(No)m 826(error)s 1349(occured.)s 200 fnt29
+0 4771(OPENFAILED)m 240 fnt82 480 4471(File)m 907(could)s 1497(not)s
+1863(be)s 2145(opened)s 2895(or)s 3154(does)s 3644(not)s
+4010(e)s 3(xist)k 200 fnt29 0 4016(NOT_CSF)m 240 fnt82
+480 3716(File)m 907(is)s 1117(not)s 1483(a)s 1649(C.S.F)s 19(.-\207le)k
+200 fnt29 0 3310(BAD_VERSION)m 240 fnt82 480 3010(Wrong)m 1198(C.S.F)s 19(.-v)k 3(ersion)k
+200 fnt29 0 2555(BAD_BYTEORDER)m 240 fnt82 480 2255(Wrong)m 1198(byte)s
+1666(order)s 13(.)k 2261(Should)s 2998(not)s 3364(occur)s
+200 fnt29 0 1800(NOCORE)m 240 fnt82 480 1500(Not)m 899(enough)s
+1662(memory)s 2513(to)s 2752(allocate)s 3550(run)s 3926(time)s
+4406(structures.)s 200 fnt29 0 1045(BAD_CELLREPR)m 240 fnt82 480 745(Ille)m 3(g)k 1(al)k
+1140(cell)s 1539(representation)s 2949(constant)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 8 9
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4351 13844(-)m 4479(8)s 4646(-)s
+200 fnt29 0 13301(NOACCESS)m 240 fnt82 480 13001(Access)m 1243(denied.)s
+2020(This)s 2532(can)s 2956(happen)s 3741(if)s 3993(the)s
+4377(\207le)s 4773(is)s 5019(set)s 5379(read)s 5884(only)s
+6399(on)s 6732(the)s 7115(\207le)s 7512(system)s 8271(and)s
+8711(you)s 480 12713(w)m 2(ant)k 1011(to)s 1258(open)s
+1790(it)s 1990(for)s 2337(writing)s 3088(or)s 3356(if)s
+3581(you)s 4005(ha)s 4(v)k 3(e)k 4514(opened)s
+5273(the)s 5629(\207le)s 5999(read)s 6476(only)s 6965(and)s
+7377(you)s 7801(w)s 2(ant)k 8332(to)s 8580(write)s
+480 12425(something.)m 200 fnt29 0 11962(ROWNR2BIG)m 240 fnt82 480 11662(The)m
+908(speci\207ed)s 1816(ro)s 6(w)k 2236(number)s 3027(e)s 3(xceeds)k
+3832(the)s 4180(number)s 4971(of)s 5242(ro)s 6(ws)k
+5752(in)s 5995(the)s 6343(map.)s 200 fnt29 0 11199(COLNR2BIG)m
+240 fnt82 480 10899(The)m 908(speci\207ed)s 1816(column)s 2591(number)s
+3382(e)s 3(xceeds)k 4187(the)s 4535(number)s 5326(of)s
+5597(columns)s 6459(in)s 6702(the)s 7050(map.)s 200 fnt29
+0 10444(NOT_RASTER)m 240 fnt82 480 10144(Map)m 981(is)s 1200(not)s
+1576(a)s 1751(raster)s 2350(\207le)s 2720(b)s 4(ut)k
+3092(another)s 3878(CSF)s 4372(type.)s 4957(The)s 5394(function)s
+6258(you)s 6682(ha)s 4(v)k 3(e)k 7193(used)s
+7699(is)s 7919(speci\207c)s 8711(to)s 8960(a)s 480 9856(raster)m
+1069(\207le.)s 200 fnt29 0 9451(BAD_CONVERSION)m 240 fnt82 480 9151(Ille)m 3(g)k 1(al)k
+1173(con)s 9(v)k 3(ersion.)k 2349(Only)s 2915(used)s
+3446(in)s 3722(v)s 3(ersion)k 4514(1.)s 4771(V)s 26(ersion)k
+5593(2)s 5800(cell)s 6233(representation)s 7676(can)s 8099(al)s 2(w)k 2(ays)k
+8844(be)s 480 8863(con)m 9(v)k 3(erted.)k 200 fnt29
+0 8457(NOSPACE)m 240 fnt82 480 8157(No)m 842(space)s 1445(on)s
+1758(de)s 6(vice)k 2448(to)s 2703(write)s 3265(the)s
+3629(\207le.)s 4055(The)s 4499(functions)s 5456(that)s 5890(create)s
+6531(a)s 6713(map,)s 7248(allocate)s 8062(disk)s 8539(space)s
+480 7869(enough)m 1243(space)s 1830(for)s 2168(the)s 2516(whole)s
+3157(map.)s 200 fnt29 0 7414(WRITE_ERROR)m 240 fnt82 480 7114(A)m
+742(write)s 1321(error)s 1877(occurred.)s 2850(Note)s 3404(that)s
+3855(read)s 4357(and)s 4794(write)s 5373(errors)s 6013(can)s
+6435(al)s 2(w)k 2(ays)k 7179(occur)s 9(,)k
+7841(especially)s 8883(in)s 480 6826(netw)m 2(ork)k 1323(en)s 9(vironments.)k
+200 fnt29 0 6424(ILLHANDLE)m 240 fnt82 480 6124(Ille)m 3(g)k 1(al)k
+1143(handle.)s 1889(Y)s 26(ou)k 2335(are)s 2686(passing)s
+3461(a)s 3630(map)s 4099(handle)s 4797(that)s 5219(is)s
+5433(not)s 5802(returned)s 6660(from)s 200 fnt29 7188 6136(Mopen)m
+240 fnt82 7852 6124(,)m 200 fnt29 7963 6136(Rcreate)m 240 fnt82
+8867 6124(or)m 200 fnt29 480 5848(Rdup)m 240 fnt82 1020 5836(.)m
+1124(Not)s 1543(check)s 2(ed)k 2383(by)s 2677(all)s
+2970(functions,)s 3967(will)s 4393(be)s 4675(remo)s 3(v)k 3(ed)k
+5564(entirely)s 6347(someday)s 15(.)k 200 fnt29 0 5381(READ_ERROR)m
+240 fnt82 480 5081(A)m 748(read)s 1255(error)s 1817(occurred.)s
+2795(Note)s 3355(that)s 3811(read)s 4319(and)s 4761(write)s
+5345(errors)s 5991(can)s 6418(al)s 2(w)k 2(ays)k
+7168(occur)s 9(,)k 7835(especially)s 8883(in)s 480 4793(netw)m 2(ork)k
+1323(en)s 9(vironments.)k 200 fnt29 0 4387(BADACCESMODE)m 240 fnt82
+480 4087(Ille)m 3(g)k 1(al)k 1140(access)s 1801(mode)s
+2389(constant.)s 200 fnt29 0 3632(ATTRNOTFOUND)m 240 fnt82 480 3332(Optional)m
+1372(attrib)s 4(ute)k 2219(not)s 2585(found.)s 200 fnt29
+0 2881(ATTRDUPL)m 240 fnt82 480 2581(Optional)m 1372(attrib)s 4(ute)k
+2219(already)s 2976(in)s 3219(\207le.)s 200 fnt29 0 2126(ILL_CELLSIZE)m
+240 fnt82 480 1826(The)m 908(speci\207ed)s 1816(cell)s 2215(size)s
+2642(is)s 2852(smaller)s 3614(or)s 3873(equal)s 4446(to)s
+4685(0.)s 200 fnt29 0 1371(CONFL_CELLREPR)m 240 fnt82 480 1071(Con\210ict)m
+1307(between)s 2157(cell)s 2551(representation)s 3957(and)s 4357(v)s 6(alue)k
+4920(scale.)s 5497(See)s 5894(CW)s 6333(page)s 6837(5)s
+6999(or)s 7253(the)s 7597(manual)s 8352(page)s 8855(of)s
+200 fnt29 480 795(Rcreate)m 240 fnt82 1380 783(.)m 200 fnt29
+0 378(BAD_VALUESCALE)m 240 fnt82 480 78(Ille)m 3(g)k 1(al)k
+1140(v)s 6(alue)k 1708(scale.)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 9 10
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+%%+ font Symbol
+%%+ font Times-Bold
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+%%IncludeResource: font Symbol
+/fnt78 { /Symbol LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4349 13844(-)m 4477(9)s 4648(-)s
+200 fnt29 0 13299(BAD_ANGLE)m 240 fnt82 480 12999(Angle)m 1121(must)s
+1646(be)s 240 fnt78 1928 12993(\316)m 2062([)s 2145(0)s
+2271(,)s 2378(2)s 2504(p)s 2715(>)s 240 fnt82
+2912 12999(.)m 200 fnt29 0 12544(CANT_USE_AS_BOOLEAN)m 240 fnt82 480 12244(Can')m 4(t)k
+1067(read)s 1536(as)s 1786(a)s 1952(boolean)s 2767(map.)s
+3283(See)s 3684(manual)s 4443(page)s 4951(of)s 200 fnt29
+5222 12256(RuseAs)m 240 fnt82 6002 12244(.)m 200 fnt29 0 11789(CANT_USE_WRITE_BOOLEAN)m
+240 fnt82 480 11489(Can')m 4(t)k 1067(write)s 1613(as)s
+1863(a)s 2029(boolean)s 2844(map.)s 3360(See)s 3761(manual)s
+4520(page)s 5028(of)s 200 fnt29 5299 11501(RuseAs)m 240 fnt82
+6079 11489(.)m 200 fnt29 0 11034(CANT_USE_WRITE_LDD)m 240 fnt82 480 10734(Can')m 4(t)k
+1067(write)s 1613(as)s 1863(a)s 2029(ldd)s 2393(map.)s
+2909(See)s 3310(manual)s 4069(page)s 4577(of)s 200 fnt29
+4848 10746(RuseAs)m 240 fnt82 5628 10734(.)m 200 fnt29 0 10279(CANT_USE_AS_LDD)m
+240 fnt82 480 9979(Can')m 4(t)k 1067(use)s 1442(as)s
+1692(a)s 1858(ldd)s 2222(map.)s 2738(See)s 3139(manual)s
+3898(page)s 4406(of)s 200 fnt29 4677 9991(RuseAs)m 240 fnt82
+5457 9979(.)m 200 fnt29 0 9524(CANT_USE_WRITE_OLDCR)m 240 fnt82 480 9224(Can')m 4(t)k
+1067(write)s 1613(to)s 1852(v)s 3(ersion)k 2610(1)s
+2765(cell)s 3164(representation.)s 4621(See)s 5022(manual)s 5781(page)s
+6289(of)s 200 fnt29 6560 9236(RuseAs)m 240 fnt82 7340 9224(.)m
+200 fnt29 0 8769(ILLEGAL_USE_TYPE)m 240 fnt82 480 8469(The)m 970(usetype)s
+1819(ar)s 4(gument)k 2841(of)s 3174(RuseAs)s 4093(is)s
+4365(not)s 4793(v)s 3(ersion)k 5614(2)s 5850(cell)s
+6312(representation,)s 7834(VS_LDD)s 8867(or)s 480 8181(VS_BOOLEAN.)m 240 fnt84
+0 7266(4.2.)m 471(Cr)s 4(eating,)k 1484(opening)s 2351(and)s
+2792(closing)s 3552(maps)s 240 fnt82 0 6789(A)m 237(map)s
+710(can)s 1107(be)s 1397(accessed)s 2299(by)s 2600(a)s
+2774(map)s 3247(handle)s 3949(which)s 4599(is)s 4816(anolog)s
+5529(to)s 5776(the)s 6132(\207le)s 6501(pointer)s 7305(\()s
+200 fnt29 7378 6801(FILE)m 7986(*)s 240 fnt82 8106 6789(\))m
+8242(\207le)s 8611(in)s 8862(C.)s 0 6501(This)m 476(map)s
+941(handle)s 1635(is)s 1845(returned)s 2699(by)s 2993(the)s
+3341(functions:)s 200 fnt29 0 6050(Mopen)m 240 fnt82 480 5750(Open)m
+1056(an)s 1339(e)s 3(xisting)k 2146(CSF)s 2630(\207le.)s
+200 fnt29 0 5285(Mclose)m 480 4997(Mclose)m 240 fnt82 1274 4985(closes)m
+1924(a)s 2105(map.)s 2636(This)s 3127(function)s 3996(is)s
+4221(automatically)s 5590(called,,)s 6342(if)s 6574(the)s 6937(program)s
+7822(is)s 8047(terminated)s 480 4697(with)m 962(the)s 200 fnt29
+1309 4709(exit)m 240 fnt82 1848 4697(function)m 2701(or)s 2960(at)s
+3191(the)s 3538(end)s 3941(of)s 4212(the)s 200 fnt29
+4559 4709(main)m 240 fnt82 5098 4697(function)m 5951(just)s 6356(as)s
+6605(in)s 6847(fclose,)s 7523(if)s 7740(the)s 8087(map)s
+8551(is)s 8760(not)s 480 4409(yet)m 832(closed)s 1501(at)s
+1733(that)s 2151(point.)s 200 fnt29 0 3958(Rcreate)m 240 fnt82
+480 3658(Create)m 1159(a)s 1325(ne)s 6(w)k 1772(CSF)s
+2256(raster)s 2845(\207le.)s 200 fnt29 0 3242(Rdup)m 240 fnt82
+480 2942(Create)m 1159(a)s 1325(ne)s 6(w)k 1772(map)s
+2237(by)s 2531(cloning)s 3302(another)s 4079(one.)s 0 2439(Constants)m
+1002(de\207ned)s 1773(and)s 2185(used)s 2689(in)s 200 fnt29
+2940 2451(Rcreate)m 240 fnt82 3848 2439(and)m 200 fnt29 4259 2451(Rdup)m
+240 fnt82 4807 2439(ar)m 4(guments)k 5858(are)s 6212(\(See)s
+6700(also)s 200 fnt29 7146 2451(RdefaultCellRepr)m 240 fnt82 0 2151(\):)m
+240 fnt84 185 1983(v)m 2(alue)k 784(scale)s 1965(default)s
+2741(cellRepr)s 3941(possible)s 4807(cellRepr)s 200 fnt29 185 1697(VS_BOOLEAN)m
+1965(CR_UINT1)s 3941(CR_UINT1)s 185 1435(VS_NOMINAL)m 1965(CR_INT4)s 3941(CR_UINT1)s
+5021(CR_INT4)s 185 1173(VS_ORDINAL)m 1965(CR_INT4)s 3941(CR_UINT1)s 5021(CR_INT4)s
+185 911(VS_SCALAR)m 1965(CR_REAL4)s 3941(CR_REAL4)s 5021(\(CR_REAL8\))s 185 649(VS_DIRECTION)m
+1965(CR_REAL4)s 3941(CR_REAL4)s 5021(\(CR_REAL8\))s 185 387(VS_LDD)m 1965(CR_UINT1)s
+3941(CR_UINT1)s 240 fnt82 0 142(Projection)m 1039(type)s 1507(constants:)s
+200 fnt29 2503 154(PT_YINCT2B)m 3823(PT_YDECT2B)s 240 fnt82 5023 142(.)m
+
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 10 11
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Courier
+%%+ font Times-Italic
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4287 13844(-)m 4415(10)s 4710(-)s
+240 fnt84 0 13251(4.3.)m 471(Reading)s 1378(and)s 1819(writing)s
+2618(cells)s 240 fnt82 0 12774(Most)m 554(applications)s 1762(are)s
+2111(designed)s 3022(to)s 3323(process)s 4093(raster)s 4684(data)s
+5144(in)s 5389(one)s 5793(cell)s 6194(representation.)s 7653(F)s 3(or)k
+8044(e)s 3(xample,)k 8960(a)s 0 12486(drape)m 582(program)s
+1447(is)s 1651(programmed)s 2926(to)s 3160(k)s 2(eep)k
+3657(the)s 4000(dtm-data)s 4903(in)s 5141(either)s 5739(REAL4)s
+6532(or)s 6786(REAL8)s 7573(b)s 4(ut)k 7929(not)s
+8290(both.)s 8814(Or)s 0 12198(a)m 162(program)s 1028(that)s
+1442(reads)s 1993(some)s 2549(nominal)s 3384(maps)s 3936(to)s
+4171(create)s 4791(a)s 4953(ne)s 6(w)k 5396(nominal)s
+6231(map)s 6691(is)s 6897(programmed)s 8173(to)s 8408(use)s
+8778(the)s 0 11910(lar)m 4(gest)k 683(type)s 1142(\(INT4\),)s
+1916(of)s 2178(the)s 2517(tw)s 2(o)k 2918(cell)s
+3308(representations)s 4796(v)s 6(alid)k 5317(for)s 5646(nominal)s
+6476(maps)s 7023(\(UINT1)s 7819(or)s 8069(INT4\),)s 8764(b)s 4(ut)k
+0 11622(write)m 546(the)s 894(output)s 1566(map)s 2031(as)s
+2281(UINT1)s 3007(if)s 3224(the)s 3572(input)s 4124(maps)s
+4680(are)s 5027(UINT1.)s 0 11248(After)m 563(opening)s 1388(or)s
+1647(creating)s 2470(a)s 2636(map)s 3101(and)s 3506(before)s
+4172(reading)s 4942(or)s 5201(writing)s 5945(an)s 3(y)k
+6342(cells)s 6830(one)s 7233(can)s 7622(use)s 7997(the)s
+200 fnt29 8346 11260(RuseAs)m 240 fnt82 0 10960(function)m 884(to)s
+1153(change)s 1918(the)s 2296(cell)s 2726(representation)s 4166(the)s
+4545(application)s 5694(will)s 6150(use)s 6556(for)s 6924(a)s
+7121(map.)s 7667(After)s 8261(a)s 8457(call)s 8887(to)s
+200 fnt29 0 10684(RuseAs)m 240 fnt82 815 10672(we)m 1186(speak)s
+1827(about)s 2455(the)s 240 fnt83 2838 10674(in-\207le)m 3484(\(or)s
+3877(\207le\))s 4333(cell)s 4773(r)s 8(epr)k 8(esentation)k
+240 fnt82 6241 10672(and)m 6681(the)s 240 fnt83 7064 10674(application)m
+8244(\(or)s 8637(app\))s 0 10386(cell)m 419(r)s 8(epr)k 8(esentation)k
+240 fnt82 1792 10384(.)m 1912(The)s 2356(application)s 3491(cell)s
+3906(representation)s 5332(is)s 5558(the)s 5921(one)s 6339(set)s
+6680(by)s 200 fnt29 6990 10396(RuseAs.)m 240 fnt82 7906 10384(The)m
+8350(\207le)s 8727(cell)s 0 10096(representation)m 1408(is)s 1616(returned)s
+2468(by)s 200 fnt29 2760 10108(RgetCellRepr)m 240 fnt82 4258 10096(.)m
+4360(If)s 200 fnt29 4588 10108(RuseAs)m 240 fnt82 5366 10096(is)m
+5574(not)s 5938(used)s 6433(then)s 6900(the)s 7246(\207le)s
+7605(and)s 8007(application)s 0 9808(cell)m 394(representation)s 1798(are)s
+2139(indentical.)s 3180(When)s 3803(calling)s 4500(a)s 4661(get)s
+5007(\(=)s 5268(read\))s 5802(function,)s 6700(the)s 7042(get)s
+7389(function)s 8237(will)s 8657(read)s 0 9520(the)m 362(cells)s
+864(and)s 1282(con)s 9(v)k 3(ert)k 2061(them)s
+2613(to)s 2866(the)s 3228(application)s 4362(cell)s 4775(representation.)s
+6306(When)s 6949(calling)s 7666(a)s 7846(put)s 8226(\(=)s
+8508(write\))s 0 9232(function)m 862(it)s 1063(is)s 1282(the)s
+1638(other)s 2198(w)s 2(ay)k 2658(round,)s 3332(the)s
+3689(put)s 4064(function)s 4926(will)s 5361(\207rst)s 5801(con)s 9(v)k 3(ert)k
+6574(the)s 6931(cells)s 7488(to)s 7735(the)s 8092(in-\207le)s
+8727(cell)s 0 8944(representation)m 1419(and)s 1832(then)s 2311(write)s
+2866(them)s 3413(to)s 3662(the)s 4019(\207le.)s 200 fnt29
+4437 8956(RuseAs)m 240 fnt82 5227 8944(also)m 5674(af)s 6(fects)k
+200 fnt29 6363 8956(RputMinVal)m 240 fnt82 7633 8944(,)m 200 fnt29
+7749 8956(RputmaxVal)m 240 fnt82 9019 8944(,)m 200 fnt29 0 8668(RgetMinVal)m
+240 fnt82 1267 8656(and)m 200 fnt29 1679 8668(RgetMaxVal)m 240 fnt82
+2947 8656(in)m 3198(a)s 3372(similar)s 4101(f)s 2(ashion.)k
+4915(The)s 5351(REAL8)s 6151(basic)s 6703(type)s 7178(is)s
+7396(v)s 3(ery)k 7880(useful)s 8527(in)s 8778(the)s
+0 8368(RuseAs)m 804(function)s 1666(since)s 2222(it)s 2422(is)s
+2641(the)s 2997(only)s 3485(type)s 3962(that)s 4388(can)s
+4786(hold)s 5278(and)s 5690(con)s 9(v)k 3(ert)k
+6464(back)s 6985(and)s 7398(forw)s 2(ard)k 8218(the)s
+8575(other)s 0 8080(three)m 568(types)s 1159(\(UINT1,)s 2071(INT4,)s
+2731(REAL4\))s 3639(with)s 4156(no)s 4485(loss)s 4943(of)s
+5249(precision.)s 6264(Although,)s 7311(promotion)s 8400(from)s 8960(a)s
+0 7792(REAL4)m 813(to)s 1066(REAL8)s 1872(can)s 2275(add)s
+2694(super\207cial)s 3758(precision.)s 4812(But)s 5232(con)s 9(v)k 3(erting)k
+6310(back)s 6838(to)s 7091(REAL4)s 7904(will)s 8344(get)s
+8711(you)s 0 7504(the)m 342(e)s 3(xact)k 897(same)s
+1438(number)s 2223(you)s 2631(started)s 3319(with)s 3795(\(assuming)s
+4825(the)s 5167(compiler)s 6069(and/or)s 6734(CPU)s 7250(conforms)s
+8198(to)s 8431(a)s 8590(strict)s 0 7216(IEEE-754)m 1010(implementation\).)s
+0 6842(Con)m 397(v)s 3(er)k 699(sion)s 1146(be)s
+1368(tween)s 1987(an)s 3(y)k 2374(v)s 3(er)k
+2676(sion)s 3123(2)s 3287(type)s 3746(\(UINT1,)s 4613(INT4,)s
+5229(REAL4)s 6019(and)s 6413(REAL8\))s 7277(is)s 7477(pos)s
+7801(si)s 7954(ble.)s 8341(In)s 8587(read-)s 0 6554(only)m
+462(mode)s 1032(\(e.g.)s 200 fnt29 1483 6566(Mopen\(...,)m 2785(M_READ\))s
+240 fnt82 3667 6554(\))m 3777(con)s 4120(v)s 3(er)k
+4422(sion)s 4860(from)s 5366(a)s 5514(type)s 5964(1)s
+6101(\(INT1,INT2,UINT2,UINT4\))s 8887(to)s 0 6266(a)m 154(type)s 609(2)s
+770(is)s 968(pos)s 1292(si)s 1445(ble.)s 1828(In)s
+2071(ad)s 2295(di)s 2475(tion)s 2891(to)s 3118(the)s
+3453(cell)s 3839(rep)s 4137(re)s 4318(sen)s 4634(ta)s
+4806(tions)s 5310(con)s 5653(stants)s 6235(\(CR_UINT1,)s 7539(...,)s
+7813(CR_REAL8\))s 0 5978(one)m 419(can)s 826(pass)s 1306(the)s
+1672(v)s 6(al)k 1953(ue)s 2253(scales)s 2891(VS_LDD)s
+3879(and)s 4300(VS_BOOLEAN)s 5945(to)s 200 fnt29 6202 5990(Ruse)m
+6682(As.)s 240 fnt82 7119 5978(The)m 7565(con)s 7908(v)s 3(er)k
+8210(sion)s 8684(rou)s 8998(-)s 0 5690(tines)m 496(then)s
+959(in)s 1142(stalled)s 1816(will)s 2236(con)s 2579(v)s 3(ert)k
+3001(a)s 3160(v)s 3(er)k 3462(sion)s 3912(1)s
+4061(map)s 4519(to)s 4752(an)s 5029(ldd)s 5386(if)s
+5597(pos)s 5921(si)s 6074(ble)s 6416(\(by)s 6782(tak)s
+7075(ing)s 240 fnt83 7428 5692(val)m 7720(ue)s 7993(mod)s
+8412(u)s 8526(lo)s 8758(10)s 240 fnt82 8998 5690(\))m
+0 5402(or)m 264(an)s 3(y)k 667(type)s 1141(\(e)s 3(x)k
+1438(cept)s 1901(di)s 2081(rec)s 2365(tion)s 2800(and)s
+3210(ldd\))s 3650(to)s 3894(a)s 4066(boolean)s 4887(\(by)s
+5265(test)s 5596(ing)s 240 fnt83 5961 5404(not)m 6337(equal)s
+6935(to)s 7179(0)s 240 fnt82 7299 5402(\).)m 7488(Ho)s 6(w)k
+7942(e)s 6(v)k 8157(er)s 8408(the)s 8762(ldd)s
+0 5114(is)m 210(not)s 576(re)s 757(paired)s 1412(\(See)s
+1892(PCRas)s 2535(ter)s 2846(man)s 3255(u)s 3370(al\).)s
+240 fnt84 0 4739(IMPOR)m 9(T)k 21(ANT)k 17(:)k
+240 fnt82 1595 4740(Since)m 2215(the)s 2596(memory)s 3480(size)s
+3939(of)s 4243(the)s 4624(cell)s 5056(representation)s 6498(types)s
+7087(dif)s 6(fer)k 9(,)k 7741(the)s 8122(b)s 4(uf)k 6(fer)k
+8788(for)s 0 4452(reading)m 785(or)s 1060(writing)s 1819(cells)s
+2323(must)s 2863(be)s 3161(big)s 3536(enough)s 4315(to)s
+4569(hold)s 5069(the)s 5433(requested)s 6423(number)s 7229(of)s
+7516(cells)s 8020(in)s 8279(both)s 8778(the)s 0 4164(in-\207le)m
+612(and)s 1002(the)s 1335(application)s 2440(cell)s 2825(representation)s
+4220(type.)s 200 fnt29 4722 4176(Rmalloc)m 240 fnt82 5608 4164(allocates)m
+6479(a)s 6631(b)s 4(uf)k 6(fer)k 7250(that)s
+7653(is)s 7849(lar)s 4(ge)k 8363(enough)s 0 3876(to)m
+239(hold)s 723(the)s 1071(both)s 1554(of)s 1825(them.)s
+240 fnt84 0 3501(IMPOR)m 9(T)k 21(ANT)k 17(:)k
+240 fnt82 1581 3502(Due)m 2054(to)s 2312(endian)s 3025(handling)s
+3935(\(byte)s 4500(sw)s 2(apping\))k 5562(and)s 5985(a)s
+6169(dif)s 6(ference)k 7205(between)s 8077(in-\207le)s 8722(and)s
+0 3214(application)m 1114(cell)s 1508(representation,)s 2963(the)s 3305(b)s 4(uf)k 6(fers)k
+4017(of)s 4283(the)s 4625(Rput-functions)s 6106(can)s 6490(be)s
+6766(in)s 9(v)k 6(alidated)k 7866(on)s 8158(return.)s
+8826(T)s 19(o)k 0 2926(be)m 272(sa)s 4(v)k 3(e,)k
+787(programmers)s 2102(should)s 2788(assume)s 3538(that)s 3946(these)s
+4482(b)s 4(uf)k 6(fers)k 5189(contain)s 5940(crap)s
+6393(after)s 6879(calling)s 7572(a)s 7727(Rput-function)s 0 2638(that)m
+428(do)s 731(not)s 1107(ha)s 4(v)k 3(e)k
+1618(the)s 1977(const)s 2552(quali\207er)s 3418(in)s 3671(their)s
+4178(b)s 4(uf)k 6(fer)k 4822(ar)s 4(gument)k
+5791(speci\207cation.)s 7173(Or)s 9(,)k 7533(in)s 7786(special)s
+8515(cases,)s 0 2350(use)m 375(the)s 723(function)s 200 fnt29
+1577 2362(RputDoNotChangeValues)m 240 fnt82 4157 2350(to)m 4396(check)s 5015(for)s
+5353(this)s 5749(beha)s 4(viour)k 13(.)k 200 fnt29
+0 1917(RgetCell)m 240 fnt82 480 1617(Read)m 1030(one)s 1432(cell.)s
+200 fnt29 0 1216(RgetRow)m 240 fnt82 480 916(Read)m 1030(one)s
+1432(ro)s 6(w)k 15(.)k 200 fnt29 0 500(RgetSomeCells)m
+240 fnt82 480 200(Read)m 1030(a)s 1196(stream)s 1892(of)s
+2163(cells.)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 11 12
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+%%+ font Times-Bold
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4297 13844(-)m 4425(11)s 4700(-)s
+200 fnt29 0 13294(RputCell)m 240 fnt82 480 12994(Write)m 1079(one)s
+1481(cell.)s 200 fnt29 0 12593(RputRow)m 240 fnt82 480 12293(Write)m
+1079(one)s 1481(ro)s 6(w)k 15(.)k 200 fnt29
+0 11877(RputSomeCells)m 240 fnt82 480 11577(Write)m 1079(a)s 1245(stream)s
+1941(of)s 2212(cells.)s 200 fnt29 0 11162(RputAllMV)m 240 fnt82
+480 10862(Write)m 1079(missing)s 1876(v)s 6(alue)k 2444(to)s
+2683(all)s 2976(cells.)s 240 fnt84 0 9925(4.4.)m 471(Handling)s
+1484(missing)s 2310(v)s 2(alues)k 240 fnt82 0 9448(F)m 3(or)k
+404(inte)s 3(ger)k 1140(cell)s 1554(types)s 2126(there)s
+2675(are)s 3037(the)s 3401(constants,)s 4413(MV_UINT1)s 5661(and)s
+6081(MV_INT4,)s 7227(that)s 7661(can)s 8065(be)s 8363(used)s
+8876(as)s 0 9160(missing)m 799(v)s 6(alue.)k 1418(F)s 3(or)k
+1809(\210oating)s 2596(point)s 3151(cell)s 3552(types)s 4111(there)s
+4646(are)s 4996(no)s 5292(constants,)s 6291(because)s 7107(the)s
+7457(missing)s 8257(v)s 6(alues)k 8916(is)s 0 8872(not)m
+366(a)s 532(v)s 6(alid)k 1062(\210oating)s 1846(point)s
+2398(number)s 13(.)k 3220(The)s 3648(follo)s 6(wing)k
+4625(macros)s 5366(are)s 5713(de\207ned)s 6476(instead:)s 200 fnt29
+0 8409(IS_MV_REAL4\(x\))m 1800(IS_MV_REAL8\(x\))s 240 fnt82 480 8109(T)m 16(est)k
+935(if)s 1152(x)s 1327(is)s 1537(pointer)s 2274(to)s
+2513(that)s 2931(type)s 3399(of)s 3670(missing)s 4467(v)s 6(alue.)k
+200 fnt29 0 7646(SET_MV_REAL4\(x\))m 1920(SET_MV_REAL8\(x\))s 240 fnt82 480 7346(Set)m
+845(space)s 1432(pointed)s 2208(to)s 2447(by)s 2741(pointer)s
+3478(x)s 3653(to)s 3892(that)s 4310(type)s 4778(of)s
+5049(missing)s 5846(v)s 6(alue.)k 200 fnt29 0 6881(COPY_REAL4\(dest,src\))m
+2520(COPY_REAL8\(dest,src\))s 240 fnt82 480 6581(Cop)m 2(y)k 1041(one)s
+1431(cell)s 1819(pointed)s 2583(to)s 2811(by)s 3093(src)s
+3413(to)s 3640(cell)s 4028(pointed)s 4792(to)s 5020(by)s
+5302(dest.)s 5780(This)s 6244(macro)s 6883(may)s 7337(be)s
+7608(necessary)s 8579(since)s 480 6293(an)m 763(assignment)s 1899(lik)s 2(e)k
+200 fnt29 2311 6305(dest)m 2911(=)s 3151(src)s 240 fnt82
+3571 6293(may)m 4037(not)s 4403(w)s 2(ork)k 4954(because)s
+200 fnt29 5767 6305(src)m 240 fnt82 6187 6293(can)m 6576(be)s
+6858(a)s 7024(N)s 8(AN)k 7592(\(MV\).)s 0 5790(All)m
+368(the)s 724(functions,)s 1729(manipulating)s 3052(missing)s 3857(v)s 6(alues)k
+4521(w)s 2(ork)k 5080(on)s 5385(memory)s 6244(locations,)s
+7222(not)s 7596(on)s 7901(\207le)s 8270(or)s 8537(raster)s
+0 5502(locations:)m 200 fnt29 0 5087(IsMV)m 600(IsMVcellRepr)s 240 fnt82
+480 4787(T)m 16(est)k 935(if)s 1152(a)s 1318(v)s 6(alue)k
+1886(is)s 2096(missing)s 2893(v)s 6(alue.)k 200 fnt29
+0 4322(SetMV)m 720(SetMVcellRepr)s 240 fnt82 480 4022(Set)m 845(a)s
+1011(memory)s 1862(location)s 2689(to)s 2928(a)s 3094(missing)s
+3891(v)s 6(alue.)k 200 fnt29 0 3567(SetMemMV)m 240 fnt82
+480 3267(Set)m 845(an)s 1128(array)s 1672(of)s 1943(cells)s
+2431(to)s 2670(missing)s 3467(v)s 6(alue.)k 240 fnt84
+0 2330(4.5.)m 471(Setting)s 1243(the)s 1617(minimum)s 2668(and)s
+3109(maximum)s 4201(in)s 4456(the)s 4830(header)s 240 fnt82
+0 1853(By)m 337(def)s 2(ault)k 1061(the)s 1412(header)s
+2113(minimum)s 3106(and)s 3513(maximum)s 4547(\(which)s 5271(can)s
+5663(be)s 5948(dif)s 6(ferent)k 6827(from)s 7354(the)s
+7705(true)s 8136(minimum)s 0 1565(and)m 386(maximum\))s 1466(are)s
+1795(set)s 2102(to)s 2323(the)s 2653(smallest)s 3477(and)s
+3862(lar)s 4(gest)k 4536(v)s 6(alue)k 5086(written)s
+5801(by)s 6077(the)s 6407(put-functions.)s 7828(The)s 8237(resulting)s
+0 1277(maximum)m 1015(and)s 1404(minimum)s 2379(v)s 6(alues)k
+3019(can)s 3393(be)s 3660(wrong)s 4310(if)s 4511(the)s
+4844(application)s 5948(writes)s 6567(some)s 7112(cells)s 7585(more)s
+8117(than)s 8570(once.)s 0 989(T)m 19(o)k 305(correct)s
+1032(this,)s 1489(k)s 2(eep)k 1997(track)s 2540(of)s
+2816(the)s 3169(minimum)s 4165(and)s 4574(maximum)s 5609(v)s 6(alue)k
+6182(yourself)s 7042(and)s 7451(use)s 7831(the)s 8185(functions)s
+200 fnt29 0 713(RputMinVal)m 240 fnt82 1260 701(and)m 200 fnt29
+1664 713(RputMaxVal)m 240 fnt82 2924 701(after)m 3420(all)s 3713(the)s
+4061(updates)s 4843(of)s 5114(the)s 5462(map.)s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 12 13
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+%%+ font Times-Bold
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4288 13844(-)m 4416(12)s 4710(-)s
+200 fnt29 0 13289(RdontTrackMinMax)m 240 fnt82 480 12989(Disable)m 1266(automatic)s
+2261(tracking)s 3097(of)s 3368(minimum)s 4358(and)s 4762(maximum)s
+5792(v)s 6(alue.)k 200 fnt29 0 12524(RgetMaxVal)m 240 fnt82
+480 12224(Get)m 885(maximum)s 1915(cell)s 2314(v)s 6(alue.)k
+200 fnt29 0 11803(RgetMinVal)m 240 fnt82 480 11503(Get)m 885(minimum)s
+1875(cell)s 2274(v)s 6(alue.)k 200 fnt29 0 11087(RputMaxVal)m
+240 fnt82 480 10787(Set)m 845(ne)s 6(w)k 1292(maximum)s
+2322(cell)s 2721(v)s 6(alue.)k 200 fnt29 0 10366(RputMinVal)m
+240 fnt82 480 10066(Set)m 845(ne)s 6(w)k 1292(minimum)s
+2282(cell)s 2681(v)s 6(alue.)k 0 9612(Note)m 529(that)s
+955(these)s 1510(functions)s 2460(are)s 2815(also)s 3261(af)s 6(fected)k
+4090(by)s 200 fnt29 4392 9624(RuseAs.)m 240 fnt82 5300 9612(But)m
+5714(the)s 3(y)k 6186(ha)s 4(v)k 3(e)k
+6695(a)s 6869(local)s 7397(b)s 4(uf)k 6(fer)k
+8038(to)s 8285(hold)s 8778(the)s 0 9324(in-\207le)m 626(cell)s
+1025(representation.)s 240 fnt84 0 8676(4.6.)m 471(v)s 2(alue)k
+1070(scale)s 240 fnt82 0 8245(The)m 452(v)s 3(ersion)k
+1235(1)s 1415(v)s 6(alue)k 2008(scales)s 2654(\(VS_CONTINUOUS,)s
+4846(VS_CLASSIFIED\))s 6780(can)s 7194(be)s 7501(compatible)s 8644(with)s
+0 7957(the)m 463(v)s 3(ersion)k 1336(2)s 1626(scales:)s
+2417(VS_BOOLEAN,)s 4210(VS_NOMIN)s 8(AL,)k 5980(VS_ORDIN)s 8(AL)k
+7648(VS_SCALAR,)s 0 7669(VS_DIRECTION)m 1778(and)s 2189(VS_LDD.)s 3217(VS_UNDEFINED)s
+5071(is)s 5287(a)s 5460(special)s 6185(v)s 6(alue)k
+6759(that)s 7184(is)s 7400(guaranteed)s 8514(not)s 8887(to)s
+0 7381(ha)m 4(v)k 3(e)k 510(the)s 868(v)s 6(alue)k
+1445(of)s 1726(another)s 2513(de\207ned)s 3285(v)s 6(alue)k
+3863(scale)s 4406(constant.)s 200 fnt29 5316 7393(RvalueScaleIs)m 240 fnt82
+6946 7381(tests)m 7431(if)s 7657(the)s 8015(v)s 6(alue)k
+8593(scale)s 0 7093(of)m 284(a)s 464(map)s 942(is)s
+1166(compatible)s 2298(with)s 2793(some)s 3368(v)s 3(ersion)k
+4139(2)s 4327(scale.)s 200 fnt29 4922 7105(RputValueScale)m 240 fnt82
+6675 7093(writes)m 7323(a)s 7502(ne)s 6(w)k 7963(v)s 6(alue)k
+8545(scale.)s 200 fnt29 0 6817(RgetValueScale)m 240 fnt82 1751 6805(returns)m
+2476(the)s 2835(maps)s 3402(v)s 6(alue)k 3981(scale,)s
+4576(which)s 5229(can)s 5629(be)s 5922(a)s 6099(v)s 3(ersion)k
+6868(1)s 7034(scale.)s 200 fnt29 7626 6817(RvalueScale2)m 240 fnt82
+0 6517(test)m 388(if)s 602(a)s 765(v)s 6(alue)k
+1330(scale)s 1859(is)s 2066(a)s 2229(v)s 3(ersion)k
+2984(2)s 3154(scale.)s 200 fnt29 3732 6529(RstrValueScale)m 240 fnt82
+5469 6517(returns)m 6180(the)s 6525(user)s 6979(name)s 7550(of)s
+7818(a)s 7981(v)s 6(alue)k 8545(scale.)s 200 fnt29
+0 6241(RgetValueScaleVersion)m 240 fnt82 2580 6229(returns)m 3294(the)s 3642(v)s 3(ersion)k
+4400(number)s 5191(of)s 5462(a)s 5628(v)s 6(alue)k
+6196(scale.)s 240 fnt84 0 5612(4.7.)m 471(location)s 1337(attrib)s 4(utes)k
+240 fnt82 0 5181(The)m 462(location)s 1323(attrib)s 4(utes)k
+2293(number)s 3118(of)s 3423(ro)s 6(ws)k 3968(and)s
+4406(columns)s 5302(are)s 5684(\207x)s 3(ed)k 6252(after)s
+6782(map)s 7282(creation,)s 8192(the)s 8575(other)s 0 4893(location)m
+827(attrib)s 4(utes)k 1762(can)s 2151(be)s 2433(changed.)s
+200 fnt29 0 4423(MgetProjection)m 1800(MputProjection)s 0 3764(RgetAngle)m 1200(RputAngle)s
+0 3100(RgetCellSize)m 1560(RputCellSize)s 0 2455(RgetXUL)m 960(RgetYUL)s 1920(RputXUL)s
+2880(RputYUL)s 0 1796(RgetNrCols)m 1320(RgetNrRows)s 240 fnt84 0 665(4.8.)m
+471(Other)s 1139(header)s 1901(attrib)s 4(utes)k 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 13 14
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+%%+ font Times-Bold
+%%+ font Symbol
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+%%IncludeResource: font Symbol
+/fnt78 { /Symbol LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4293 13844(-)m 4421(13)s 4705(-)s
+200 fnt29 0 13305(MgetDataType)m 240 fnt82 480 13005(Data)m 991(type)s
+1459(of)s 1730(the)s 2078(map)s 200 fnt29 0 12535(MgetGisFileId)m
+1680(MputGisFileId)s 240 fnt82 480 12235(Gis)m 863(\207le)s 1224(id)s
+200 fnt29 0 11814(MgetVersion)m 240 fnt82 480 11514(Get)m 885(CSF)s
+1369(v)s 3(ersion.)k 200 fnt29 0 11098(RgetCellRepr)m 240 fnt82
+480 10798(Get)m 885(\(in-\207le\))s 1662(cell)s 2061(representation.)s 240 fnt84
+0 9861(4.9.)m 471(Co-ordinate)s 1762(con)s 9(v)k 2(ersion)k
+240 fnt82 0 9429(In)m 253(the)s 597(library)s 15(,)k
+1322(raster)s 1907(cells)s 2392(are)s 2735(addressed)s 3733(by)s
+4023(their)s 4516(ro)s 6(w)k 4933(and)s 5333(column)s
+6105(number)s 6892(where)s 7529(\(ro)s 6(w)k 15(,col\))k
+8435(=)s 8619(\(0,0\))s 0 9141(while)m 600(the)s 962(raster)s
+1564(is)s 1788(a)s 1968(representation)s 3391(of)s 3676(some)s
+4251(geographic)s 5380(area)s 5851(de\207ned)s 6628(by)s 6935(the)s
+7297(location)s 8138(attrib)s 4(utes.)k 0 8853(The)m 428(follo)s 6(wing)k
+1405(functions)s 2346(can)s 2735(con)s 9(v)k 3(ert)k
+3500(between)s 4354(the)s 4702(raster)s 5291(and)s 5695(the)s
+6043(\(true)s 6549(w)s 2(orld\))k 7233(geographic)s 8349(area:)s
+200 fnt29 0 8388(Rcoords2RowCol)m 1800(RgetRowCol)s 240 fnt82 480 8088(Con)m 9(v)k 3(ert)k
+1299(true)s 1726(w)s 2(orld)k 2340(co-ordinate)s 3484(to)s
+3723(a)s 3889(ro)s 6(w)k 15(,)k 4347(column)s
+5122(inde)s 3(x.)k 200 fnt29 0 7642(RgetCoords)m 1320(RrowCol2Coords)s
+240 fnt82 480 7342(Con)m 9(v)k 3(ert)k 1299(ro)s 6(w)k 15(,)k
+1757(column)s 2532(inde)s 3(x)k 3116(to)s 3355(a)s
+3521(true)s 3948(w)s 2(orld)k 4562(co-ordinate.)s 240 fnt84
+0 6424(4.10.)m 591(miscellaneous)s 2052(functions,)s 3108(macr)s 4(os)k
+3902(and)s 4343(constants)s 200 fnt29 0 5589(MgetFileName)m 240 fnt82
+480 5289(File)m 907(name)s 1481(associated)s 2521(with)s 3003(map.)s
+200 fnt29 0 4819(MnativeEndian)m 240 fnt82 480 4519(T)m 16(est)k
+935(if)s 1152(map)s 1617(is)s 1827(in)s 2070(the)s
+2418(same)s 2965(endian)s 3660(format)s 4356(as)s 4606(the)s
+4954(current)s 5690(program.)s 200 fnt29 0 4068(Rcompare)m 240 fnt82
+480 3768(Compare)m 1413(2)s 1587(maps)s 2143(for)s 2481(their)s
+2978(location)s 3805(attrib)s 4(utes.)k 200 fnt29 0 3305(LOG_CELLSIZE\(t\))m
+1920(CELLSIZE\(t\))s 3360(CSFSIZEOF\(n,t\))s 240 fnt82 480 3005(Three)m 1125(handy)s
+1798(macros.)s 2625(Ar)s 4(gument)k 3683(t)s 3842(is)s
+4085(one)s 4519(of)s 4823(the)s 5204(cell)s 5635(representation)s
+7078(constant)s 7968(v)s 6(alues)k 8657(\(e.g.)s 480 2717(CR_UINT1\).)m
+1824(The)s 3(y)k 2397(return,)s 3104(the)s 3482(\()s
+167 fnt78 3555 2811(2)m 240 fnt82 3676 2717(log\))m 4141(size)s
+4598(of)s 4899(type)s 5397(t)s 5553(in)s 5826(bytes)s
+6413(and)s 6847(the)s 7225(size)s 7682(in)s 7955(bytes)s
+8541(of)s 8843(an)s 480 2429(n-element)m 1495(array)s 2039(of)s
+2310(type)s 2778(t.)s 2948(The)s 3376(all)s 3669(return)s
+4296(a)s 4462(type)s 4930(of)s 200 fnt29 5201 2441(size_t)m
+0 1974(VS_UNDEFINED,)m 1680(PT_UNDEFINED,)s 3360(CR_UNDEFINED)s 240 fnt82 480 1674(Constants)m
+1480(that)s 1904(are)s 2257(g)s 1(arantueed)k 3369(to)s
+3614(ha)s 4(v)k 3(e)k 4121(a)s 4293(v)s 6(alue)k
+4867(not)s 5239(equal)s 5818(to)s 6063(a)s 6235(de\207ned)s
+7004(v)s 6(alue)k 7578(of)s 7855(that)s 8279(attrib)s 4(ute)k
+480 1386(class.)m 1100(The)s 3(y)k 1695(should)s 240 fnt84
+2444 1385(NEVER)m 240 fnt82 3394 1386(be)m 3728(written)s 4513(to)s
+4805(a)s 5023(map.)s 5591(Just)s 6075(handy)s 6767(for)s
+7157(some)s 7771(programming)s 480 1098(constructs.)m 200 fnt29 0 685(UINT1_MIN)m
+1200(UINT1_MAX)s 2400(INT4_MIN)s 3480(...)s 3960(etc)s 240 fnt82
+480 385(minimum)m 1457(and)s 1848(maximum)s 2865(v)s 6(alues,)k
+3564(note)s 4019(that)s 4423(REAL?_MIN)s 5783(are)s 6117(the)s
+6452(smallest)s 7281(number)s 8059(lar)s 4(ger)k 8657(than)s
+480 97(zero)m 944(\(just)s 1428(as)s 1678(FL)s 22(T_MIN)k
+2723(and)s 3127(DBL_MIN\))s 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 14 15
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+%%+ font Times-Bold
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4288 13844(-)m 4416(14)s 4710(-)s
+200 fnt29 0 13294(RstrCellRepr)m 1560(RstrValueScale)s 240 fnt82 480 12994(return)m
+1107(the)s 1455(user)s 1913(name)s 2487(of)s 2758(these)s
+3305(attrib)s 4(utes)k 240 fnt84 0 12107(4.11.)m 591(Using)s
+1232(optional)s 2124(attrib)s 4(utes)k 240 fnt82 0 11630(There)m
+610(are)s 953(tw)s 2(o)k 1360(generic)s 2112(functions)s
+3049(for)s 3384(optional)s 4219(attrib)s 4(utes:)k 200 fnt29
+5206 11642(MattributeAvail)m 240 fnt82 7062 11630(and)m 200 fnt29 7462 11642(MdelAttribute)m
+240 fnt82 9022 11630(.)m 0 11342(F)m 3(or)k 389(each)s
+884(speci\207c)s 1667(attrib)s 4(ute)k 2514(there)s 3047(is)s
+3257(a)s 3423(group)s 4035(of)s 4306(functions:)s 200 fnt29
+0 10872(MgetNrLegendEntries)m 2400(MgetLegend)s 3720(MputLegend)s 0 10208(MgetHistorySize)m 1920(MgetHistory)s
+3360(MputHistory)s 0 9544(MgetDescriptionSize)m 2400(MputDescription)s 4320(MgetDescription)s 0 8880(MgetNrColourPaletteEntries)m
+3240(MputColourPalette)s 5400(MgetColourPalette)s 0 8216(MgetGreyPalette)m 1920(MgetNrGreyPaletteEntries)s 4920(MputGreyPalette)s
+240 fnt84 0 7085(4.12.)m 591(Obsolete)s 1536(and)s 1977(changed)s
+2883(functions)s 3879(fr)s 4(om)k 4435(v)s 2(ersion)k
+5233(1)s 5400(to)s 5654(2)s 240 fnt82 0 6608(This)m
+477(is)s 689(a)s 857(list)s 1210(functions)s 2153(that)s
+2572(are)s 2921(superseded)s 4044(by)s 4340(other)s 4893(functions.)s
+5888(The)s 6318(ne)s 6(w)k 6767(functions)s 7710(are)s
+8059(also)s 8499(gi)s 6(v)k 3(en.)k 0 6320(In)m
+244(addition)s 1073(to)s 1300(this)s 1684(list,)s 2070(a)s
+2224(number)s 3003(of)s 3262(function)s 4104(names)s 4754(are)s
+5089(changed)s 5933(from)s 6445(R-functions)s 7613(to)s 7840(M-functions.)s
+0 6032(F)m 3(or)k 389(e)s 3(xample)k 1252(MputLe)s 3(gend)k
+2544(w)s 2(as)k 2965(RputLe)s 3(gend)k 4204(in)s
+4447(v)s 3(ersion)k 5205(1.)s 240 fnt84 480 5470(old)m
+854(function)s 2380(what)s 2945(happened)s 3997(to)s 4251(it?)s
+200 fnt29 480 5156(Rcreate)m 240 fnt82 2380 5144(Ar)m 4(guments)k
+3490(are)s 3837(changed)s 200 fnt29 480 4827(Rdup)m 240 fnt82
+2380 4815(Ar)m 4(guments)k 3490(are)s 3837(changed)s 200 fnt29
+480 4498(RreadAs)m 240 fnt82 2380 4486(replaced)m 3247(by)s 200 fnt29
+3541 4498(RuseAs)m 480 4169(RputCellSizeX)m 240 fnt82 2380 4157(replaced)m 3247(by)s
+200 fnt29 3541 4169(RputCellSize)m 480 3840(RputCellSizeY)m 240 fnt82 2380 3828(replaced)m
+3247(by)s 200 fnt29 3541 3840(RputCellSize)m 480 3511(RgetCellSizeX)m 240 fnt82
+2380 3499(replaced)m 3247(by)s 200 fnt29 3541 3511(RgetCellSize)m 480 3182(RgetCellSizeY)m
+240 fnt82 2380 3170(replaced)m 3247(by)s 200 fnt29 3541 3182(RgetCellSize)m
+480 2853(_Rput...)m 240 fnt82 2380 2841(replaced)m 3247(by)s 3541(Rput...)s
+200 fnt29 480 2524(_Rget...)m 240 fnt82 2380 2512(replaced)m 3247(by)s
+3541(Rget...)s 240 fnt84 0 1374(A)m 6(ppendix)k 1108(A.)s
+1452(Lay)s 6(out)k 2238(of)s 2510(the)s 2884(\207le)s
+240 fnt82 0 897(This)m 476(appendix)s 1409(contains)s 2257(a)s
+2423(precise)s 3155(de\207nition)s 4129(of)s 4400(the)s 4748(\207le-format.)s
+0 523(The)m 428(position)s 1256(in)s 1499(bytes,)s 2111(from)s
+2635(the)s 2983(start)s 3453(of)s 3724(the)s 4072(\207le,)s
+4484(of)s 4755(the)s 5103(format)s 5799(parts)s 6314(are:)s
+
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 15 16
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Times-Bold
+%%+ font Times-Italic
+/pgsave save def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4292 13841(-)m 4420(15)s 4706(-)s
+240 fnt84 480 13191(part)m 978(name)s 2534(position)s 240 fnt82
+480 12865(main)m 1015(header)s 2534(0)s 480 12584(raster)m 1069(header)s
+2534(64)s 480 12302(raster)m 1069(data)s 2534(256)s 480 12020(optional)m
+1319(attrib)s 4(utes)k 2534(256+\(nrRo)s 6(ws*nrCols*sizeof\(cell)k 5773(representation\)\))s
+0 11460(The)m 454(g)s 1(aps)k 970(between)s 1850(the)s
+2225(main)s 2786(and)s 3217(the)s 3591(raster)s 4207(header)s
+4931(and)s 5361(the)s 5736(raster)s 6351(header)s 7075(and)s
+7505(raster)s 8121(data)s 8606(were)s 0 11172(unde\207ned)m 1031(in)s
+1303(v)s 3(ersion)k 2089(1,)s 2345(the)s 3(y)k
+2836(contained)s 3853(g)s 1(arbage.)k 4741(From)s 5348(v)s 3(ersion)k
+6134(2)s 6337(on)s 6662(the)s 3(y)k 7154(contain)s
+7943(zero)s 8436(v)s 6(alued)k 0 10884(bytes.)m 0 10510(Contents)m
+902(main)s 1437(header:)s 240 fnt84 480 9997(\207eld)m 973(name)s
+1867(type)s 2912(position)s 240 fnt82 480 9671(signature)m 1867(32)s
+2161(char)s 3257(0)s 480 9342(v)m 3(ersion)k 1867(UINT2)s
+3198(32)s 480 9062(gisFileId)m 1867(UINT4)s 3198(34)s 480 8733(projection)m
+1867(UINT2)s 3201(38)s 480 8404(attrT)m 19(able)k 1867(UINT4)s
+3197(40)s 480 8124(dataT)m 19(ype)k 1867(UINT2)s 3198(44)s
+480 7794(byteOrder)m 1867(UINT4)s 3198(46)s 0 7232(At)m 312(creation)s
+1152(there)s 1699(is)s 1923(a)s 2103(1)s 2272(written)s
+3019(to)s 3272(the)s 3634(byteOrder)s 4677(\207eld.)s 5220(If)s
+5464(an)s 240 fnt83 5761 7234(other)m 6345(endian)s 240 fnt82
+7065 7232(proccessor)m 8161(reads)s 8730(this)s 0 6944(\207eld)m 483(then)s
+952(the)s 1300(v)s 6(alue)k 1868(will)s 2294(read)s
+2763(0x01000000)s 4018(and)s 4422(kno)s 6(ws)k 5093(that)s
+5511(it)s 5703(has)s 6073(to)s 6312(sw)s 2(ap)k
+6855(the)s 7203(\207le)s 7564(contents.)s 0 6570(Contents)m 902(raster)s
+1491(header:)s 240 fnt84 480 6057(\207eld)m 973(name)s 1867(type)s
+2939(position)s 240 fnt82 480 5730(v)m 6(alueScale)k 1867(UINT2)s
+3225(64)s 480 5449(cellRepr)m 1867(UINT2)s 3225(66)s 480 5119(minV)m 26(al)k
+1867(8)s 2034(char)s 3228(68)s 480 4838(maxV)m 26(al)k
+1867(8)s 2034(char)s 3225(76)s 480 4559(xUL)m 1867(REAL8)s
+3225(84)s 480 4280(yUL)m 1867(REAL8)s 3225(92)s 480 3952(nrRo)m 6(ws)k
+1867(UINT4)s 3164(100)s 480 3672(nrCols)m 1867(UINT4)s 3165(104)s
+480 3392(cellSizeX)m 1867(REAL8)s 3168(108)s 480 3111(cellSizeY)m 1867(REAL8)s
+3165(116)s 480 2831(angle)m 1867(REAL8)s 3165(124)s 0 2271(Note)m
+532(that)s 961(minV)s 26(al)k 1718(and)s 2134(maxV)s 26(al)k
+2931(can)s 3331(hold)s 3826(an)s 3(y)k 4235(type)s
+4714(of)s 4996(v)s 6(alue)k 5575(depending)s 6638(on)s
+6946(the)s 7305(cell)s 7716(representation)s 0 1983(type.)m 516(Angle)s
+1157(is)s 1367(not)s 1733(de\207ned)s 2496(in)s 2739(v)s 3(ersion)k
+3497(1.)s 3721(The)s 4149(API)s 4590(returns)s 5304(0)s
+5479(as)s 5729(the)s 6077(angle)s 6651(for)s 6989(v)s 3(ersion)k
+7747(1)s 7902(maps.)s 240 fnt84 0 1190(A)m 6(ppendix)k
+1108(B.)s 1439(Optional)s 2397(attrib)s 4(utes)k 240 fnt82
+0 713(The)m 430(list)s 784(of)s 1058(optional)s 1900(attrib)s 4(utes)k
+2838(is)s 3051(implemented)s 4360(by)s 4657(a)s 4826(chain)s
+5404(of)s 5678(attrib)s 4(ute)k 6528(control)s 7263(blocks.)s
+7995(Each)s 8533(block)s 0 425(contains)m 868(10)s 1184(attrib)s 4(ute)k
+2051(descriptors)s 3171(and)s 3596(a)s 3782(\207le)s 4164(pointer)s
+4921(to)s 5181(the)s 5550(ne)s 3(xt)k 6039(attrib)s 4(ute)k
+6907(control)s 7659(block.)s 8316(The)s 8765(\207le)s 0 137(pointer)m
+752(to)s 1007(the)s 1371(\207rst)s 1817(block)s 2426(is)s
+2652(stored)s 3309(in)s 3568(the)s 3932(\207eld)s 4430(attrT)s 19(able)k
+5344(of)s 5631(the)s 5994(main)s 6545(header)s 13(.)k
+7289(A)s 7534(\207le)s 7911(pointer)s 8664(of)s 8951(0)s
+
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 16 17
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+%%+ font Courier
+%%+ font Times-Bold
+/pgsave save def
+%%IncludeResource: font Courier
+/Courierfnt29 vec2 /Courier LoutRecode
+/fnt29 { /Courierfnt29 LoutFont } def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+0 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4288 13842(-)m 4416(16)s 4709(-)s
+0 13251(means)m 662(that)s 1080(there)s 1613(are)s 1960(no)s
+2253(more)s 2800(attrib)s 4(ute)k 3647(control)s 4379(blocks.)s
+5108(An)s 5458(attrib)s 4(ute)k 6305(descriptor)s 7320(has)s
+7690(3)s 7854(\207elds:)s 0 12748(UINT2)m 745(attrId)s 480 12460(Attrib)m 4(ute)k
+1394(identi\207er)s 13(.)k 0 12007(UINT4)m 745(attrOf)s 6(fset)k
+480 11719(File)m 907(pointer)s 1644(to)s 1883(attrib)s 4(ute.)k
+0 11216(UINT4)m 745(attrSize)s 480 10928(Size)m 947(of)s 1218(attrib)s 4(ute)k
+2065(in)s 2308(bytes.)s 0 10425(The)m 447(\207eld)s 949(attrId)s
+1542(can)s 1950(ha)s 4(v)k 3(e)k 2471(tw)s 2(o)k
+2900(special)s 3637(v)s 6(alues.)k 4365(A)s 4615(v)s 6(alue)k
+5202(of)s 5492(0)s 5686(means)s 6367(that)s 6805(the)s
+7172(space)s 7778(pointed)s 8573(to)s 8832(by)s 0 10137(attrOf)m 6(fset)k
+972(of)s 1249(size)s 1682(attrSize)s 2471(is)s 2687(no)s
+2986(longer)s 3662(used.)s 4211(A)s 4447(v)s 6(alue)k
+5020(of)s 5297(1023)s 5827(\(0xFFFF\))s 6811(means)s 7479(that)s
+7903(the)s 8257(pre)s 6(vious)k 0 9849(attrib)m 4(ute)k
+840(descriptor)s 1848(w)s 2(as)k 2262(the)s 2603(last)s
+2987(one)s 3382(\(1023)s 3978(is)s 4181(a)s 4340(design)s
+5015(\210a)s 3(w)k 15(,)k 5509(it)s 5694(should)s
+6384(ha)s 4(v)k 3(e)k 6878(been)s 7380(0xFFFFFFFF)s 19(,)k
+8764(b)s 4(ut)k 0 9561(we)m 335(stick)s 847(with)s
+1329(1023\).)s 0 9187(Note)m 521(that)s 939(tw)s 2(o)k
+1349(empty)s 2001(holes)s 2557(in)s 2800(the)s 3148(attrib)s 4(ute)k
+3995(area)s 4452(are)s 4799(ne)s 6(v)k 3(er)k
+5381(mer)s 4(ged)k 6152(in)s 6395(the)s 6743(current)s
+7479(implementation.)s 0 8813(The)m 428(attrib)s 4(utes)k 1363(de\207ned)s
+2126(are)s 2473(de\207ned)s 3236(as:)s 0 8358(Description,)m 1222(id)s
+1466(=)s 1654(5)s 480 8070(C-string)m 1316(of)s 1587(v)s 6(ariable)k
+2406(length)s 0 7567(Le)m 3(gend)k 773(without)s 1564(a)s
+1730(name,)s 2355(id)s 2599(=)s 2787(1)s 480 7279(Array)m
+1091(of)s 1362(an)s 1645(INT4)s 2217(class)s 2732(v)s 6(alue)k
+3300(follo)s 6(wed)k 4202(by)s 4496(a)s 4662(C-string)s
+5498(in)s 5741(a)s 5907(60-byte)s 6694(array)s 0 6775(Le)m 3(gend)k
+773(with)s 1255(a)s 1421(name,)s 2046(id)s 2290(=)s
+2478(6)s 480 6487(Same)m 1071(as)s 1326(le)s 3(gend)k
+2024(without)s 2820(a)s 2991(name,)s 3620(b)s 4(ut)k
+3987(the)s 4340(\207rst)s 4776(entry)s 5326(contains)s 6179(the)s
+6531(name)s 7110(in)s 7358(the)s 7711(string)s 8313(\(at)s
+8629(least)s 480 6199(an)m 763(empty)s 1415(string\))s 2087(\(See)s
+200 fnt29 2567 6211(RgetNrLegendEntries)m 4967(RgetLegend)s 6287(RputLegend)s 240 fnt82
+7487 6199(\).)m 0 5696(History)m 15(,)k 809(id)s 1053(=)s
+1241(2)s 480 5408(C-string)m 1316(of)s 1587(v)s 6(ariable)k
+2406(length)s 0 4905(Colour)m 725(P)s 3(alette,)k 1478(id)s
+1722(=)s 1910(3)s 480 4617(Array)m 1091(of)s 1362(3)s
+1526(UINT2)s 2271(items)s 2839(de\207ning)s 3677(the)s 4025(intensity)s
+4902(of)s 5173(Red,)s 5666(Green)s 6307(and)s 6711(Blue)s
+0 4114(Gre)m 3(y)k 529(P)s 3(alette,)k 1282(id)s
+1526(=)s 1714(4)s 480 3826(Array)m 1091(of)s 1362(UINT2)s
+2107(de\207ning)s 2945(the)s 3293(intensity)s 4170(of)s 4441(White)s
+5081(\(0)s 5335(is)s 5545(black\))s 0 3058(F)m 3(or)k
+386(the)s 730(implementation)s 2283(of)s 2550(the)s 2894(Motif)s
+3506(based)s 4106(display)s 4847(we)s 5178(once)s 5682(made)s
+6252(the)s 6596(follo)s 6(wing)k 7569(implementation)s 0 2770(decisions)m
+941(concerning)s 2057(colour)s 2728(picking.)s 240 fnt84 0 2395(Classi\207ed)m
+1022(maps)s 240 fnt82 1561 2396(:)m 1651(The)s 2062(\207rst)s
+2477(entry)s 3005(speci\207es)s 3863(colour)s 4518(of)s 4772(class)s
+5271(v)s 6(alue)k 5822(0,)s 6033(the)s 6365(second)s
+7071(entry)s 7600(for)s 7921(class)s 8420(v)s 6(alue)k
+8971(1)s 0 2108(and)m 396(so)s 653(on.)s 988(Class)s
+1549(v)s 6(alues)k 2196(that)s 2605(cannot)s 3295(be)s
+3568(used)s 4056(as)s 4298(an)s 4572(inde)s 3(x)k
+5147(in)s 5382(the)s 5721(palette)s 6404(\(such)s 6971(as)s
+7212(-1)s 7437(or)s 7688(a)s 7845(v)s 6(alue)k
+8404(greater)s 0 1820(or)m 246(equal)s 806(the)s 1140(palette)s
+1819(size)s 2233(should)s 2916(be)s 3185(displayed)s 4147(in)s
+4376(another)s 5140(colour)s 5798(than)s 6253(the)s 6588(colours)s
+7330(than)s 7785(are)s 8119(used)s 8602(from)s 0 1532(the)m
+354(palette.)s 1101(So)s 1414(if)s 1638(the)s 1992(palette)s
+2691(contains)s 3546(12)s 3847(colours)s 4608(and)s 5019(the)s
+5374(map)s 5846(contains)s 6700(the)s 7055(v)s 6(alues)k
+7718(0,1,2,3)s 8429(and)s 8840(15)s 0 1244(one)m 416(can)s
+819(pick)s 1307(an)s 3(y)k 1718(palette)s 2425(entry)s
+2984(lar)s 4(ger)k 3611(than)s 4094(4)s 4283(for)s
+4635(class)s 5165(15)s 5465(or)s 5739(choose)s 6474(another)s
+7266(colour)s 7951(as)s 8216(long)s 8709(it)s 8916(is)s
+0 956(v)m 3(ery)k 476(distinct)s 1239(from)s 1763(palette)s
+2455(entries)s 3142(0,1,2)s 3676(and)s 4080(3.)s 240 fnt84
+0 581(Continuous)m 1231(maps)s 240 fnt82 1770 582(:)m 1870(The)s
+2291(entry)s 2830(for)s 3161(v)s 6(alue)k 3723(X)s
+3946(is)s 4149(computed)s 5145(as)s 5388(\210oor\(\(X-minV)s 26(al\)/\(maxV)k 26(al-minV)k 26(al\)*P\))k
+0 294(where)m 635(P)s 820(are)s 1161(the)s 1504(number)s
+2289(of)s 2555(entries)s 3236(in)s 3474(the)s 3816(palette.)s
+4551(The)s 4973(palette)s 5660(must)s 6179(be)s 6456(sampled)s
+7305(at)s 7532(re)s 3(gular)k 8259(interv)s 6(als)k
+
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Page: 17 18
+%%BeginPageSetup
+%%PageResources: font Times-Roman
+/pgsave save def
+0.0500 dup scale 10 setlinewidth
+%%EndPageSetup
+gsave
+0 0 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 11900 16840 0 16840 240 288 60 LoutGraphic
+gsave
+LoutPageSet
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+
+grestore
+
+grestore
+gsave
+0 16840 translate
+0.0000 rotate
+gsave
+1417 -15423 translate
+240 fnt82 0.0 0.0 0.0 setrgbcolor 9066 14006 0 14006 240 288 60 LoutGraphic
+gsave
+1 LoutMargSet
+grestore
+240 fnt82 0.0 0.0 0.0 setrgbcolor 4291 13844(-)m 4419(17)s 4707(-)s
+0 13255(if)m 234(the)s 599(palette)s 1309(size)s 1753(e)s 3(xceeds)k
+2576(the)s 2941(number)s 3749(of)s 4038(colours)s 4810(that)s
+5246(can)s 5652(be)s 5951(displayed)s 6944(simultaneously)s 8463(on)s
+8778(the)s 0 12967(output)m 672(de)s 6(vice.)k 
+grestore
+
+grestore
+
+pgsave restore
+showpage
+
+%%Trailer
+%%DocumentNeededResources: font Courier
+%%+ font Symbol
+%%+ font Times-Roman
+%%+ font Times-Italic
+%%+ font Times-Bold
+%%DocumentSuppliedResources: procset LoutStartUp
+%%+  procset LoutMarginNotes
+%%+  procset LoutTabPrependGraphic
+%%+  procset LoutFigPrependGraphic
+%%+ encoding vec2
+%%Pages: 18
+%%EOF

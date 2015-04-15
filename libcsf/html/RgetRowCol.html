@@ -1,0 +1,52 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RgetRowCol - compute row, column number of true world co-ordinate</title>
+</header>
+<body>
+<h1>NAME</h1>
+RgetRowCol - compute row, column number of true world co-ordinate
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int RgetRowCol
+(
+	const MAP *m,
+	double x,
+	double y,
+	size_t *row,
+	size_t *col
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m<dd>
+map handle
+<dt>
+double x<dd>
+x of true co-ordinate
+<dt>
+double y<dd>
+y of true co-ordinate
+<dt>
+size_t *row<dd>
+write-only. Row number (y-pos).
+Undefined if (x,y) is outside of map
+<dt>
+size_t *col<dd>
+write-only. Column number (x-pos).
+Undefined if (x,y) is outside of map
+</dl>
+<h1>DESCRIPTION</h1>
+RgetRowCol computes row, column number of true world co-ordinate.
+<h1>RETURNS</h1>
+0  if the co-ordinate is outside the map,
+1 if inside,
+-1 in case of an error
+<h1>MERRNO</h1>
+ILL_CELLSIZE
+<h1>SEE ALSO</h1>
+<a href=Rcoords2RowCol.html>Rcoords2RowCol</a>
+
+
+</body>

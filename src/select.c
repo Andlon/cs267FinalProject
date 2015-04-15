@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,11 +33,6 @@
 #include <math.h> /* sqrt(), fabs() */
 
 #include "defs.h"
-
-#ifdef USING_R
-void Rprintf(const char *,...);
-#endif
-
 #include "userio.h"
 #include "data.h"
 #include "utils.h"
@@ -49,14 +43,11 @@ void Rprintf(const char *,...);
 #include "nsearch.h"
 #include "select.h"
 #include "polygon.h"
-#ifdef HAVE_EXT_DBASE
-# include "ext_dbase.h"
-#endif
 
 static int octant_select(DATA *d, DPOINT *where);
 static int which_octant(DPOINT *where, DPOINT *p, int mode);
 
-int CDECL dist_cmp(const DPOINT **ap, const DPOINT **bp);
+int dist_cmp(const DPOINT **ap, const DPOINT **bp);
 static void zero_sel_dist2(DATA *d);
 static void print_selection(DATA *d, DPOINT *where);
 
@@ -65,8 +56,28 @@ static void print_selection(DATA *d, DPOINT *where);
 /* beware-of-side-effect macro: don't call with ++/--'s */
 #define DPSWAP(a,b) { if (a != b) { tmp = a; a = b; b = tmp; }}
 
-static int select_qtree(DATA *d, DPOINT *where)
-{
+int select_at(DATA *d, DPOINT *where) {
+/*
+ * fill the array d->sel appropriatly given x,y,z,d->sel_min,d->sel_max
+ * and d->sel_rad: possibly by corresponding semivariance value
+ * first select all points within a distance d->sel_rad from where
+ * then select at max the d->sel_max nearest and return no selection
+ * if there are less then d->sel_min
+ * if "FORCE", then select ALWAYS the d->sel_min nearest points.
+ * 
+ * corrected variogram distance feb. 16th 1993
+ * changed search to normalizing to (0,0,0) first, aug 1993
+ */
+	int i;
+	DATA **data = NULL;
+
+	if (get_method() == POLY) 
+		return d->n_sel;
+
+	if (d->what_is_u == U_UNKNOWN)
+		d->what_is_u = U_ISDIST; /* we're going to fill this right now */
+	else if (d->what_is_u != U_ISDIST)
+		ErrMsg(ER_IMPOSVAL, "select_at() needs distances");
 	if (d->n_list <= 0 || d->id < 0 || d->sel_max == 0)
 		return (d->n_sel = 0);
 /* 
@@ -99,8 +110,7 @@ static int select_qtree(DATA *d, DPOINT *where)
 		if (gl_coincide == DEF_coincide)
 			gl_coincide = decide_on_coincide(); /* establish first ... */
  		if (gl_coincide) {
-	        int i;
-	        DATA **data = get_gstat_data();
+ 			data = get_gstat_data();
  			d->n_sel = data[0]->n_sel;
 			for (i = 0; i < d->n_sel; i++) /* copy previous selection: */
 				d->sel[i] = d->list[GET_INDEX(data[0]->sel[i])]; 
@@ -117,13 +127,17 @@ static int select_qtree(DATA *d, DPOINT *where)
 	memcpy(d->sel, d->list, d->n_list * sizeof(DPOINT *));
 	if (d->sel_rad >= DBL_MAX && d->sel_max >= d->n_list && d->oct_max == 0) {
 		if (get_n_edges()) {
+			d->n_sel = d->n_list;
 			zero_sel_dist2(d);
 			check_edges(d, where);
-		} 
-		d->n_sel = d->n_list;
-		if (DEBUG_SEL) 
-			print_selection(d, where);
-		return d->n_sel;
+			if (DEBUG_SEL) 
+				print_selection(d, where);
+			return d->n_sel;
+		} else {
+			if (DEBUG_SEL) 
+				print_selection(d, where);
+			return (d->n_sel = d->n_list);
+		}
 	}
 
 /*
@@ -131,43 +145,6 @@ static int select_qtree(DATA *d, DPOINT *where)
  * or (c) oct_max is set, so let's do the smart thing:
  */
 	qtree_select(where, d);
-	return -1; /* more work to do */
-}
-
-int select_at(DATA *d, DPOINT *where) {
-/*
- * fill the array d->sel appropriatly given x,y,z,d->sel_min,d->sel_max
- * and d->sel_rad: possibly by corresponding semivariance value
- * first select all points within a distance d->sel_rad from where
- * then select at max the d->sel_max nearest and return no selection
- * if there are less then d->sel_min
- * if "FORCE", then select ALWAYS the d->sel_min nearest points.
- * 
- * corrected variogram distance feb. 16th 1993
- * changed search to normalizing to (0,0,0) first, aug 1993
- */
-
-	if (get_method() == POLY) 
-		return d->n_sel;
-
-	if (d->what_is_u == U_UNKNOWN)
-		d->what_is_u = U_ISDIST; /* we're going to fill this right now */
-	else if (d->what_is_u != U_ISDIST)
-		ErrMsg(ER_IMPOSVAL, "select_at() needs distances");
-
-	/* CW */
-	if (d->type.type==DATA_EXT_DBASE) {
-#ifdef HAVE_EXT_DBASE
-	  if (select_ext_dbase(d,where)!=-1) {
-        if (DEBUG_SEL) 
-           print_selection(d, where);
-		return d->n_sel;
-      }
-#endif
-	} else {
-	  if (select_qtree(d,where)!=-1)
-		return d->n_sel;
-	}
 
 	if (get_n_edges()) 
 		check_edges(d, where);
@@ -178,29 +155,26 @@ int select_at(DATA *d, DPOINT *where) {
  * (b) we selected (at least) the nearest d->sel_max
  * (c) we selected (forced) at least d->sel_min, possibly beyond d->sel_rad
  * Now, should we select further, sorting on distance?
- *
  */
 
-	if (d->vdist) { /* use variogram distance as sort criterium */
-		int i;
+	if (d->vdist) /* use variogram distance as sort criterium */
 		for (i = 0; i < d->n_sel; i++)
 			d->sel[i]->u.dist2 = get_semivariance(get_vgm(LTI(d->id,d->id)),
 				where->x - d->sel[i]->x,
 				where->y - d->sel[i]->y,
 				where->z - d->sel[i]->z);
-	}
 
 	if (d->oct_max) { /* do octant selection */
 		d->oct_filled = octant_select(d, where);
 		/* sorts, adjusts n_sel and destroys distance order, so only */
 		if (get_method() == SPREAD) /* then we've got to re-order them */
-			qsort(d->sel, (size_t) d->n_sel, sizeof(DPOINT *), (int
-				CDECL (*)(const void *,const void *)) dist_cmp);
+			qsort(d->sel, (size_t) d->n_sel, sizeof(DPOINT *),
+				(int (*)(const void *,const void *)) dist_cmp);
 	} 
 
 	if (d->vdist) {
-		qsort(d->sel, (size_t) d->n_sel, sizeof(DPOINT *), (int 
-			CDECL (*)(const void *, const void *)) dist_cmp);
+		qsort(d->sel, (size_t) d->n_sel, sizeof(DPOINT *),
+			(int (*)(const void *, const void *)) dist_cmp);
 		/* pick d->sel_[max|min] nearest: */
 		if (d->sel_min && d->n_sel == d->sel_min
 				&& d->sel[d->n_sel]->u.dist2 > d->sel_rad) /* we forced: */
@@ -243,8 +217,8 @@ static int octant_select(DATA *d, DPOINT *where) {
 			n_notempty++; /* Yahoo, another non-empty octant! */
 		if (n > d->oct_max) {
 			/* to get the closest n: sort sel from start to end: */
-			qsort(sel + start, (size_t) n, sizeof(DPOINT *), 
-				(int CDECL (*)(const void *, const void *)) dist_cmp);
+			qsort(sel + start, (size_t) n, sizeof(DPOINT *),
+				(int (*)(const void *, const void *)) dist_cmp);
 			/* swap the remaining ones to the end of sel and forget about'm: */
 			for (j = start + d->oct_max; j < end; j++) {
 				d->n_sel--;
@@ -258,7 +232,7 @@ static int octant_select(DATA *d, DPOINT *where) {
 			start = end;
 	}
 	if (end != d->n_sel) {
-		Rprintf("end: %d, n_sel: %d\n", end, d->n_sel);
+		printf("end: %d, n_sel: %d\n", end, d->n_sel);
 		ErrMsg(ER_IMPOSVAL, "octant_select(): remaining points");
 	}
 	return n_notempty; /* # non-empty octants */
@@ -287,7 +261,7 @@ static int which_octant(DPOINT *where, DPOINT *p, int mode) {
 	return (x | (y << 1) | (z << 2));	
 }
 
-int CDECL dist_cmp(const DPOINT **pa, const DPOINT **pb) {
+int dist_cmp(const DPOINT **pa, const DPOINT **pb) {
 /* ANSI qsort() conformant dist_cmp */
 
 	if ( (*pa)->u.dist2 < (*pb)->u.dist2 )
@@ -309,12 +283,6 @@ static void zero_sel_dist2(DATA *d) {
 }
 
 static void print_selection(DATA *d, DPOINT *where) {
-
-/* Add this statement to filter out
- * empty selections
-   if (!d->n_sel)
-     return;
- */
 
 	if (where) {
 		printlog("selection at "); 

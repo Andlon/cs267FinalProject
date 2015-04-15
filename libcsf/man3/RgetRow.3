@@ -1,0 +1,95 @@
+.lf 1 RgetRow.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RgetRow" 3 "13 August 1999" "c2man _getrow.c"
+.SH "NAME"
+RgetRow \- read one row from a CSF raster file
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t RgetRow
+.br
+(
+.br
+	MAP *map,
+.br
+	size_t rowNr,
+.br
+	void *buf
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "size_t rowNr"
+row number to be read
+.TP
+.B "void *buf"
+write-only. buffer large enough to hold
+cell values of one row in both the file
+and in-app cell representation
+.SH "DESCRIPTION"
+RgetRow reads one row of cells from a
+file.
+.SH "RETURNS"
+Number of cells successfully read
+.SH "EXAMPLE"
+.lf 1 examples/_row.tr
+.DS
+ 
+ #include <stdlib.h>
+ #include "csf.h"
+ 
+ /* process a raster per row
+  * minimal checking
+  */
+ 
+ extern void DoThatWithRow(REAL4 *, size_t );
+ 
+ void main(int argc, char *argv[] )
+ {
+ 
+   REAL4 *buf;
+   MAP *map;                      
+   size_t r;
+   size_t nrOfCells;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   map = Mopen(argv[1], M_READ_WRITE);
+   if (map == NULL)  
+   {  
+      Mperror(argv[1]);
+      exit(1);
+   }
+ 
+   nrOfCells = RgetNrCols(map); 
+ 
+   (void)RuseAs(map, CR_REAL4); 
+ 
+   buf = (REAL4 *)Rmalloc(map, nrOfCells);
+ 
+   for(r=0; r < RgetNrRows(map); r++ )
+   {
+     RgetRow(map, r, buf); 
+     DoThatWithRow(buf, nrOfCells);
+     RputRow(map,r, buf); 
+   }
+ 
+   Mclose(map);
+   free(buf);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 42 RgetRow.3

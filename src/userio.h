@@ -1,5 +1,5 @@
-#ifndef USERIO_H
-#define USERIO_H
+#ifndef ERROR_H
+#define ERROR_H
 
 #if defined(__cplusplus)
 extern "C" {
@@ -26,12 +26,11 @@ enum Gstat_errno {
 	ER_PWRITE      = 17 /* error while writing to a pipe */,
 	ER_PREAD       = 18 /* error while reading from a pipe */,
 	ER_SECURE      = 19 /* secure mode: operation not allowed */,
-	ER_MESCHACH    = 20 /* error happened somewhere in meschach matrix lib */,
-	ER_EXT_DBASE   = 21 /* error happened somewhere in extdbase.c on hooks */
+	ER_MESCHACH    = 20 /* error happened somewhere in meschach matrix lib */
 };
 
-#define MAX_ERRNO 21
-extern const char *error_messages[MAX_ERRNO+1];
+#define MAX_ERRNO 20
+const char *error_messages[MAX_ERRNO+1];
 void message(char *fmt, ...);  /* message() calls always preceed ErrMsg() */
 #define ErrMsg(a,b) gstat_error(__FILE__,__LINE__,a,b)
 void gstat_error(char *fname, int line, 
@@ -48,22 +47,18 @@ void print_to_logfile_if_open(const char *mess);
 
 enum Gstat_errno get_gstat_errno(void);
 void reset_gstat_errno(void);
-void setup_meschach_error_handler(int using_R);
+void setup_meschach_error_handler(void);
 
 void set_gstat_warning_handler(void (*warning_fn)(const char *message));
 void set_gstat_error_handler(void (*error_fn)(const char *message, int level));
 void set_gstat_log_handler(void (*logprint)(const char *str));
 void set_gstat_progress_handler(
 	void (*progress)(unsigned int step, unsigned int total));
-void push_gstat_progress_handler(
-	void (*progress)(unsigned int step, unsigned int total));
-void pop_gstat_progress_handler(void);
 
 void default_warning(const char *mess);
 void default_error(const char *mess, int level);
 void default_printlog(const char *mess);
 void default_progress(unsigned int step, unsigned int total);
-void no_progress(unsigned int current, unsigned int total);
 
 int set_gstat_log_file(FILE *f);
 
@@ -73,4 +68,4 @@ const char *get_gstat_error_message(void);
 }
 #endif
 
-#endif /* USERIO_H */
+#endif /* ERROR_H */

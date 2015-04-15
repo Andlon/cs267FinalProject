@@ -6,8 +6,7 @@ typedef enum {
 	SEMIVARIOGRAM,
 	CROSSVARIOGRAM,
 	COVARIOGRAM,
-	CROSSCOVARIOGRAM,
-	PRSEMIVARIOGRAM /* pairwise relative semivariogram */
+	CROSSCOVARIOGRAM
 } SAMPLE_VGM_TYPE;
 
 extern const char *vgm_type_str[];
@@ -47,8 +46,7 @@ typedef struct {
 	SAMPLE_VGM_TYPE evt;
 	FIT_TYPE fit;
 	DO_AT_ZERO zero;
-	void *map, /* variogram map structure, i/o using files */
-		*S_grid /* variogram map structure, passed from S interface*/ ;
+	void *map;
 	struct { double x, y, z; } direction;
 	DPOINT ***pairs;
 	/* optionally, the point pair list -- for j in [ 0, nh[i] >
@@ -63,10 +61,8 @@ typedef enum {
 	EXPONENTIAL,
 	SPHERICAL, 
 	GAUSSIAN, 
-	EXCLASS,
 #ifdef USING_R
 	MATERN,
-	STEIN,
 #endif
 	CIRCULAR,
 	LINEAR, 
@@ -77,7 +73,6 @@ typedef enum {
 	LOGARITHMIC, 
 	POWER, 
 	SPLINE,
-	LEGENDRE,
 	MERROR, 
 	INTERCEPT
 } VGM_MODEL_TYPE;
@@ -90,34 +85,21 @@ typedef struct {
 } V_MODEL;
 extern const V_MODEL v_models[];
 
-#define NRANGEPARS 2 /* number of range parameters in variogram models */
 typedef struct {
 	VGM_MODEL_TYPE model;
 	int fit_sill, fit_range, id;
-	double range[NRANGEPARS], sill,
+	double *range, sill,
 	(*fnct)(double h, double *r), /* (partial) unit variogram function */
 	(*da_fnct)(double h, double *r); /* (partial) derivative to range of unit variogram */
 	ANIS_TM *tm_range;
 } VGM_MODEL;
 
 typedef struct {
-	long n; /* length */
-	double maxdist, *values;
-	ANIS_TM *tm_range;
-} COV_TABLE;
-#define COV_TABLE_VALUE(tablep, dist) \
-	(dist >= tablep->maxdist ? tablep->values[tablep->n - 1] : \
-	tablep->values[(int) floor(tablep->n * (dist / tablep->maxdist))])
-#define SEM_TABLE_VALUE(tablep, dist) \
-	(tablep->values[0] - COV_TABLE_VALUE(tablep, dist))
-
-typedef struct {
 	char 	*descr, *fname, *fname2; /* descript. and sample variogram (maps) */
 	int 	n_models, max_n_models, n_fit, id, id1, id2,
 			block_semivariance_set, block_covariance_set, isotropic,
-			is_valid_covariance, fit_is_singular;
+			is_valid_covariance;
 	VGM_MODEL *part;			/* the basic models */
-	COV_TABLE *table;			/* covariance value table */
 	double	block_semivariance,	/* average within-block semivariance */
 			block_covariance,	/* average within-block covariance */
 			max_range,	/* maximum range: where sill is reached */
@@ -169,6 +151,8 @@ typedef struct {
 #define PARTHASNORANGE(m) (m->model == NUGGET || m->model == INTERCEPT || \
 	(m->model == LINEAR && m->range == 0.0))
 
+#define NRANGEPARS 2 /* number of range parameters in variogram models */
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -204,8 +188,6 @@ VGM_MODEL_TYPE model_shift(VGM_MODEL_TYPE now, int next);
 int get_n_variogram_models(void);
 void push_to_v(VARIOGRAM *v, const char *mod, double sill, double *range, 
 		int nrangepars, double *d, int fit_sill, int fit_range);
-void push_to_v_table(VARIOGRAM *v, double maxdist, int length, double *values,
-		double *anis);
 
 #if defined(__cplusplus)
 }

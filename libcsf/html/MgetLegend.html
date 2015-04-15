@@ -1,0 +1,41 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MgetLegend - read a legend</title>
+</header>
+<body>
+<h1>NAME</h1>
+MgetLegend - read a legend
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int MgetLegend
+(
+	MAP *m,
+	CSF_LEGEND *l
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+Map handle
+<dt>
+CSF_LEGEND *l<dd>
+array large enough to hold name and all entries,
+the entries are sorted
+struct CSF_LEGEND is typedef'ed in csfattr.h
+</dl>
+<h1>DESCRIPTION</h1>
+MgetLegend reads a version 2 and 1 legend.
+Version 1 legend are converted to version 2: the first
+array entry holds an empty string in the description field.
+<h1>RETURNS</h1>
+0 if no legend is available or in case of an error,
+nonzero otherwise
+<h1>SEE ALSO</h1>
+<a href=MgetNrLegendEntries.html>MgetNrLegendEntries</a>
+,
+<a href=MputLegend.html>MputLegend</a>
+
+
+</body>

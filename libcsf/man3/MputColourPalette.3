@@ -1,0 +1,55 @@
+.lf 1 MputColourPalette.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MputColourPalette" 3 "13 August 1999" "c2man moreattr.c"
+.SH "NAME"
+MputColourPalette \- put the colour palette
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int MputColourPalette
+.br
+(
+.br
+	MAP *m,
+.br
+	UINT2 *pal,
+.br
+	size_t nrTupels
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map to get it from
+.TP
+.B "UINT2 *pal"
+the new palette
+.TP
+.B "size_t nrTupels"
+the number of 3 UINT2 words tupels of pal
+.SH "DESCRIPTION"
+MputColourPalette writes the pal argument that is filled
+with a number of rgb tupels
+of the colour palette to the map. Each tupel is a sequence of 3 UINT2
+words describing red, green and blue. Thus if the map has 8
+colour palette entries it puts 24 UINT2 values in map palette.
+An existing colour palette is overwritten.
+.SH "RETURNS"
+0 if not available or in case of error,
+nonzero otherwise
+.SH "SEE ALSO"
+MgetHistorySize(3),
+MgetDescriptionSize(3),
+MgetNrColourPaletteEntries(3),
+MgetNrGreyPaletteEntries(3),
+MgetDescription(3),
+MgetHistory(3),
+MgetColourPalette(3),
+MgetGreyPalette(3),
+MputDescription(3),
+MputHistory(3),
+MputGreyPalette(3)

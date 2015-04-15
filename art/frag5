@@ -1,0 +1,5 @@
+data(zinc): 'zinc.eas', v=1, x=3, y=4, X=2&x&y;
+variogram(zinc):    0.5 nug() + 0.6 sph(10);
+mask:              'topo.map';
+predictions(zinc): 'zinc_uk.pr';
+variances(zinc):   'zinc_uk.var'; 

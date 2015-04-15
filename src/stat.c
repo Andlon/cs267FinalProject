@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -137,24 +136,23 @@ void calc_r(double *a, double *b, int n, double *corr) {
 	return;
 }
 
-#ifndef USING_R
 int stats(char *name, int silent, double q) {
 	static D_VECTOR *dv = NULL;
 	double mean = 0.0;
 
 	if (dv == NULL) {
 		dv = (D_VECTOR *) emalloc(sizeof(D_VECTOR));
-		dv->max_size = dv->size = 0;
+		dv->size = 0;
 		dv->val = NULL;
 	}
-	dv->size = 0;
 
+	dv->size = 0;
 	read_vector(dv, name);
 
 	assert(dv->size > 0);
 
 	qsort(dv->val, (size_t) dv->size, sizeof(double),
-		(int CDECL (*)(const void *, const void *)) d_cmp);
+		(int (*)(const void *, const void *)) d_cmp);
 
 	mean = sample_mean(dv->val, dv->size);
 
@@ -186,9 +184,8 @@ int stats(char *name, int silent, double q) {
 		dv->size);
 	return 0;
 }
-#endif
 
-int CDECL d_cmp(const double *a, const double *b) {
+int d_cmp(const double *a, const double *b) {
 	if (*a < *b)
 		return -1;
 	if (*a > *b)

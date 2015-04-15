@@ -1,0 +1,27 @@
+.lf 1 Mclose.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "Mclose" 3 "13 August 1999" "c2man mclose.c"
+.SH "NAME"
+Mclose \- close a map
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int Mclose(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+map to close, map descriptor
+is deallocated
+.SH "DESCRIPTION"
+the Mclose function closes a map
+if the map is being used for output
+all header data is rewritten first
+.SH "RETURNS"
+Upon succesful completion 0 is returned.
+Otherwise, a non-zero value is returned
+.SH "MERRNO"
+WRITE_ERROR (map descriptor still in tact if this happens)

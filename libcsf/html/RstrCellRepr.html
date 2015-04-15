@@ -1,0 +1,57 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RstrCellRepr - string with cell representation in plain english or acronym</title>
+</header>
+<body>
+<h1>NAME</h1>
+RstrCellRepr - string with cell representation in plain english or acronym
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+const char *RstrCellRepr(CSF_CR cr);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+CSF_CR cr<dd>
+cell representation constant
+<p>
+Possible values for a <pre>CSF_CR</pre>
+ are as follows:
+	* preferred version 2 cell representations
+<ul><li>CR_UINT1 - Boolean, ldd and small nominal and small ordinal.<p>
+<li>CR_INT4 - Large nominal and large ordinal.<p>
+<li>CR_REAL4 - Single scalar and single directional.<p>
+</ul>	* other version 2 cell representations
+<ul><li>CR_REAL8 - Double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision.<p>
+</ul>	* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>CR_INT1 - <br>
+.<p>
+<li>CR_INT2 - <br>
+.<p>
+<li>CR_UINT2 - <br>
+.<p>
+<li>CR_UINT4 - <br>
+.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>CR_UNDEFINED - Just some value different from the rest.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+The string is in lower case except for INT1,INT2,UINT2 and UINT4
+, they return an acronym. If cr is not
+a valid constant, for example 999,  then the string is
+&quot;999 is no CR constant&quot;.
+The &quot;no constant&quot; message is stored in a static buffer
+used by both RstrCellRepr and RstrValueScale.
+<h1>RETURNS</h1>
+string with cell representation
+<h1>SEE ALSO</h1>
+<a href=RstrValueScale.html>RstrValueScale</a>
+,
+<a href=MstrProjection.html>MstrProjection</a>
+
+
+</body>

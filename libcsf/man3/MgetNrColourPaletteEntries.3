@@ -1,0 +1,36 @@
+.lf 1 MgetNrColourPaletteEntries.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MgetNrColourPaletteEntries" 3 "13 August 1999" "c2man moreattr.c"
+.SH "NAME"
+MgetNrColourPaletteEntries \- get the number of colour palette entries
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t MgetNrColourPaletteEntries(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map to get it from
+.SH "DESCRIPTION"
+MgetNrColourPaletteEntries returns the number of rgb tupels
+of the colour palette. Each tupel is a sequence of 3 UINT2
+words describing red, green and blue.
+.SH "RETURNS"
+the number of rgb tupels,
+or 0 if not available or in case of error
+.SH "SEE ALSO"
+MgetHistorySize(3),
+MgetDescriptionSize(3),
+MgetNrGreyPaletteEntries(3),
+MgetDescription(3),
+MgetHistory(3),
+MgetColourPalette(3),
+MgetGreyPalette(3),
+MputDescription(3),
+MputHistory(3),
+MputColourPalette(3),
+MputGreyPalette(3)

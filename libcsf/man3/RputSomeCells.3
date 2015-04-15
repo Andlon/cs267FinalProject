@@ -1,0 +1,106 @@
+.lf 1 RputSomeCells.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputSomeCells" 3 "13 August 1999" "c2man putsomec.c"
+.SH "NAME"
+RputSomeCells \- write a stream of cells
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t RputSomeCells
+.br
+(
+.br
+	MAP *map,
+.br
+	size_t offset,
+.br
+	size_t nrCells,
+.br
+	void *buf
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "size_t offset"
+offset from pixel (row,col) = (0,0)
+.TP
+.B "size_t nrCells"
+number of cells to be read
+.TP
+.B "void *buf"
+read-write. Buffer large enough to
+hold nrCells cells in the in-file cell representation
+or the in-app cell representation.
+If these types are not equal then the buffer is
+converted from the in-app to the in-file
+cell representation.
+.SH "DESCRIPTION"
+RputSomeCells views a raster as one linear stream of
+cells, with row i+1 placed after row i.
+In this stream any sequence can be written by specifying an
+offset and the number of cells to be written
+.SH "RETURNS"
+the number of cells written, just as fwrite
+.SH "EXAMPLE"
+.lf 1 examples/somecell.tr
+.DS
+ #include <stdlib.h>
+ #include "csf.h"
+  
+ /* process a raster in 
+  * chunks of 2 rows
+  * assuming an even number of rows
+  */
+  
+ extern void DoThatWithIt(REAL4 * , size_t );
+ 
+ void main(int argc, char *argv[] )
+ {
+  
+   REAL4 *buf;
+   MAP *map;                      
+   size_t r, nrCols;
+   size_t chunkSize;
+  
+  if (argc != 2)
+  {
+   fprintf(stderr,"%s: no file specified\\n",argv[0]);
+   exit(1);
+  }
+ 
+   map = Mopen(argv[1], M_READ_WRITE);
+   if (map == NULL)  
+   {  
+       Mperror(argv[1]);
+       exit(1);
+   }
+ 
+   nrCols = RgetNrCols(map); 
+   chunkSize = 2*nrCols; 
+ 
+   (void)RuseAs(map, CR_REAL4); 
+ 
+   buf = (REAL4 *)Rmalloc(map, chunkSize);
+ 
+   for(r=0; r < RgetNrRows(map); r += 2)
+   {
+     RgetSomeCells(map, r*nrCols, chunkSize, buf); 
+     DoThatWithIt(buf, chunkSize);
+     RputSomeCells(map,r*nrCols, chunkSize, buf); 
+   }
+ 
+   Mclose(map);
+   free(buf);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 52 RputSomeCells.3

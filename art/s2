@@ -1,0 +1,326 @@
+@Section 
+ @Title {Linear models with generalized covariances}
+ @Tag { linear }
+@Begin
+
+@DP
+This section deals with notation, definitions, and with the practice of
+geostatistical computation. In the following, the geostatistical problem
+is formulated in terms of the statistical linear model with generalized
+covariances. It is mainly based on Cressie (1991) and Christensen (1987,
+1991). The solutions presented here are equivalent to those in
+``traditional'' geostatistical notation (e.g. Journel and Huijbregts,
+1978). Besides the avoidance of Lagrange parameters, the linear model
+notation has the advantage that it sheds light on the unique features of
+geostatistical models in the perspective of their obvious classical
+statistical alternatives (regression or ANOVA based models with
+independent errors).
+
+@DP
+@I {Notation---the linear model}
+@LP
+Consider @E{n} observations @E{z(s sub i )} on a function @E{z(s)},
+taken at @E{n} locations @E{s sub i} in a domain @E{@B D}, @E{s sub i}
+representing a spatial coordinate in @E{@B R sup 1}, @E{@B R sup 2}
+or @E{@B R sup 3}. In a univariable linear geostatistical model, the
+observations are considered as taken from a realization of the random
+function @E{Z(s)}, where each random variable @E{Z(s sub i )} follows a
+linear model:
+
+@DP
+@Eqmoda @Neq {@E{Z(s sub i )= sum from j=0 to p x sub j (s sub i )
+beta sub j + e (s sub i )}, @CSep @E{@R E (e(s sub i ))=0}, @CSep
+@E{i=1,...,n}, @CSep @E{s sub i in @B D}}
+@DP
+
+and where observations may be correlated, in matrix notation:
+
+@DP
+@Eqmodb @Neq { @E{Z(s)= X beta + e (s)}, @CSep @E{@R E (e(s))=0},
+@CSep @E{@R Cov (e(s)) = V },
+@CSep @E{s in @B D},}
+@DP
+
+with
+@E{Z(s)=(Z(s sub 1 ),...,Z(s sub n ))'}, 
+with known base functions @E{X = (x sub 0 , x sub 1 ,..., x sub p )},
+@E{x sub j = (x sub j (s sub 1 ),...,x sub j (s sub n ))'},
+with @E{beta = (beta sub 0 ,..., beta sub p )'} the unknown parameter vector,
+with @E{e(s) = (e(s sub 1 ),...,e(s sub n ))'}, and with
+@E{V = [@R Cov (e(s sub i ),e(s sub j ))] sub {n times n}} the
+@E{n times n} covariance matrix of @E{e(s)}.
+Usually, the first column of @E{X}, @E{x sub 0} is the vector
+@E{J = (1,1,...,1)'}, in which case @E{beta sub 0} is called an intercept.
+In a regression context, base functions are called ``independent
+variables'' or ``predictor variables'' (Draper and Smith, 1981), in an
+ANOVA context they are called ``dummy variables'' and @E{X} is called the
+``design matrix''.
+
+@PP
+A multivariable model has @E{q} variables @E{Z sub k (s)}, each
+following a linear model:
+
+@DP
+@Eqmodc @Neq { @E{Z sub k (s)= X sub k beta sub k + e sub k (s)}, @CSep
+@E{@R E (e(s))=0}, @CSep @E{@R Cov (e sub k (s)) = V sub k}, @CSep
+@E{k = 1,...,q},}
+@DP
+
+with @E{V sub k} the (@E{n sub k times n sub k }) covariance matrix of
+@E{e sub k (s)}, and with interdependent residuals: @E{@R Cov (e sub
+k (s),e sub l (s)) = V sub kl}, the @E{n sub k times n sub l} cross
+covariance matrix (for the moment assuming that the @E{beta sub k} are
+disjunct).
+
+@DP
+@I{Spatial dependence}
+@LP
+In geostatistical models, the covariance between observations is derived
+from the covariogram, a function of the separation vector between
+observation locations @E{h = s sub i - s sub j}, written as
+
+@DP
+@Eqcov @Neq {@E{@R Cov (e(s sub i ),e(s sub j )) = C sub e (s sub i , s
+sub j ) = C sub e (h)}.}
+@DP
+
+When the linear model contains an intercept (@E{J} is one of the
+columns in @E{X}, or @E{J} is part of the column space of @E{X}) then
+it is sufficient to use the variogram of @E{e(s)}, defined as
+
+@DP
+@Eqsem @Neq {@E{1 frac 2 @R Var (e(s sub i )-e(s sub j )) = gamma sub e
+(s sub i , s sub j ) = gamma sub e (h)},}
+@DP
+
+and it is sufficient to substitute generalized covariances @E{G sub e
+(h) = d - gamma sub e (h)} with arbitrary constant @E{d} for
+covariances, in order to obtain valid predictions (Cressie, 1991, 5.4;
+Christensen, 1991, VI.3).  Variograms (and covariograms) may be
+anisotropic (direction dependent) or independent of direction
+(isotropic, @E{gamma(h)==gamma(dbar h dbar)}, with @E{dbar cdot dbar}
+being the euclidian norm or distance).
+
+@DP
+@I{Prediction}
+@LP
+Using model (1), at an unobserved location @E{s sub 0} with known
+independent variable values @E{x (s sub 0 ) = (x sub 0 (s sub 0 ),..., x
+sub p (s sub 0 ))}, the value of @E{Z(s)} can be predicted with the
+best linear unbiased predictor (BLUP)
+
+@DP
+@Eqblup @Neq {@E{z hat sub gls ( s sub 0 ) = x (s sub 0 ) beta hat sub
+gls + v sub 0 ' V sup -1 (z(x) - X beta hat sub gls ), }}
+@DP
+
+with
+@E{v sub 0 = (@R Cov (e(s sub 0 ),e(s sub 1 )),...,@R Cov (e(s sub 0
+),e(s sub n )))'}, and where @E{beta hat sub gls = (X'V sup -1 X) sup -1
+X' V sup -1 z(x)} is the generalized least squares (GLS) estimate of
+@E{beta}. The BLUP has prediction variance
+
+@DP
+@Eqblupv @Neq {@E{sigma supp 2 on gls ( s sub 0 ) = C sub e (0) - v sub
+0 ' V sup -1 v sub 0 + (x sub 0 - v sub 0 ' V sup -1 X )(X' V sup -1 X)
+sup -1 (x sub 0 - v sub 0 ' V sup -1 X )'}}
+@DP
+
+with @E{C sub e (0) = @R Var (e(s sub 0 ))}. In geostatistics, this
+predictor is called the kriging predictor: ordinary kriging is the
+special case where @E{X==J} and @E{x (s sub 0 ) = 1}, more complex forms
+of @E{X} result in ``universal kriging'' or ``kriging with external
+drift''.
+
+@PP
+The simple kriging predictor is obtained when the estimation of the
+parameter vector @E{beta} is ignored because it is assumed to be known,
+for instance as a constant mean @E{mu sub sk}
+
+@DP
+@Eqblp @Neq {@E{z hat sub sk ( s sub 0 ) = mu sub sk + v sub 0 ' V sup -1
+(z(x) - mu sub sk ), }}
+@DP
+
+having prediction variance
+
+@DP
+@Eqblpv @Neq {@E{sigma supp 2 on sk ( s sub 0 ) = C sub e (0) - v sub 0
+' V sup -1 v sub 0 }.}
+@DP
+
+Equations (@Eqblup) and (@Eqblupv) simplify considerably when @E{v sub
+0 = (0,0,...,0)'} and (a) @E{V = D} is a diagonal matrix or (b) @E{V =
+sigma sup 2 I}, a multiple of the identity matrix @E{I}. These two
+special cases correspond respectively to (a) the weighted least squares
+(WLS) case, where observations are independent but have non-constant
+variance, and to (b) the ordinary least squares (OLS) case, where
+observations are independent and have equal variance (e.g., Draper and
+Smith, 1981; Christensen, 1987).
+
+@DP
+@I{Multivariable prediction}
+@LP
+Using the multivariable model (@Eqmodc), the multivariable BLUP
+(``cokriging'') is obtained by suitably extending the univariable
+prediction equations (Myers, 1982; Ver Hoef and Cressie, 1993). Without
+loss of generality, assume @E{q=2}. When, in (@Eqblup) and (@Eqblupv),
+@E{@B z (x)=(z sub 1 (x),z sub 2 (x))'} and @E{@B B = (beta sub{1},
+beta sub{2})'} are substituted for @E{z(x)} and @E{beta}, and when
+
+@DP
+@Deq @E{@B x (s sub 0 )= matrix atleft { [ } atright { ] } {
+ {@B x sup 1 (s sub 0 )} above 0
+ nextcol
+ 0 above {@B x sup 2 (s sub 0 )}
+}, @CSep
+{@B X = matrix atleft { [ } atright { ] } {
+ {X sub 1} above 0
+ nextcol
+ 0 above {X sub 2}
+}}, @CSep 
+{@B V = matrix atleft { [ } atright { ] } {
+ {V sub 11} above {V sub 21}
+ nextcol
+ {V sub 12} above {V sub 22}
+}}, @CSep 
+{@B v sub 0 = matrix atleft { [ } atright { ] } {
+ {v sub 11} above {v sub 21}
+ nextcol
+ {v sub 12} above {v sub 22}
+}}},
+@DP
+
+with @E{@B x sup k (s sub 0 )} the vector @E{x(s sub 0 )} for variable
+{k}, @E{V sub 21 = [@R{Cov}(e sub 2 (x sub i ),e sub 1 (x sub j ))]},
+@E{v sub 21 = (@R{Cov}(e sub 2 (x sub 1 ),e sub 1 (x sub 0 )),...,
+@R{Cov}(e sub 2 (x sub n ), e sub 1 (x sub 0 )))'}, and 0 a conforming
+zero matrix or vector, are substituted for @E{x(s sub 0 )}, @E{X},
+@E{V} and @E{v sub 0}, then the left-hand sides of the newly obtained
+equations yield the multivariable prediction: the left-hand side of
+(@Eqblup) then becomes the prediction vector @E{@B z hat (x sub 0 ) = (
+z hat sub 1 (s sub 0 ), z hat sub 2 (s sub 0 ))'}, and the left-hand
+side of (@Eqblupv) becomes the (2 @Multiply 2) matrix with prediction
+covariances. When different variables @E{Z sub k} and @E{Z sub l}, @E{k
+!= l} share one or more common parameters in @E{@B B} (e.g., Isaaks
+and Srivastava, 1989, p. 409-416), then the vectors @E{beta sub k} are
+not disjunct and @E{@B x (s sub 0 )} and @E{@B X} are rearranged
+accordingly.
+
+@DP
+@I{Modelling spatial dependence}
+@LP
+Modelling spatial dependence is usually a crucial part in geostatistical
+studies. Spatial dependence can be modelled by the variogram. Given
+irregularly spaced point data (the most general case), the variogram
+can be modelled either by first estimating variogram values for a set
+of distance intervals (the sample variogram) and then fitting a valid
+variogram model to this sample variogram (``by eye'', or using weighted
+least squares, Cressie, 1985), or by directly estimating variogram
+model parameters from sample data by generalized least squares (e.g. by
+restricted maximum likelyhood estimation (REML), Kitanidis, 1983;
+Christensen, 1993).
+
+@PP
+Under the ordinary and universal kriging model, the residual covariance
+is not accessible because @E{beta} is unknown, and estimation of
+@E{beta} leads to biased estimates of the covariance (Armstrong, 1984).
+However, it is sufficient to substitute generalized covariances (GCV) for
+the covariance of the residuals. Generalized covariances are obtained by
+modelling the variogram (or alternatively, if the model does not contain
+an intercept, the covariogram) from estimated residuals. It has been shown
+that for purposes of prediction the difference between covariances and
+generalized covariances is not a serious problem (Kitanidis, 1993): even
+the sample variogram from residuals obtained by OLS estimation of the
+trend (@E{e hat sub OLS (s) = z(s) - X beta hat sub OLS}) may yield
+preliminary estimates of the GCV, that may be sufficient in some cases
+(depending on the goals of the study).
+
+@PP
+Direct inference of the residual variogram (GCV) from data is obtained
+by restricted maximum likelyhood (REML), which uses weighted least
+squares estimation of variogram model parameters from @E{e hat (s) e hat
+(s)'}, the products and cross products of estimated residuals.
+
+@DP
+@I{Change of support}
+@LP
+For rectangular or otherwise shaped blocks @E{B sub 0}, block average
+values
+
+@Deq {@E{Z(B sub{0}) = bar B sub 0 bar sup -1 int sub {B sub 0} Z(u)du},}
+
+with @E{bar B sub 0 bar} the area or volume of @E{B sub 0}, can be
+predicted by replacing the point-to-point semivariance @OneCol @E{gamma
+sub e (x sub i , x sub 0 )} with the point-to-block semivariance @OneCol
+@E{gamma sub e (x sub i , B sub 0 )}, the mean of all point
+semivariances between @E{x sub i} and the points that define @E{B sub 0}
+
+@DP
+@Deq {@E{gamma sub e (x sub i , B sub 0 ) = bar B sub 0 bar sup -1
+int sub {B sub 0} gamma sub e (x sub i , u)du},}
+@DP
+
+by replacing @OneCol @E{gamma sub e (x sub 0 , x sub 0 )} with the
+block-to-block semivariance @OneCol @E{gamma sub e (B sub 0 , B sub 0
+)}, the mean of all point semivariances between the pairs of points
+defining the block @E{B sub 0}
+
+@DP
+@Deq {@E{gamma sub e (B sub 0 , B sub 0 ) = bar B sub 0 bar sup -2
+int sub {B sub 0} int sub {B sub 0} gamma sub e (u, v)d u d v},}
+@DP
+
+and by replacing @E{x (s sub 0 )} with @E{x(B sub 0 ) = (x sub 0 (B
+sub 0 ),..., x sub p (B sub 0 ))}, with @E{x sub j (B sub 0 ) =
+@OneCol{bar B sub 0 bar sup -1 int sub {B sub 0} x sub j (u)du}}, the
+average value of @OneCol @E{x sub j (cdot)} over block @E{B sub 0}
+(block mean covariances or generalized covariances are defined in a
+similar way).
+
+@DP
+@I { Local prediction }
+@LP
+# For reasons of computation speed or for reasons of applying model
+# (@Eqmod) only in a local neighbourhood around @E{s sub 0}, in practice
+# prediction is often done @I locally. This amounts to applying the
+# equations (e.g. (@Eqblup) and (@Eqblupv)) to the subset of the data
+# that is found in a local neighbourhood around @E{s sub 0}, with the
+# corresponding subsets of @E{X} and @E{V}.
+In practice, kriging prediction is often done using only a subset of the
+data (observations and base functions) selected from a local
+neighbourhood around the prediction location, the kriging neighbourhood.
+The reason for this may be computational efficiency or a wish to weaken
+the stationarity assumptions regarding first order moments.
+
+@DP
+@I{Known, non-stationary measurement error}
+@LP
+When the observations can be modelled as a sum of a stationary random
+function @E{Z(x)} with generalized covariance matrix @E{W} and an
+unknown measurement error @E{epsilon(s)} with a known diagonal
+covariance matrix @E{D = @R diag (@R Var (epsilon (s sub i )))}, then
+kriging predictions for (measurement error free) observations at @E{s
+sub 0} are obtained by using (@Eqblup) and (@Eqblupv) with @E{V = W + D}
+(Christensen, 1991, VI.4).
+
+@DP
+@I{Simulation}
+@LP
+Linear prediction ((@Eqblup), (@Eqblp)) always results in values that
+are ``best'' in the sense that the expected squared prediction error is
+minimal. However, the field with predicted values is always smoother
+than the field from which the observations were obtained. Simulations
+can be seen as ``possible realizations'' of a spatially correlated
+random field, that honour the spatial moments (mean, variogram) of the
+field. Different simulations may be completely independent, only sharing
+the spatial moments (unconditional simulation) or they may in addition
+reproduce a set of observed values (conditional simulation). Showing
+multiple simulations can help the understanding of the combined effect
+of prediction uncertainty and spatial variation of the underlying
+process. Also, simulations can be used as input to error analysis, for
+instance in the case where propagation of errors in input variables
+through a model cannot be derived analytically (e.g. Gotway, 1994), or
+where covariances between prediction errors are important as well.
+
+@End @Section

@@ -1,0 +1,43 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MattributeAvail - check if an attribute is available</title>
+</header>
+<body>
+<h1>NAME</h1>
+MattributeAvail - check if an attribute is available
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int MattributeAvail
+(
+	MAP *m,
+	CSF_ATTR_ID id
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+map handle
+<dt>
+CSF_ATTR_ID id<dd>
+identification of attribute
+<p>
+Possible values for a <pre>CSF_ATTR_ID</pre>
+ are as follows:
+<ul><li>ATTR_ID_LEGEND_V1 - Version 1 legend.<p>
+<li>ATTR_ID_HISTORY - History fields.<p>
+<li>ATTR_ID_COLOUR_PAL - Colour palette.<p>
+<li>ATTR_ID_GREY_PAL - Grey palette.<p>
+<li>ATTR_ID_DESCRIPTION - Description.<p>
+<li>ATTR_ID_LEGEND_V2 - Version 2 legend.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+MattributeAvail search for the given id in the map.
+<h1>RETURNS</h1>
+0 if the attribute is not available,
+nonzero if the attribute is available
+<h1>MERRNO</h1>
+ILLHANDLE
+
+</body>

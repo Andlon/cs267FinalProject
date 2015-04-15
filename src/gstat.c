@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -116,20 +115,19 @@ int __errno;
 static int check_only = 0;
 
 #define HELP "options:\n\
--C | --copyright    print copyright notice\n\
--W | --warranty     print no warranty claim\n\
--i | --interactive  start interactive mode\n\
--v | --version      print version information\n\
--c | --check        check command file syntax and exit\n\
--e a | --execute a  execute action a\n\n\
+-C    print copyright notice\n\
+-W    print no warranty claim\n\
+-i    start interactive mode\n\
+-v    print version information\n\
+-c    check command file syntax and exit\n\
+-e a  execute action a\n\n\
 the following options have an equivalent command -> syntax:\n\
--d n | --debug=n    debug (sum) level: -1 list options -> set debug = n;\n\
--o f | --output=f   write output results to file f     -> set output = 'f';\n\
--l f | --logfile=f  write debug log to file f          -> set logfile = 'f';\n\
--p f | --plotfile=f write plot commands to file f      -> set plotfile = 'f';\n\
--S   | --secure     secure mode                        -> set secure = 1;\n\
-                    (this implies no system(), popen() or remove() calls)\n\
--x   | --xvalid     cross validation                   -> set xvalid = 1;\n\
+-d n  debug (sum) level: -1 list options         -> set debug = n;\n\
+-o f  write output results to file f             -> set output = 'f';\n\
+-l f  write debug log to file f                  -> set logfile = 'f';\n\
+-p f  write plot commands to file f              -> set plotfile = 'f';\n\
+-S    secure mode (no system, popen or remove)   -> set secure = 1;\n\
+-x    cross validation                           -> set xvalid = 1;\n\
 option arguments: f file name, n number, a action\n"
 
 #ifndef LIBGSTAT
@@ -147,9 +145,6 @@ int gstat_main(int argc, char *argv[]) {
 	init_userio(1);
 	init_global_variables();
 	argv0 = argv[0];
-#ifdef HAVE_LIBGDAL
-	GDALAllRegister();
-#endif
 /*
  * register command line arguments on command_line:
  */
@@ -163,7 +158,7 @@ int gstat_main(int argc, char *argv[]) {
 /*
  * start with program heading:
  */
-	printlog("%s: %s %s version %s\n", GSTAT_NAME, GSTAT_OS, TARGET, VERSION);
+	printlog("%s: %s version %s\n", GSTAT_NAME, GSTAT_OS, VERSION);
 	printlog("%s\n", GSTAT_CR);
 	gstat_start();
 
@@ -173,7 +168,7 @@ int gstat_main(int argc, char *argv[]) {
 	if (optind == argc) { /* there's no command file name left */
 		if (get_method() != UIF) { /* -i or -m command line option */
 			/* no arguments */
-			printlog("Updates, manuals, GPL sources: %s\n", 
+			printlog("Updates, manuals and source code: %s\n", 
 				GSTAT_HOME);
 			printlog("%s\n", USAGE);
 			ErrMsg(ER_NOCMD, "");
@@ -181,7 +176,7 @@ int gstat_main(int argc, char *argv[]) {
 			start_ui();
 			exit(0);
 		}
-	} else { /* we have one or more command files to be processed */
+	} else { /* we have a command file to be read */
 		for ( ; optind < argc; optind++) {
 			command_file_name = argv[optind];
 			parse_file(command_file_name);
@@ -203,7 +198,7 @@ int gstat_main(int argc, char *argv[]) {
 				set_method(get_default_method());
 			set_mode();
 			check_global_variables();
-			setup_meschach_error_handler(0);
+			setup_meschach_error_handler();
 			if (DEBUG_DUMP)
 				dump_all();
 			if (get_method() != NSP)
@@ -255,40 +250,14 @@ int gstat_main(int argc, char *argv[]) {
 
 static void parse_options(int argc, char *argv[]) {
 	int c;
-#ifdef HAVE_GETOPT_LONG
-	static struct option long_options[] = {
-		{ "copyright",  0, 0, 'C' },
-		{ "check",      0, 0, 'c' },
-		{ "debug",      1, 0, 'd' },
-		{ "help",       0, 0, 'h' },
-		{ "interactive",0, 0, 'i' },
-		{ "logfile",    1, 0, 'l' },
-		{ "plotfile",   1, 0, 'p' },
-		{ "output",     1, 0, 'o' },
-		{ "silent",     0, 0, 's' },
-		{ "secure",     0, 0, 'S' },
-		{ "version",    0, 0, 'v' },
-		{ "warranty",   0, 0, 'W' },
-		{ "xvalid",     0, 0, 'x' },
-		{ NULL,         0, 0, 0 }
-	};
-	int option_index = 0;
-#endif
 
-	/* who am i, some -e option? quick to getopt() of the -e option */
-	if (argc > 1 && (almost_equals(argv[1], "-e$xecute") ||
-			almost_equals(argv[1], "--execute")))
+	/* who am i, some -e option? */
+	if (argc > 1 && almost_equals(argv[1], "-e$xecute"))
 		exit(exec_action(argc - 2, argv + 2));
 
 	/* no, we're plain gstat. Parse the command line: */
 	opterr = 0;
-#ifdef HAVE_GETOPT_LONG
-	while ((c = getopt_long(argc, argv, "Ccd:ehil:mo:p:sSvWxV",
-					long_options, &option_index)) != EOF)
-#else
-	while ((c = getopt(argc, argv, "Ccd:ehil:mo:p:sSvWxV")) != EOF)
-#endif
-	{
+	while ((c = getopt(argc, argv, "Ccd:ehil:mo:p:sSvWxV")) != EOF) {
 		switch (c) {
 			case 'd':
 				if (read_int(optarg, &debug_level) || debug_level < 0) {
@@ -313,7 +282,7 @@ static void parse_options(int argc, char *argv[]) {
 			case 'c': check_only = 1; break;
 			case 'x': gl_xvalid = 1; break;
 			case 'C': printlog("%s\n", COPYRIGHT); break;
-			case 'W': printlog("\n%s\n\n", NOWARRANTY); break;
+			case 'W': printlog("%s\n", NOWARRANTY); break;
 			case 'V': case 'v':
 				printlog("compiled on:          %s\n", __DATE__);
 				printlog("with libraries:       ");
@@ -333,9 +302,6 @@ static void parse_options(int argc, char *argv[]) {
 #endif
 #ifdef HAVE_LIBGIS
 				printlog("grass ");
-#endif
-#ifdef HAVE_LIBGDAL
-				printlog("gdal ");
 #endif
 #ifdef HAVE_LIBGSL
 				printlog("gsl ");

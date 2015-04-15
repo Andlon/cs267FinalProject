@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,9 +43,8 @@
 #include <stdlib.h> /* exit() */
 #include <string.h>
 
-# include "defs.h"
-
 #ifndef QUEUE_MAIN
+# include "defs.h"
 # include "userio.h"
 # include "data.h"
 # include "utils.h"
@@ -86,8 +84,8 @@ static void enlarge_queue(QUEUE *q) {
 	q->block[q->blocks - 1] = block;
 }
 
-QUEUE *init_queue(QUEUE *q, int (CDECL *cmp)(const Q_ELEMENT_WHAT *a, 
-		const Q_ELEMENT_WHAT *b)) {
+QUEUE *init_queue(QUEUE *q,
+		int (*cmp)(const Q_ELEMENT_WHAT *a, const Q_ELEMENT_WHAT *b)) {
 	int i, j;
 
 	if (q == NULL) {
@@ -147,8 +145,8 @@ void enqueue(QUEUE *q, Q_ELEMENT_WHAT *el, int n) {
 	/* 
 	 * first sort array el
 	 */
-	qsort(el, (size_t) n, sizeof(Q_ELEMENT_WHAT), 
-			(int CDECL (*)(const void *,const void *)) q->cmp);
+	qsort(el, (size_t) n, sizeof(Q_ELEMENT_WHAT),
+			(int (*)(const void *,const void *)) q->cmp);
 
 	/*
  	 * and then merge them with the priority queue q
@@ -212,8 +210,10 @@ void enqueue(QUEUE *q, Q_ELEMENT_WHAT *el, int n) {
 Q_ELEMENT_WHAT dequeue(QUEUE *q) {
 	Q_ELEMENT *e;
 
-	if (q->length == 0)
-		ErrMsg(ER_NULL, "cannot dequeue empty queue");
+	if (q->length == 0) {
+		printf("error: cannot dequeue empty queue\n");
+		exit(1);
+	}
 	e = q->head; /* get first queue element */
 	q->head = q->head->next; /* reset first to next */
 	e->next = q->empty; /* put the dequeued element in the empty queue */

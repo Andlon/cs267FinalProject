@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 
 #include "defs.h"
 
@@ -79,24 +79,24 @@ void report_xvalid(double *xdata, double *xpred, double *xdiff, double *xstd,
 	/* select not missing values, put mv's at the end: */
 	/* sorting arrays: */
 	qsort(xdata, (size_t) ndata, sizeof(double), 
-			(int CDECL (*)(const void *,const void *)) compare);
+			(int (*)(const void *,const void *)) compare);
 	while (!is_mv_double(&(xdata[nXdata])) && nXdata < ndata)
 		nXdata++;
 	qsort(xpred, (size_t) ndata, sizeof(double), 
-			(int CDECL (*)(const void *,const void *)) compare);
+			(int (*)(const void *,const void *)) compare);
 	while (!is_mv_double(&(xpred[nXpred])) && nXpred < ndata)
 		nXpred++;
-	qsort(xdiff, (size_t) ndata, sizeof(double), 
-			(int CDECL (*)(const void *,const void *)) compare);
+	qsort(xdiff, (size_t) ndata, sizeof(double),
+			(int (*)(const void *,const void *)) compare);
 	while (!is_mv_double(&(xdiff[nXdiff])) && nXdiff < ndata)
 		nXdiff++;
 	if (var) { /* do everything for xstd and xzscore */
-		qsort(xstd, (size_t) ndata, sizeof(double), 
-			(int CDECL (*)(const void *,const void *)) compare);
+		qsort(xstd, (size_t) ndata, sizeof(double),
+				(int (*)(const void *,const void *)) compare);
 		while ((! is_mv_double(&(xstd[n_std]))) && (n_std < ndata))
 			n_std++;
-		qsort(xzscore, (size_t) ndata, sizeof(double), 
-			(int CDECL (*)(const void *,const void *)) compare);
+		qsort(xzscore, (size_t) ndata, sizeof(double),
+				(int (*)(const void *,const void *)) compare);
 		while ((! is_mv_double(&(xzscore[nZscore]))) && (nZscore < ndata))
 			nZscore++;
 	}
@@ -208,7 +208,7 @@ void report_xvalid(double *xdata, double *xpred, double *xdiff, double *xstd,
 	return;
 }
 
-int CDECL compare(const double *a, const double *b) 
+int compare(const double *a, const double *b) 
 /* ansi conformant qsort cmp, puts mv's at the end */
 {
 	if (is_mv_double(a)) /* a is bigger */
@@ -223,7 +223,6 @@ int CDECL compare(const double *a, const double *b)
 	return 0;
 }
 
-#ifndef USING_R
 static void write_ascii_header(FILE *out_file, DATA *data, int n_outfl) {
 	char *lf = "\n";
 	int i = 0;
@@ -231,12 +230,11 @@ static void write_ascii_header(FILE *out_file, DATA *data, int n_outfl) {
 	if (data->mode & X_BIT_SET) i++; 		/* xcoord */
 	if (data->mode & Y_BIT_SET) i++; 		/* ycoord */
 	if (data->mode & Z_BIT_SET) i++; 		/* zcoord */
-	if (data->mode & S_BIT_SET) i++;
 	if (data->colnvalue > 0) i++;	/* obs */
     if (data->point_ids) i++;
     
 	if (get_mode() == STRATIFY)
-		i+= 2;
+		i+= 3;
 	else
 		i+= n_outfl; 					/* est[0], .. , est[n_outfl-1]  */
 	if (data->type.type == DATA_EAS) {
@@ -373,4 +371,3 @@ void write_points(const char *fname, DATA *d, DPOINT *where, double *est,
 #endif 
 	}
 }
-#endif /* USING_R */

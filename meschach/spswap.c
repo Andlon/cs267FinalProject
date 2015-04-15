@@ -30,14 +30,11 @@
 	to use Karen George's suggestion to use unordered rows
 */
 
-static	char	rcsid[] = "$Id: spswap.c,v 1.1.1.1 2003-06-23 18:31:55 cees Exp $";
+static	char	rcsid[] = "$Id: spswap.c,v 1.3 1994/01/13 05:44:43 des Exp $";
 
 #include	<stdio.h>
 #include        "sparse2.h"
 #include	<math.h>
-
-#include	"../src/s.h" /* EJP */
-#include	"../src/config.h" /* EJP */
 
 
 #define	btos(x)	((x) ? "TRUE" : "FALSE")
@@ -85,10 +82,8 @@ int	max_row;
 	    error(E_INTERN,"scan_to");
 	if ( idx < 0 )
 	{
-#ifndef USING_R
 	    printf("scan_to: row_num = %d, idx = %d, col = %d\n",
 		   row_num, idx, col);
-#endif
 	    error(E_INTERN,"scan_to");
 	}
 	/* if ( e->nxt_row <= max_row )

@@ -1,0 +1,54 @@
+.lf 1 MstrError.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MstrError" 3 "13 August 1999" "c2man mperror.c"
+.SH "NAME"
+MstrError \- error message
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+const char *MstrError(void);
+.ft R
+.SH "DESCRIPTION"
+MstrError returns the error message belonging to the current Merrno
+value.
+.SH "RETURNS"
+the error message belonging to the current Merrno
+.SH "EXAMPLE"
+.lf 1 examples/testcsf.tr
+.DS
+ #include <stdio.h>
+ #include "csf.h"
+ 
+ /* test if files are CSF files
+  * writing error messages to
+  * stdout  
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+   MAP *map;
+   int i;
+ 
+   for(i=1; i < argc; i++)
+     if ((map = Mopen(argv[1], M_READ)) == NULL)
+     {
+         printf("%s %s\\n", argv[i], MstrError());
+         ResetMerrno();
+     }
+     else
+     {
+         printf("%s is a CSF file\\n",argv[i]);
+         Mclose(map);
+     }
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 20 MstrError.3
+.SH "SEE ALSO"
+Mperror(3),
+MperrorExit(3)

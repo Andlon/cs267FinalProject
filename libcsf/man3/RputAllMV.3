@@ -1,0 +1,23 @@
+.lf 1 RputAllMV.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputAllMV" 3 "13 August 1999" "c2man putallmv.c"
+.SH "NAME"
+RputAllMV \- make all cells missing value in map
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int RputAllMV(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+Not Documented.
+.SH "DESCRIPTION"
+RputAllMV writes a missing values to all the cells in a
+map. For this is allocates a buffer to hold one row at a
+time.
+.SH "RETURNS"
+1 if succesfull, 0 in case of an error

@@ -1,0 +1,82 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MperrorExit - write error message to stderr and exits</title>
+</header>
+<body>
+<h1>NAME</h1>
+MperrorExit - write error message to stderr and exits
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void MperrorExit
+(
+	const char *userString,
+	int exitCode
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const char *userString<dd>
+prefix string
+<dt>
+int exitCode<dd>
+exit code
+</dl>
+<h1>DESCRIPTION</h1>
+Mperror first writes the error message belonging to the current Merrno
+value to stderr, prefixed by userString, separated by a semicolon.
+Then Mperror exits by calling exit() with the given exit code.
+<h1>RETURNS</h1>
+NEVER RETURNS!
+<h1>EXAMPLE</h1>
+<tt><pre>
+#include &lt;stdio.h&gt;
+#include &quot;csf.h&quot;
+
+/* a simple csf to stdout
+ * program, with minimal 
+ * checking
+ */
+
+void main(int argc, char *argv[] )
+{
+
+  REAL8 cellValue;
+  MAP *map;                      
+  size_t r,c;
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  map = Mopen(argv[1], M_READ);
+  if (map == NULL)  
+     MperrorExit(argv[1], 1);
+
+  RuseAs(map, CR_REAL8); 
+
+  for(r=0; r &lt; RgetNrRows(map); r++)
+  {
+   for(c=0; c &lt; RgetNrCols(map); c++)
+   {
+    RgetCell(map,r,c,&amp;cellValue); 
+    printf(&quot;%g &quot;,(double)cellValue);
+   }
+   printf(&quot;\n&quot;);
+  }
+
+  Mclose(map);
+
+  exit(0);
+}
+</pre></tt>
+<h1>SEE ALSO</h1>
+<a href=Mperror.html>Mperror</a>
+,
+<a href=MstrError.html>MstrError</a>
+
+
+</body>

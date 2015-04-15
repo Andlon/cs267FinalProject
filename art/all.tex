@@ -1,0 +1,1303 @@
+\documentclass{article}
+
+\title{Gstat, a program for geostatistical modelling, 
+prediction and simulation }
+\author{ Edzer J. Pebesma, Cees G. Wesseling }
+\affiliation{ Netherlands Centre for Geo-ecological Research (ICG) }
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Gstat is a computer program for variogram modelling, and geostatistical
+prediction and simulation. It provides a generic implementation of the
+multivariable linear model with trends modelled as a linear function of
+coordinate polynomials or of user-defined base functions, and
+independent or dependent, geostatistically modelled, residuals.
+Simulation in gstat comprises conditional or unconditional (multi-)
+Gaussian sequential simulation of point values or block averages, or
+(multi-) indicator sequential simulation.  Besides many of the common
+options found in other geostatistical software packages, gstat offers
+the unique combination of (i) an interactive user interface for
+modelling variograms and generalized covariances (residual variograms),
+that uses the device-independent plotting program gnuplot for graphical
+display, (ii) support for several ascii and binary data and map file
+formats for input and output, (iii) a concise, intuitive and flexible
+command language, (iv) user customisation of program defaults (v) no
+built-in limits, and (vi) free, portable @S ansi-c source code. This
+paper describes the class of problems gstat can solve, and addresses
+aspects of efficiency and implementation, managing geostatistical
+projects, and relevant technical details.
+
+{\sc Keywords}: geostatistics, variogram modelling, kriging, conditional
+simulation, cokriging, universal kriging, generalized least squares, GIS
+\end{abstract}
+
+\section{Introduction}
+
+This paper introduces gstat, a computer program for variogram modelling,
+kriging interpolation and conditional or unconditional simulation of
+uni- or multivariable geostatistical data (Cressie, 1991) in one, two or
+three dimensions. The reason for writing gstat is that when the writing
+started (1991) there were no reasonably priced computer programs that
+were suitable for large geostatistical projects. Currently such programs
+can be derived from the source code of software packages such as GSLIB
+(Deutsch and Journel, 1992) or GeoEAS (Englund and Sparks, 1988). Compared
+to these other software packages, gstat is in many respects more flexible
+and offers in some respects more functionality.
+
+For the specification of model settings, input and output, gstat uses a
+command file language that is concise, flexible, easy to read and
+intuitive. The command file gives a complete and readable summary of the
+modelling, interpolation or simulation performed: from which files the
+input was obtained, to which files the output was written, and all model
+settings.
+
+Being the crucial part of most geostatistical studies, variogram
+modelling should be done interactively (Deutsch and Journel, 1992).
+Gstat provides a portable interactive user interface that uses the
+device-independent plotting program gnuplot for graphical display and
+plotting of the sample variogram and variogram model.
+
+To link geostatistical computation with map processing in a geographical
+information system (GIS), several grid map formats are supported by
+gstat (including ArcInfo, Idrisi and PCRaster), enabling a @I{tight
+coupling} between geostatistical models and the GIS production
+environment (Wesseling et al., 1996).
+
+Gstat is free software, copyrighted under the GNU General Public
+Licence. Gstat is written in @S ansi-c and is therefore easily compiled
+on virtually every computer platform. So far, it has been ported to AIX,
+HP-UX, Linux, DEC-Alpha, SunOS and MS-DOS.
+
+This paper does not address problems such as @I which geostatistical
+models or methods should be used or @I why certain geostatistical
+modelling decisions are prefered. It only demonstrates the @I range of
+problems that can be solved using gstat. In doing so, for a complete
+understanding some familiarity with geostatistics, regression, matrix
+algebra and GIS is assumed. The complete functionality of gstat is
+documented in a 55-page user's manual (Pebesma, 1997).
+
+This paper starts with a section on mathematical notation, methods, and
+theory and practice of prediction, modelling and simulation. Next, it
+explains @I what can be done with gstat, followed by a section on @I how
+it is done with gstat, about the program design and the command file
+syntax.  After that, sections follow on implementation and efficiency
+aspects, and on managing geostatistical projects with gstat. Finally, a
+section on technical issues is concluded by a discussion.
+
+\section{Linear models with generalized covariances}
+\label{ linear }
+
+This section deals with notation, definitions, and with the practice of
+geostatistical computation. In the following, the geostatistical problem
+is formulated in terms of the statistical linear model with generalized
+covariances. It is mainly based on Cressie (1991) and Christensen (1987,
+1991). The solutions presented here are equivalent to those in
+``traditional'' geostatistical notation (e.g. Journel and Huijbregts,
+1978). Besides the avoidance of Lagrange parameters, the linear model
+notation has the advantage that it sheds light on the unique features of
+geostatistical models in the perspective of their obvious classical
+statistical alternatives (regression or ANOVA based models with
+independent errors).
+
+
+\subsection{Notation---the linear model}
+Consider $n$ observations $z(s_i )$ on a function $z(s)$, taken at $n$
+locations $s_i$ in a domain ${\bf D}$, $s_i$ representing a spatial
+coordinate in ${\bf R} \el R^1$, $R^2$ or $R^3$. In a univariable linear
+geostatistical model, the observations are considered as taken from a
+realization of the random function $Z(s)$, where each random variable
+$Z(s_i )$ follows a linear model:
+
+@DP
+@Eqmoda @Neq {@E{Z(s sub i )= sum from j=0 to p x sub j (s sub i )
+beta sub j + e (s sub i )}, @CSep @E{@R E (e(s sub i ))=0}, @CSep
+@E{i=1,...,n}, @CSep @E{s sub i in @B D}}
+@DP
+
+and where observations may be correlated, in matrix notation:
+
+@DP
+@Eqmodb @Neq { @E{Z(s)= X beta + e (s)}, @CSep @E{@R E (e(s))=0},
+@CSep @E{@R Cov (e(s)) = V },
+@CSep @E{s in @B D},}
+@DP
+
+with
+@E{Z(s)=(Z(s sub 1 ),...,Z(s sub n ))'}, 
+with known base functions @E{X = (x sub 0 , x sub 1 ,..., x sub p )},
+@E{x sub j = (x sub j (s sub 1 ),...,x sub j (s sub n ))'},
+with @E{beta = (beta sub 0 ,..., beta sub p )'} the unknown parameter vector,
+with @E{e(s) = (e(s sub 1 ),...,e(s sub n ))'}, and with
+@E{V = [@R Cov (e(s sub i ),e(s sub j ))] sub {n times n}} the
+@E{n times n} covariance matrix of @E{e(s)}.
+Usually, the first column of @E{X}, @E{x sub 0} is the vector
+@E{J = (1,1,...,1)'}, in which case @E{beta sub 0} is called an intercept.
+In a regression context, base functions are called ``independent
+variables'' or ``predictor variables'' (Draper and Smith, 1981), in an
+ANOVA context they are called ``dummy variables'' and @E{X} is called the
+``design matrix''.
+
+A multivariable model has @E{q} variables @E{Z sub k (s)}, each
+following a linear model:
+
+@DP
+@Eqmodc @Neq { @E{Z sub k (s)= X sub k beta sub k + e sub k (s)}, @CSep
+@E{@R E (e(s))=0}, @CSep @E{@R Cov (e sub k (s)) = V sub k}, @CSep
+@E{k = 1,...,q},}
+@DP
+
+with @E{V sub k} the (@E{n sub k times n sub k }) covariance matrix of
+@E{e sub k (s)}, and with interdependent residuals: @E{@R Cov (e sub
+k (s),e sub l (s)) = V sub kl}, the @E{n sub k times n sub l} cross
+covariance matrix (for the moment assuming that the @E{beta sub k} are
+disjunct).
+
+@DP
+@I{Spatial dependence}
+@LP
+In geostatistical models, the covariance between observations is derived
+from the covariogram, a function of the separation vector between
+observation locations @E{h = s sub i - s sub j}, written as
+
+@DP
+@Eqcov @Neq {@E{@R Cov (e(s sub i ),e(s sub j )) = C sub e (s sub i , s
+sub j ) = C sub e (h)}.}
+@DP
+
+When the linear model contains an intercept (@E{J} is one of the
+columns in @E{X}, or @E{J} is part of the column space of @E{X}) then
+it is sufficient to use the variogram of @E{e(s)}, defined as
+
+@DP
+@Eqsem @Neq {@E{1 frac 2 @R Var (e(s sub i )-e(s sub j )) = gamma sub e
+(s sub i , s sub j ) = gamma sub e (h)},}
+@DP
+
+and it is sufficient to substitute generalized covariances @E{G sub e
+(h) = d - gamma sub e (h)} with arbitrary constant @E{d} for
+covariances, in order to obtain valid predictions (Cressie, 1991, 5.4;
+Christensen, 1991, VI.3).  Variograms (and covariograms) may be
+anisotropic (direction dependent) or independent of direction
+(isotropic, @E{gamma(h)==gamma(dbar h dbar)}, with @E{dbar cdot dbar}
+being the euclidian norm or distance).
+
+@DP
+@I{Prediction}
+@LP
+Using model (1), at an unobserved location @E{s sub 0} with known
+independent variable values @E{x (s sub 0 ) = (x sub 0 (s sub 0 ),..., x
+sub p (s sub 0 ))}, the value of @E{Z(s)} can be predicted with the
+best linear unbiased predictor (BLUP)
+
+@DP
+@Eqblup @Neq {@E{z hat sub gls ( s sub 0 ) = x (s sub 0 ) beta hat sub
+gls + v sub 0 ' V sup -1 (z(x) - X beta hat sub gls ), }}
+@DP
+
+with
+@E{v sub 0 = (@R Cov (e(s sub 0 ),e(s sub 1 )),...,@R Cov (e(s sub 0
+),e(s sub n )))'}, and where @E{beta hat sub gls = (X'V sup -1 X) sup -1
+X' V sup -1 z(x)} is the generalized least squares (GLS) estimate of
+@E{beta}. The BLUP has prediction variance
+
+@DP
+@Eqblupv @Neq {@E{sigma supp 2 on gls ( s sub 0 ) = C sub e (0) - v sub
+0 ' V sup -1 v sub 0 + (x sub 0 - v sub 0 ' V sup -1 X )(X' V sup -1 X)
+sup -1 (x sub 0 - v sub 0 ' V sup -1 X )'}}
+@DP
+
+with @E{C sub e (0) = @R Var (e(s sub 0 ))}. In geostatistics, this
+predictor is called the kriging predictor: ordinary kriging is the
+special case where @E{X==J} and @E{x (s sub 0 ) = 1}, more complex forms
+of @E{X} result in ``universal kriging'' or ``kriging with external
+drift''.
+
+The simple kriging predictor is obtained when the estimation of the
+parameter vector @E{beta} is ignored because it is assumed to be known,
+for instance as a constant mean @E{mu sub sk}
+
+@DP
+@Eqblp @Neq {@E{z hat sub sk ( s sub 0 ) = mu sub sk + v sub 0 ' V sup -1
+(z(x) - mu sub sk ), }}
+@DP
+
+having prediction variance
+
+@DP
+@Eqblpv @Neq {@E{sigma supp 2 on sk ( s sub 0 ) = C sub e (0) - v sub 0
+' V sup -1 v sub 0 }.}
+@DP
+
+Equations (@Eqblup) and (@Eqblupv) simplify considerably when @E{v sub
+0 = (0,0,...,0)'} and (a) @E{V = D} is a diagonal matrix or (b) @E{V =
+sigma sup 2 I}, a multiple of the identity matrix @E{I}. These two
+special cases correspond respectively to (a) the weighted least squares
+(WLS) case, where observations are independent but have non-constant
+variance, and to (b) the ordinary least squares (OLS) case, where
+observations are independent and have equal variance (e.g., Draper and
+Smith, 1981; Christensen, 1987).
+
+@DP
+@I{Multivariable prediction}
+@LP
+Using the multivariable model (@Eqmodc), the multivariable BLUP
+(``cokriging'') is obtained by suitably extending the univariable
+prediction equations (Myers, 1982; Ver Hoef and Cressie, 1993). Without
+loss of generality, assume @E{q=2}. When, in (@Eqblup) and (@Eqblupv),
+@E{@B z (x)=(z sub 1 (x),z sub 2 (x))'} and @E{@B B = (beta sub{1},
+beta sub{2})'} are substituted for @E{z(x)} and @E{beta}, and when
+
+@DP
+@Deq @E{@B x (s sub 0 )= matrix atleft { [ } atright { ] } {
+ {@B x sup 1 (s sub 0 )} above 0
+ nextcol
+ 0 above {@B x sup 2 (s sub 0 )}
+}, @CSep
+{@B X = matrix atleft { [ } atright { ] } {
+ {X sub 1} above 0
+ nextcol
+ 0 above {X sub 2}
+}}, @CSep 
+{@B V = matrix atleft { [ } atright { ] } {
+ {V sub 11} above {V sub 21}
+ nextcol
+ {V sub 12} above {V sub 22}
+}}, @CSep 
+{@B v sub 0 = matrix atleft { [ } atright { ] } {
+ {v sub 11} above {v sub 21}
+ nextcol
+ {v sub 12} above {v sub 22}
+}}},
+@DP
+
+with @E{@B x sup k (s sub 0 )} the vector @E{x(s sub 0 )} for variable
+{k}, @E{V sub 21 = [@R{Cov}(e sub 2 (x sub i ),e sub 1 (x sub j ))]},
+@E{v sub 21 = (@R{Cov}(e sub 2 (x sub 1 ),e sub 1 (x sub 0 )),...,
+@R{Cov}(e sub 2 (x sub n ), e sub 1 (x sub 0 )))'}, and 0 a conforming
+zero matrix or vector, are substituted for @E{x(s sub 0 )}, @E{X},
+@E{V} and @E{v sub 0}, then the left-hand sides of the newly obtained
+equations yield the multivariable prediction: the left-hand side of
+(@Eqblup) then becomes the prediction vector @E{@B z hat (x sub 0 ) = (
+z hat sub 1 (s sub 0 ), z hat sub 2 (s sub 0 ))'}, and the left-hand
+side of (@Eqblupv) becomes the (2 $\multiply$ 2) matrix with prediction
+covariances. When different variables @E{Z sub k} and @E{Z sub l}, @E{k
+!= l} share one or more common parameters in @E{@B B} (e.g., Isaaks
+and Srivastava, 1989, p. 409-416), then the vectors @E{beta sub k} are
+not disjunct and @E{@B x (s sub 0 )} and @E{@B X} are rearranged
+accordingly.
+
+@DP
+@I{Modelling spatial dependence}
+@LP
+Modelling spatial dependence is usually a crucial part in geostatistical
+studies. Spatial dependence can be modelled by the variogram. Given
+irregularly spaced point data (the most general case), the variogram
+can be modelled either by first estimating variogram values for a set
+of distance intervals (the sample variogram) and then fitting a valid
+variogram model to this sample variogram (``by eye'', or using weighted
+least squares, Cressie, 1985), or by directly estimating variogram
+model parameters from sample data by generalized least squares (e.g. by
+restricted maximum likelyhood estimation (REML), Kitanidis, 1983;
+Christensen, 1993).
+
+Under the ordinary and universal kriging model, the residual covariance
+is not accessible because @E{beta} is unknown, and estimation of
+@E{beta} leads to biased estimates of the covariance (Armstrong, 1984).
+However, it is sufficient to substitute generalized covariances (GCV) for
+the covariance of the residuals. Generalized covariances are obtained by
+modelling the variogram (or alternatively, if the model does not contain
+an intercept, the covariogram) from estimated residuals. It has been shown
+that for purposes of prediction the difference between covariances and
+generalized covariances is not a serious problem (Kitanidis, 1993): even
+the sample variogram from residuals obtained by OLS estimation of the
+trend (@E{e hat sub OLS (s) = z(s) - X beta hat sub OLS}) may yield
+preliminary estimates of the GCV, that may be sufficient in some cases
+(depending on the goals of the study).
+
+Direct inference of the residual variogram (GCV) from data is obtained
+by restricted maximum likelyhood (REML), which uses weighted least
+squares estimation of variogram model parameters from @E{e hat (s) e hat
+(s)'}, the products and cross products of estimated residuals.
+
+@DP
+@I{Change of support}
+@LP
+For rectangular or otherwise shaped blocks @E{B sub 0}, block average
+values
+
+@Deq {@E{Z(B sub{0}) = bar B sub 0 bar sup -1 int sub {B sub 0} Z(u)du},}
+
+with @E{bar B sub 0 bar} the area or volume of @E{B sub 0}, can be
+predicted by replacing the point-to-point semivariance @OneCol @E{gamma
+sub e (x sub i , x sub 0 )} with the point-to-block semivariance @OneCol
+@E{gamma sub e (x sub i , B sub 0 )}, the mean of all point
+semivariances between @E{x sub i} and the points that define @E{B sub 0}
+
+@DP
+@Deq {@E{gamma sub e (x sub i , B sub 0 ) = bar B sub 0 bar sup -1
+int sub {B sub 0} gamma sub e (x sub i , u)du},}
+@DP
+
+by replacing @OneCol @E{gamma sub e (x sub 0 , x sub 0 )} with the
+block-to-block semivariance @OneCol @E{gamma sub e (B sub 0 , B sub 0
+)}, the mean of all point semivariances between the pairs of points
+defining the block @E{B sub 0}
+
+@DP
+@Deq {@E{gamma sub e (B sub 0 , B sub 0 ) = bar B sub 0 bar sup -2
+int sub {B sub 0} int sub {B sub 0} gamma sub e (u, v)d u d v},}
+@DP
+
+and by replacing @E{x (s sub 0 )} with @E{x(B sub 0 ) = (x sub 0 (B
+sub 0 ),..., x sub p (B sub 0 ))}, with @E{x sub j (B sub 0 ) =
+@OneCol{bar B sub 0 bar sup -1 int sub {B sub 0} x sub j (u)du}}, the
+average value of @OneCol @E{x sub j (cdot)} over block @E{B sub 0}
+(block mean covariances or generalized covariances are defined in a
+similar way).
+
+@DP
+@I { Local prediction }
+@LP
+# For reasons of computation speed or for reasons of applying model
+# (@Eqmod) only in a local neighbourhood around @E{s sub 0}, in practice
+# prediction is often done @I locally. This amounts to applying the
+# equations (e.g. (@Eqblup) and (@Eqblupv)) to the subset of the data
+# that is found in a local neighbourhood around @E{s sub 0}, with the
+# corresponding subsets of @E{X} and @E{V}.
+In practice, kriging prediction is often done using only a subset of the
+data (observations and base functions) selected from a local
+neighbourhood around the prediction location, the kriging neighbourhood.
+The reason for this may be computational efficiency or a wish to weaken
+the stationarity assumptions regarding first order moments.
+
+@DP
+@I{Known, non-stationary measurement error}
+@LP
+When the observations can be modelled as a sum of a stationary random
+function @E{Z(x)} with generalized covariance matrix @E{W} and an
+unknown measurement error @E{epsilon(s)} with a known diagonal
+covariance matrix @E{D = @R diag (@R Var (epsilon (s sub i )))}, then
+kriging predictions for (measurement error free) observations at @E{s
+sub 0} are obtained by using (@Eqblup) and (@Eqblupv) with @E{V = W + D}
+(Christensen, 1991, VI.4).
+
+@DP
+@I{Simulation}
+@LP
+Linear prediction ((@Eqblup), (@Eqblp)) always results in values that
+are ``best'' in the sense that the expected squared prediction error is
+minimal. However, the field with predicted values is always smoother
+than the field from which the observations were obtained. Simulations
+can be seen as ``possible realizations'' of a spatially correlated
+random field, that honour the spatial moments (mean, variogram) of the
+field. Different simulations may be completely independent, only sharing
+the spatial moments (unconditional simulation) or they may in addition
+reproduce a set of observed values (conditional simulation). Showing
+multiple simulations can help the understanding of the combined effect
+of prediction uncertainty and spatial variation of the underlying
+process. Also, simulations can be used as input to error analysis, for
+instance in the case where propagation of errors in input variables
+through a model cannot be derived analytically (e.g. Gotway, 1994), or
+where covariances between prediction errors are important as well.
+
+\section{What can gstat do? }
+\label{what}
+
+This section describes what can be done with gstat, and forms the bridge
+between the previous section on theory, and the next section on how
+gstat works. Gstat can do variogram modelling by using the two-step
+procedure of first calculating the sample variogram and fitting a model
+to this sample variogram (by estimating model parameters), or by
+directly fitting of a (nested) variogram model using restricted maximum
+likelyhood (REML, Mardia and Marshall, 1984).
+
+# modelling
+\subsection{Sample variogram calculation}
+Gstat calculates the sample variogram or covariogram from raw data or
+from residuals. Residuals @E{e hat (s) = z(s) - X beta hat} are obtained
+by ordinary least squares, weighted least squares or generalized least
+squares estimation of the trend parameters @E{beta hat} (by default from
+OLS residuals).  When calculating a sample variogram, one may choose to
+calculate squared differences @E{1 frac 2 ( e hat (s sub i )- e hat (s
+sub j )) sup 2} for each observation pair (variogram cloud), or to
+average squared differences over distance intervals for a number of
+distance intervals @E{[h sub i , h sub i + delta sub i ] , i = 0...r}
+(sample variogram).  The number of intervals @E{r}, their (constant or
+varying) width @E{delta sub i} and the direction interval in which the
+vector between observation pairs must lie can be specified.
+
+For single variables, the ``classic'' sample variogram (or
+semivariogram, or moments estimator, Journel and Huijbregts, 1978, II.6)
+can be calculated, or optionally Cressie's square-root robust variogram
+estimator (e.g. Cressie 1985, (4); Cressie 1991, (2.4.12)). For pairs of
+variables, the ``classic'' cross variogram (Journel and Huijbregts,
+1978, II.15) is calculated when the observation locations of both
+variables coincide, or else the ``pseudo'' cross variogram (Myers, 1991;
+Ver Hoef and Cressie, 1993) is calculated. In addition, the ordinary
+(moments) covariogram (Journel and Huijbregts, 1978, II.2) and the cross
+covariograms (Journel and Huijbregts, 1978, II.15) can be calculated.
+
+\subsection{Fitting variogram models}
+In gstat, variogram models are defined as one simple variogram model or
+as a sum of two or more simple variogram models. A simple variogram
+model consists of a model type and a variance scaling factor (usually
+the ``partial sill''), most models also have a distance scaling factor
+(usually the ``partial range''). Model types supported include the nugget,
+linear, spherical, exponential, Gaussian, circular, pentaspherical,
+power and logarithmic model. The range parameter can be defined as an
+ellipse in 2 dimensions or an ellipsoid in 3 dimensions (as in GSLIB,
+Deutsch and Journel, 1992). This allows the modelling of geometric and
+zonal anisotropy (Isaaks and Srivastava, 1989).
+
+Following Cressie (1985), variogram models can be fitted to each of the
+above sample variograms by non-linear weighted least squares estimation
+of variogram model parameters. Weights can be chosen to be proportional
+to either @E{N sub i} or to @E{(gamma( h overbar sub i )) sup -2 N sub
+i}, with @E{N sub i} the number of observation pairs in distance
+interval @E{i}, and @E{gamma( h overbar sub i )} the variogram model
+value at @E{h overbar sub i}, the average distance between pairs of
+observations in interval @E{i}. (Note that the latter weighting factor
+has received some criticism from Zhang, Van Eijkeren and Heemink (1995)
+and from Safai-Naraghi and Marcotte (1997).) The variogram fitting
+procedure in gstat allows to exclude one or more variogram parameters
+(partial sill or range) from a fit.
+
+Because it is an iterative procedure, non-linear estimation is not
+guaranteed to converge to good estimates and it is always possible that
+some local minimum is found. Choosing suitable initial parameter
+estimates is an important aspect for the succes of non-linear estimation
+(Draper and Smith, 1981). A procedure that may circumvent convergence to
+a local minimum to some extent is the following: (i) estimate the number
+of nested models and their ranges from the sample variogram plot (trying
+several combinations of @E{delta sub i}, @E{r}, and directions), (ii)
+fix the range parameters and estimate the sills of the models and (iii)
+use these values as initial estimates for a non-linear fit. It is
+standard practice to check each fit by simultaneous plotting of the
+sample variogram and the fitted model. Anisotropy parameters cannot be
+estimated automatically in gstat, they should be chosen by trial and
+error.
+
+Simultaneous estimation of multiple direct and cross variograms cannot
+be done automatically in gstat. However, by only estimating partial
+sills (fixing range parameters) a linear model of coregionalization can
+easily be constructed. (Presence of the linear model of
+coregionalization or intrinsic correlation is checked and notified to
+the user by gstat before a cokriging or co-simulation is started.)
+
+Maximum likelyhood estimation in gstat currently involves only the
+estimation of partial sills of the simple models, and is not implemented
+for cross (co)variograms.
+
+\subsection{Prediction and simulation}
+Prediction in gstat comprises universal kriging ((@Eqblup) and
+(@Eqblupv), using coordinate polynomial or arbitrary, user-defined base
+functions), ordinary kriging, and simple kriging ((@Eqblp) and
+(@Eqblpv)), as well as weighted least squares or ordinary least squares
+prediction and inverse distance weighted interpolation (e.g. Burrough,
+1986).  All kriging methods may be multivariable, and different
+variables may share one or more common parameters. By default,
+prediction methods refer to prediction of a quantity, the size of a
+single observation (point prediction). Optionally, block means (the
+average of all observations over some block) can be predicted (block
+prediction).  Blocks may be rectangular in 1, 2 or 3 dimensions or
+user-defined (e.g.  irregularly shaped).
+
+Prediction may be global, using all observations for each prediction, or
+local, using only a subset of observations in a neighbourhood around the
+prediction location. Relative to the prediction location, this subset
+may be defined in terms of the maximum distance or the number of closest
+observations, or a combination. The distance criterium may be either the
+geographical (euclidian) distance or the variogram distance (allowing
+the prevalence of the most correlated data points). The maximum number
+of closest observations may be specified per quadrant (2D) or octant
+(3D), and the number of non-empty quadrants (octants) can be reported
+for diagnostic purposes.
+
+As an alternative to prediction, the estimated trend at prediction
+locations, @E{x (s sub 0 ) beta hat} can be obtained, along with its
+estimation variance (the last (third) term in the right-hand
+side of (@Eqblupv)). This can be done by generalized, weighted or
+ordinary least squares, using a global or local neighbourhood.
+
+Simulation in gstat comprises (multi-) Gaussian or (multi-) indicator
+simulation. Gaussian simulation may apply to point values or to block
+averages. For simulation, the sequential simulation algorithm (Johnson,
+1987) is used. Compared to other simulation methods, sequential
+simulation is robust: it can handle arbitrary covariance structures and
+data dimensions, and an arbitrary number of variables or simulation
+locations. Certain practical drawbacks of the technique can be overcome
+by a clever choice of the visiting sequence (section
+@NumberOf{implementation}).
+
+
+\section{ Program design and command file syntax }
+\label{design}
+
+Gstat is designed to make geostatistical computation an easy part of the
+daily routine, by implementing the linear model (1) with geostatistical
+models for (generalized) covariances. For this, several decisions
+have been made, comprising the use of command files, the command file
+syntax, the default program action, the prediction mode (univariable,
+multi-univariable, multivariable and stratified prediction), and the
+prediction target size (point values or block averages). They will be
+discussed in this section.
+
+\subsection{Command files}
+Gstat can read its instructions from a command file. The command file
+syntax is simple and does not need special formatting: white space
+(spaces, tabs, newlines) is ignored and comments may appear everywhere
+from a "#" to the end of the line.  Because gstat command files are
+easily ``readable'', they serve well for tracing back model assumptions
+underlying some results.
+
+After gstat reads a command file it does some simple checks, and a helpful
+message is printed when a syntax error occurs in the command file.
+When an internal inconsistency is found, depending on how serious it
+is, a warning or error message is printed.
+
+\subsection{Data definition}
+Observations are read from files. These files should hold the values of
+@E{z}, the spatial coordinates @E{s}, and optionally the values of
+non-constant base functions @E{x sub j (s)}. If the observations are
+stored in a grid map file @Code{zinc.map}, which holds both measured
+values and their spatial location then it suffices to specify this data
+variable in a command file as:
+
+@ID @CodeFrag { @Verbatim { @Include { "frag1" }}}
+
+Here, @Code{zinc} is the unique identifier of the zinc data variable in
+the command file syntax. Alternatively, for a single datum @E{Z(s sub i
+)} all these values may appear in certain columns of a single row in an
+ascii column file or (simplified) GeoEAS file. For instance,
+observations (measurements) on zinc concentration may appear in a file
+called `zinc.eas', having zinc measurements on column 1, x coordinate on
+column 3 and y coordinate on column 4, and that starts like
+
+@ID @CodeFrag{ @Verbatim { @Include { "zinc.eas" }}}
+
+are specified in a gstat command file as
+
+@ID @CodeFrag { @Verbatim { @Include { "frag1a" }}}
+
+@IncludeFigures {
+@Figure
+ @Caption { Decision tree for the default program action }
+{ @Fig { 0.75 @Scale -90d @Rotate @IncludeGraphic "decis1.eps" } }
+}
+
+\subsection{Default program action}
+From the definitions in a command file, gstat derives the default program
+action, e.g. variogram modelling or various prediction methods. In this
+way, the user is forced to complete the necessary parts in a command file
+in order to get what is intended. The decision tree for determining the
+default program actions is given in Fig. 1. First the action variogram
+modelling is explained, then prediction is explained with some examples
+on gridded and non-gridded output. Finally, simulation and the commands
+for overriding the default action are explained. (Note that much of the
+functionality is accesible through an interactive user interface as
+well.)
+
+@DP
+@I{Variogram modelling as default program action}
+@LP
+After reading a command file that has no specification of prediction
+locations @E{s sub 0}, gstat will read the data defined, and will start
+the variogram modelling user interface. Variogram modelling is apparently
+what the user wants, because no prediction or simulation locations are
+specified.
+
+For calculating the residuals used for the sample variogram or
+covariogram, the default model gstat assumes for a data variable is
+
+@DP
+@Deq{@E{Z(s)=beta sub 0 +e(s), @CSep @R Cov (e(s)) = sigma sup 2 I},}
+@DP
+
+thus, the default model has only an unknown intercept (optionally,
+@E{beta sub 0} can be defined in the command file, or no residuals are
+calculated).  When a more complex model for the trend @E{X beta} seems
+appropriate, then the non-constant base functions (predictor variables)
+should be specified.  For instance, if one wants to model the variogram
+of residuals from a model having topographic level, easting and northing
+as base functions, then the observations for this should be defined in
+the command file as
+
+@ID @CodeFrag { @Verbatim { @Include { "frag2" }}}
+
+and the linear model now adopted is
+@DP
+2c @Wide{} | @E{Z(s)=beta sub 0 + sum from j=1 to 3 x sub j beta sub
+j +e(s),}
+@DP
+with @E{x sub 1} topographic level (column 2 in @Code{zinc.eas}), @E{x
+sub 2} easting (x-coordinate) and @E{x sub 3} northing (y-coordinate).
+Right from the @Code{X=}, base functions can be specified as either
+polynomials of the coordinates (@Code{x} for @E{x}, @Code{xy} for
+@E{xy}, @Code{x2} for @E{x sup 2} etc.) or as column numbers in an ascii
+column file---allowing arbitrary base functions.  (If the base functions
+specified comprise an intercept, then the default intercept @E{beta sub
+0} is removed by specifying @Code{-1} as the first base function.) Other
+options that apply to a single variable are placed between the @Code{:}
+and @Code{;} following the @Code{data(@I{id})} command, e.g. indicator
+or logarithmic transformations, measurement error, the missing value
+flag, simple kriging mean and local (kriging) neighbourhood selection
+options.
+
+\subsection{Prediction on a grid as default program action}
+For prediction or simulation the locations where predictions are wanted
+have to be specified in the command file. Prediction locations may be
+specified either as a grid file, or as a (simplified GeoEAS or ascii)
+column file. Most grid file formats have a flag that is a special value
+for grid cells outside the area of interest, thus enabling the gridded
+representation of a non-rectangular area. This flag will be called the
+missing value flag. The map (file) that holds the prediction locations
+(i.e. the non-missing value flagged grid cells) is called the mask map.
+If prediction locations are specified as a mask map, then predictions
+(and prediction variances and covariances) will also be written to grid
+maps with the same grid topology (size and position), and with the same
+grid map format as the mask map. Thus, the output maps can readily be
+used in the GIS from which the mask map was generated (section
+@NumberOf{how}).
+
+If prediction locations are specified as a mask map, and no base
+functions or variograms are specified, then inverse distance weighted
+interpolation is used as default prediction method, since all other
+prediction methods require additional parameters to be specified.
+Inverse distance weighted interpolation on the mask map @Code{mask.map},
+with results written to @Code{zinc_id.pr} is obtained by the command
+file
+
+@ID @CodeFrag{ @Verbatim { @Include { "frag3" }}} # inv. distance
+
+(The default inverse distance exponent is 2, other values can be
+specified.) If in addition to this the variogram of the variable has
+been defined, then the default prediction method is ordinary kriging
+(assuming the default linear model with only an intercept). Besides the
+ordinary kriging predictor, the prediction variance can be written to a
+grid map:
+
+@ID @CodeFrag{ @Verbatim { @Include { "frag3a" }}} # ordinary kriging
+
+The variogram used here is the sum of a nugget model with a variance of
+0.5 and a spherical model with a sill of 0.6 and an isotropic range of
+10. If the simple kriging mean @E{mu sub sk} (@Eqblp) is specified in the
+example above, then simple kriging will be used. For this, it suffices
+to change the first line in the previous example into:
+
+@ID @CodeFrag{ @Verbatim { @Include { "frag3b" }}} # simple kriging
+
+If in addition to the ordinary kriging command file specification one or
+more base functions are specified to define a more complex model for the
+trend, then universal kriging becomes the default prediction method.
+The value of coordinate polynomial base functions at observation and
+prediction locations is known, as it is derived from @E{s}. The value
+of other base functions at observation locations should be in the data
+file, and their value at the prediction locations should be held in the
+mask map, like:
+
+@ID @CodeFrag { @Verbatim { @Include { "frag5" }}}
+
+here, the map @Code{topo.map} contains for each prediction location @E{s
+sub 0} the base function value @E{x sub 1 (s sub 0 )} that correspond to
+the variable in column 2 of @Code{zinc.eas}; since @E{x sub 0 (s) = 1},
+and @E{x sub 2 (s sub 0 )} and @E{x sub 3 (s sub 0 )} are derived from
+@E{s sub 0}, @E{x (s sub 0 ) = (1, x sub 1 (s sub 0 ), x sub 2 (s sub 0
+), x sub 3 (s sub 0 ))} is completely known. (Multiple non-coordinate
+polynomial base function values at prediction locations can be held in a
+list of mask maps.)
+
+If in the universal kriging example the variograms are left out, then OLS
+prediction is the resulting default prediction method. If, in addition,
+measurement error variances, to be used as (the inverse of) weights
+in the regression prediction are defined, then WLS prediction is the
+default prediction method. Specifying both variogram and measurement
+error results in kriging with known, non-stationary measurement error.
+
+\subsection{Non-gridded prediction as default program action}
+If predictions at arbitrary locations are needed, and these locations
+are defined in (the first two columns of) the file @Code{locations.eas}
+having topographic level values in the third colum, then this is
+accomplished by
+
+@ID @CodeFrag { @Verbatim { @Include { "frag6" }}}
+
+In this example, output is written to @Code{predictions.eas}, which has
+the same format as @Code{locations.eas}. (Note that the order of @Code{X}
+columns in the @Code{data()} command corresponds to those in the
+@Code{data(zinc)} command.)
+
+# MODES:
+\subsection{Prediction modes}
+If the @Code{zinc} residuals are spatially correlated with measurements
+on a variable @Code{distance}, then @I multivariable prediction
+(cokriging) can be used to improve their prediction. This is done
+adding the following lines to the previous example:
+
+@ID @CodeFrag { @Verbatim { @Include { "frag7" }}}
+
+Now, also predictions and prediction variances of @Code{distance}, as
+well as prediction covariances of @Code{zinc} and @Code{distance} are
+written to the file @Code{predictions.out}. Obviously, to save this
+information when prediction is done on a grid, the output grid map files
+should be specified, e.g. by adding the lines
+
+@ID @CodeFrag { @Verbatim { @Include { "frag8" }}}
+
+If, in the multivariable example the cross covariogram is removed, then
+predictions for @Code{zinc} and for @Code{distance} will be made
+independent of each other (the file @Code{zinc_dist.cov} will contain
+missing values only), which is called here ``multiple prediction''.
+
+@IncludeFigures {
+@Figure
+ @Caption { Decision tree for the prediction mode (or simulation mode) }
+{ @Fig { 0.75 @Scale -90d @Rotate @IncludeGraphic "decis2.eps" } }
+}
+
+If the variables defined do not contain base functions (the ordinary or
+simple kriging case), or when only polynomial functions of the
+coordinates are used for base functions, then the actual values of
+non-missing valued cells in the mask map are not used. In this case
+the mask map values may be used to stratify the prediction area. If the
+(integer) mask map values are the strata @E{T sub 1 ,..., T sub r},
+then these strata are used to denote sub-areas where predictions for
+subsequently numbered variables @E{Z sub 1 (s),...,Z sub r (s)} will
+be made (different variables should not depend on each other; all
+predictions are written to the output maps of the first variable). The
+prediction mode---univariable, multiple (i.e. concerning multiple
+observation variables that are not interdependent), multivariable
+(interdependent variables) or stratified---is always derived implicitly
+from the command file specification (Fig. 2), and applies equally to
+prediction and simulation.
+
+\subsection{Overruling the default program action}
+So far, gstat decided what to do (modelling or prediction, the
+prediction method) implicitly from the definitions in the command file:
+there was no command like ``now do universal kriging'' or the like in
+them. After deciding what to do, gstat prints what it will do (action,
+prediction mode) as a check.
+
+In certain cases the default decision has to be overruled. For instance,
+when sample variogram calculation takes a long time, the user does
+not want to calculated sample variograms from the user interface, but
+wants to calculate them in a batch (for instance to do the interactive
+modelling later). In this case, all options available from the interface
+can be specified in the command file, and the command @Code{method:
+semivariogram;} has to be added to let gstat know not to start the
+variogram modelling interface, but to do the calculation right away. Also,
+when Gaussian (co)simulation is wanted, all specifications should be like
+those of a simple (co)kriging (or, alternatively like those of universal
+or ordinary (co)kriging). In that case, the command @Code{method: gs;}
+has to be added to let gstat know that Gaussian simulation is requested
+instead of the default action, which is (co)kriging. For indicator
+(co)simulation this should be @Code{method: is;}.
+
+\subsection{Data and target support}
+The physical size (support) of observations is always taken as a point
+in space, and by default prediction and simulation also regards point
+values. For predicting block averages the size of the cells in the
+grid map, it suffices to add the command @Code{blocks;} to a command
+file. Setting the block size independently from this, for instance to
+a two-dimensional block with size 2 $\multiply$ 2 is done by adding
+
+@ID @CodeFrag { @Verbatim { @Include { "frag9" }}}
+
+to the command file. One-dimensional blocks (lines) are defined
+with @Code{ blocksize: dx=2;} and three-dimensional blocks with
+@Code{blocksize: dx=2, dy=2, dz=2;}. Averages of arbitrarily shaped
+blocks are obtained when the individual points that discretize the
+``block'' are defined with the @Code{area:...;} command that has the
+syntax of a @Code{data()} command.
+
+\subsection{ Implementation and efficiency issues }
+\label{ implementation }
+
+# discuss singular regression models, both in prediction and in
+# variogram modelling
+
+This section discusses implementation issues and some general aspects of
+computational efficiency in geostatistics. In gstat, the general policy
+is that when a certain approach would give a modest gain in efficiency
+at the cost of generality, then this approach is not followed (otherwise
+one would end up with a large collection of highly specialized programs,
+each optimized for a specific purpose, such as GSLIB, Deutsch and Journel,
+1992). Some computational modifications that result in an important
+gain in efficiency are implemented, such as global kriging, copying
+search results when variables have identical locations and neighbourhood
+settings, and generating multiple simulations following a single random
+path (Journel, 1989). In gstat, observational data are not assumed to be
+gridded, i.e. to be configured on a regular lattice. If they are
+gridded, then this fact is not taken into account in the neighbourhood
+search. Especially for sample variogram calculation or simulation on a
+regular grid, taking the grid topology into account would result in
+faster computations.
+
+@IncludeFigures {
+@Figure
+ @Caption { Variogram modelling menu and gnuplot window. Numbers in the
+variogram window refer to the number of point pairs used for each sample
+variogram estimate (+) }
+{ @Fig { 0.5 @Scale @IncludeGraphic { "screen_bw.ps" }} }
+}
+
+\subsection{Modelling}
+Computationaly, all the features of geostatistical modelling in gstat
+can be done in batch-mode, i.e. non-interactively. Most of the features
+can also be done interactively, from an user interface. From the
+interface it is possible to enter (read) one or more data variables (if
+they were not specified in a command file), to choose between direct and
+cross variograms and covariograms, to define and modify the cutoff
+distance @E{h sub r + delta} and interval width @E{delta}, to define a
+direction angle and tolerance (in 2 or 3 dimensions) for directional
+variograms, to specify or modify a variogram model and a variogram
+fitting method and to show a plot (Fig. 3). Thus, the user interface
+quickly enables the user to view or modify the most important settings,
+and to view the resulting variogram. From the user interface, data
+definition, parameters and fitted models can be written to a gstat
+command file. This file can be used later on to continue the gstat
+modelling session, or it can be modified for prediction or simulation.
+
+By default, OLS residuals are used to estimate the residual variogram,
+optionally WLS or GLS residuals, residuals from a pre-specified mean, or
+raw data can be used.
+
+For the non-linear weighted least squares fitting of variogram models
+to the sample variogram (Cressie, 1985, 1991) the Levenberg-Marquart
+algorithm (Draper and Smith, 1981) is used, and for the REML estimation
+of partial sills the ``iterative MINQUE'' procedure (Christensen, 1993,
+p. 548) is used.
+
+Storing point comparison statistics, as done by GeoEAS (Englund and
+Sparks, 1988), Geostatistical Toolbox (Froidevaux, 1990) and Variowin
+(Panatier, 1996), uses an amount of memory (or disc space) that is
+quadratic in the number of observations. In practice, this limits the
+maximum number of observations to a few hundreds or thousands. In gstat,
+point comparison statistics are not stored before sample variograms are
+calculated, and, as memory usage is linear in the number of
+observations, the number of observations for calculating sample
+variograms is virtually unlimited. (For instance, the calculation of a
+sample variogram from 100,000 points needs less than 7 megabytes of
+memory.)
+
+\subsection{Prediction}
+For prediction, all prediction locations are visited in turn. If local
+prediction is required, at each prediction location a selection of
+nearby observations is made using selection either on distance or on the
+number of nearest observations, or on both. Given this neighbourhood
+selection, a prediction is made, using the prediction method at hand.
+
+For kriging, the prediction equations (3) or (4) are solved. In case
+of simple kriging, covariances are used for @E{V}, in case of ordinary
+or universal kriging generalized covariances @E{d - gamma(h)} are used
+for @E{V}, with @E{d} the sill of the variogram model. The inverse of
+the (generalized) covariance matrix, @E{V sup -1}, is never calculated
+explicitly. Instead, in the univariable case @E{p+2} systems of linear
+equations are solved, @E{p+1} for obtaining @E{V sup -1 X} and one for
+obtaining @E{V sup -1 v sub 0}. All actual matrix calculations are done
+using a matrix library (Stewart and Leyk, 1994). For solving systems of
+linear equations the @E{LDL'} factorisation is used (Golub and Van Loan,
+1990). This method can be seen as the @E{LU} factorisation for symmetric
+matrices, and is twice as fast as the @E{LU} factorisation. (For OLS or
+WLS estimates, QR factorisation of the @Eq{X} matrix is used (Golub and
+Van Loan, 1990).)
+
+When no local neighbourhoods are defined, global kriging is used and in
+this case the factorisation of @E{V} and the calculation of @E{beta hat
+sub gls} are done only once. It can easily be shown that the way gstat
+calculates the kriging predictor (3) and (4) is of similar complexity as
+the ``traditional'' way, where @E{V} and @E{X} are combined in the
+``kriging matrix'' (e.g. Journel and Huijbregts, 1978, V.4). An
+advantage of factoring @E{V} instead of the full kriging matrix is that
+rescaling of @E{X} to the units of @E{V} is not required to ensure
+numerically stable results.
+
+If global kriging is used with a large number of observations (e.g. a
+few thousands) and the matrix @E{V} contains mainly zeros, then sparse
+matrix routines can be used for @E{V}, for reasons of memory usage and
+computation time. For this, the user has to set an estimate of the number
+of non-zero columns in a row of @E{V}. (As a test, global kriging with
+5000 observations having little spatial correlation was done in less
+then 10 megabytes by using sparse matrices; the dense covariance matrix
+for this would already be 200 megabytes.)
+
+If indicator (co)kriging is done, order relation violations can be
+corrected automatically. For this, the methods of GSLIB (Deutsch and
+Journel, 1992) are implemented, both for the cases where the indicators
+represent categorical probabilities as where they represent the
+cumulative distribution of a continuous variable.
+
+Kriging block averages for rectangular blocks is done by averaging the
+(generalized) covariances over the blocks (Section @NumberOf{linear}).
+To approximate the integrals, a four-point descretization scheme is used
+in each block dimension (4 points on a line, 16 points in a square, 64
+points in a block); point locations and weights are obtained using the
+Gaussian integration rule (Journel and Huijbregts, 1978, Carr and
+Palmer, 1993). Neighbourhood selection for local prediction is always
+done with respect to the block centre.  For user-specified base
+functions it is assumed that the block average values in @E{x(B sub 0 )}
+are those specified, since gstat can only calculate block average values
+for coordinate polynomial base functions.
+
+@IncludeFigures {
+@Figure
+ @Caption { Example of recursive multi-steps simulation on a grid with
+13 rows and 11 columns (circles in C). The coarsest grid with a factor 2
+grid spacing is randomly placed (A: a 2 $\multiply$ 2 grid with 8-cell
+grid spacing) and the random path is started through these cells.  Next,
+a grid with a halved cell spacing is randomly placed (4-cell grid
+spacing, black circles in B) and the random path is continued through
+them. Next, the random path is continued through the next randomly
+placed grid with halved grid spacing (2-cell grid spacing, black circles
+in C). Finally, the random path is completed through the remaining cells
+of the simulation grid (grey circles in C) } 
+{ @Fig { -90d @Rotate 0.7 @Scale @IncludeGraphic { "msteps.eps" }} }
+}
+
+\subsection{Simulation}
+In the sequential simulation algorithm used by gstat, the prediction
+locations are visited in some random sequence. When a certain location
+is visited, the conditional distribution (conditional to data and
+previously simulated values) at that location is obtained from (@Eqblp)
+and (@Eqblpv), a value is drawn randomly from this distribution and
+added to the conditioning set.  Unconditional simulation starts with an
+empty conditioning set, conditional simulation starts with the
+conditioning data. Because the number of conditioning data may be large,
+and because the conditioning set grows after each location visited, in
+practice it is necessary to apply (@Eqblp) and (@Eqblpv) locally to
+approximate the conditional distribution. This local approximation also
+puts constraints on the visiting sequence (path) chosen: following a
+regular path (e.g. row-wise on a grid) may introduce unwanted structures
+due to the local approximation. To prevent this, a random path can be
+started through a coarse grid, followed by a random path through the
+remaining prediction locations on a finer grid (``multiple grid
+concept'' (Deutsch and Journel, 1992) or ``Multiple-steps simulation'',
+Gom{@Char eacute}z-Hern{@Char aacute}ndez and Journel, 1993). In gstat,
+this is done by following a random path through a recursively refining
+grid: simulation is started with a random path through the coarsest 2
+$\multiply$ 2 grid with a grid spacing of a factor of 2 that fits on the
+simulation grid. The grid spacing of the random path grid is halved
+until the grid matches the prediction grid (Fig. 4).
+
+If the mean of a field is non-stationary and known, then it can be added
+to a stationary realization after it is simulated. Alternatively, if
+enough conditioning data are available, the non-stationary mean can be
+estimated during simulation when (@Eqblup) and (@Eqblupv) are used to
+obtain the conditional distribution. In the latter case, the second
+order spatial moments will not be reproduced correctly (simulations will
+tend to be ``rougher'', because of addition of the last term of
+(@Eqblupv)). 
+
+Multivariable (sequential) simulation is the multivariable extension of
+univariable simulation (Myers, 1989; Gom{@Char eacute}z-Hern{@Char
+aacute}ndez and Journel, 1993), and has been implemented in gstat.
+
+\subsection{Debug diagnostics}
+For a quick check, gstat prints for each variable the mean and variance
+of the data values and the minimum and maximum of their spatial
+coordinates. During prediction or simulation, the program progress (in
+%) is printed. Except for warning and error messages, printing of all
+messages can be suppressed. Optionally, during the program excecution
+many diagnostics can be written to a log file, including the value of
+all controllable variables, the data read, OLS, WLS and GLS fit
+diagnostics (basic information as @E{Z(s)}, @E{X}, @E{x (s sub 0 )},
+@E{V}, @E{v sub 0}, as well as intermediate results like @E{beta hat},
+@E{x (s sub 0 ) beta hat}, @E{X'V sup -1 X}, @E{(X'V sup -1 X) sup -1}
+and kriging weights), the neighbourhood selection at each prediction
+location, variogram fit diagnostics and order relation violation
+corrections during indicator kriging or simulation. Ten separate debug
+levels can be chosen, or they may be combined.
+
+\subsection{Run-time user customization}
+When gstat is started several variables are given default values. Some
+of them are implicit (e.g. a global neighbourhood is used when no
+neighbourhood parameters are defined) others are rather obvious (e.g. no
+log-transformation is applied when it was not requested, random number
+generators are initialised using the computer clock if no seed is set).
+Some variables are given values that are more a matter of convenience,
+for instance the default missing value flag. Most defaults can be
+overriden per user (at run-time) by specifying other defaults in a gstat
+command file "$HOME/.gstatrc" (on unix, with "$HOME" the user home
+directory) or in a file the environment variable GSTATRC points to.
+Before doing anything else, gstat reads this file to adjust compile-time
+defaults to user preferences.
+
+\subsection{Data and map formats}
+The format of input data can be one of several: ascii column file,
+simplified GeoEAS file, PCRaster grid map, Idrisi binary or ascii image
+or ascii vec file, and Arc-Info grid files (gridascii and gridfloat).
+Output files are ascii column or simplified GeoEAS files (when prediction
+locations were defined with @Code{data()}), or they are in the same
+format as the mask map(s) (when prediction locations were defined with
+the @Code{mask} command).
+
+\section{ Managing geostatistical projects }
+\label{how}
+
+In practice, geostatistical projects are often performed in a complex
+environment, e.g. an environment where data are obtained from a large
+database, where maps are stored, processed and printed using a GIS
+(geographical information system, Burrough, 1986) or where resulting
+maps (e.g.  simulations) are input to complex models. Also, large
+geostatistical projects may involve the modelling and prediction of many
+variables, or multiple simulation of many variables. Post processing of
+results may involve sensitivity analysis, map production or statistical
+analysis.
+
+Essential to the success of such a complex project is the structuring of
+data flow and data processing steps. This structuring is best done by
+cutting the project into small steps (sub-processes) that are easily
+understood, verified and controlled. Intermediate results can be stored
+in files on a filesystem or in some database, and easy rules (commands)
+should create, update or verify files when necessary.
+
+Often, a large part of such sub-processes has a repetitive nature and
+does not need user interaction. To avoid the risc of mistakes resulting
+from user interaction, that part should be automated. Project management
+tools can be instructed how files depend on each other, and how a
+dependent file should be updated when it is older than a file it depends
+on. In such an environment, gstat lends itself well for executing small,
+non-interactive steps, because the full functionality is available
+through command files. To register data flow, gstat documents the most
+relevant execution information (program version, command file name,
+prediction method and contents of the output variable) in the output
+files, whenever the file format used permits inclusion of such meta data.
+
+An instance of automated data processing for a complex problem is the
+production of a groundwater quality atlas of the Netherlands (Pebesma,
+1996). The atlas comprised about 350 separate maps, 350 variograms and
+involved about 1000 distinct kriging settings. After visual examination
+(and iterated modification) of the sample variograms and fitted models,
+the data selection, generation of command files, postprocessing of
+resulting maps, plotting of the maps and the generation of the final
+report were all done with the unix tools awk, sh, sed, grep, along
+with gstat, PCRaster (a grid-based GIS, Wesseling et al., 1996), and a
+document formatting system (Kingston, 1993). The file dependency
+management was done with make, typing `make all' would trigger the
+execution of all commands necessary to produce the atlas. Currently
+gstat is being used for the generation of input maps for a Monte Carlo
+simulation, where the uncertainty of groundwater quality model outputs
+that results from uncertainty in input variables, is studied. To
+increase the efficiency of the Monte Carlo procedure, latin hypercube
+sampling (Stein, 1987) of the spatially correlated simulations has been
+implemented.
+
+\section{ Technical issues }
+
+\subsection{Portability}
+Gstat is written with portability to different computer platforms in
+mind. Source code of gstat and libraries used should be easily portable
+to 32 or 64 bits computer platforms with an @S ansi-c compiler.  The
+general-purpose device-independent graphical plotting program gnuplot,
+used for plotting variograms, is also written in @S ansi-c and is ported
+to most computer platforms.  Binary grid map files are handled portably
+between big endian (e.g. Motorola 680x0, HP-PA) and little endian (e.g.
+INTEL 80x86) machines---the files are either written to their native
+format (e.g. the little endian format for binary Idrisi files) or the
+file format documents the endianness (e.g. PCRaster or Arc-Info
+gridfloat). It should be noted that apart from gnuplot, gstat comprises
+only a single binary. Distributing gstat and gnuplot binaries for
+several platforms on the internet would make recompilation obsolete. So
+far, gstat has been ported to AIX, HP-UX, Linux, DEC-Alpha, SunOS and
+MS-DOS (using virtual memory through DPMI).
+
+\subsection{Precision}
+Internally, data storage and floating point calculations are done in
+double precision. All matrix computations, done by the matrix library
+(Stewart and Leyk, 1994), use double precision (a compile switch could
+change this into single precision).
+
+\subsection{Command file parser}
+To translate the characters in a gstat command file into internal data
+structures from which the program flow can be deduced, a command file
+parser was written. The command file syntax is designed in such a way
+that at every moment only one token (word, quoted string, number or
+symbol) has to be read, i.e. the syntax is an LALR(1) grammar (Aho et
+al., 1986). The grammar was compiled into a command parser by using
+yacc, and for recognizing tokens in a command the parser uses a lexical
+analyzer generated by lex. Lex and yacc (Levine, Mason and Brown, 1992)
+are POSIX-conforming utilities, and neither of them is required to
+compile gstat (their output is portable c code).
+
+\subsection{Interactive user interface}
+The @S ansi-c standard has no functions for obtaining a single key press
+or for screen handling (direct instead of line wise screen access). On
+unix systems, the curses library does provide direct screen acces for
+all terminal types, and the variogram modelling interface of gstat uses
+this library. The curses library is ported to other platforms as well
+(e.g. ``pdcurses'' to MS-DOS and "OS/2"). For graphical display of
+sample variogram and variogram models, gnuplot, a device-independent
+general-purpose plotting program is used. Gnuplot is written to serve
+many computer platforms and graphic file formats (e.g. Encapsulated @S
+PostScript, GIF, fig, LaTeX). From the interface, plots can be written
+directly to Encapsulated @S PostScript or gif files, or else sample
+variogram and gnuplot commands can be saved for manual customization of
+for instance title, axis titles, key entries, symbols, line type,
+colours, and graphic file format.
+
+Ideally, variogram modelling shows the user interface and the modelled
+variogram simultaneously. For this, a window system is necessary. Given
+the current architecture (gstat and gnuplot being two distinct
+executables), a protocol for inter-process communication is needed, as
+gstat must tell gnuplot what to do. One way to handle this is using
+pipes, and gstat uses the pipe mechanism of the function popen(), a
+proposed POSIX standard. This function is currently implemented on unix
+systems and on "OS/2". For instance, on a unix platform running the X
+Window System, after using the command ``show plot'', the screen may
+look like Fig. 3: the gnuplot window shows the plot of sample variogram
+and variogram model because gstat opened a pipe to gnuplot and wrote the
+appropriate commands for displaying the variogram plot to this pipe. In
+an X Window System environment, gstat instructs the gnuplot process to
+open a plot window for the variogram of each variable or variable pair,
+thus enabling visual, on-screen comparison of direct and cross
+variograms, or of directional variograms.
+
+In environments that do not support the pipe mechanism (e.g. MS-DOS-like
+environments) the gnuplot plotting screen replaces the character based
+user interface of gstat temporarily, by using the @S ansi-c system()
+function call.
+
+It would be fairly trivial to write a graphical user interface for a
+specific platform (e.g. for MS-Windows or for the X Window System) that
+controls the complete functionality of gstat (i.e.  prediction and
+simulation as well). This could be done either as native gstat code or
+as a stand-alone application that writes command files and uses gstat as
+back end. Plans for the latter option have risen in the Idrisi project.
+
+\subsection{Program limits}
+Gstat has no built-in limits, and practically all memory usage is
+dynamic. Therefore, only the memory necessary for the problem is used,
+and only available (virtual) memory limits the number of observations
+per variable, the number of variables, the number of base functions for
+each variable, the number of prediction locations, the number of
+distance intervals for sample variogram calculation or the number of
+nested variogram models per variogram. A consequence of the absence of
+built-in limits is that unexperienced users may easily meet the limits
+of their own patience when using gstat---attempts to calculate a
+variogram of more than 10,000 points or to solve a kriging system with
+more than 750 points may take quite long on medium sized systems.
+
+\section{ Discussion }
+\label{ discussion }
+
+For a geostatistics program, gstat is fairly complete. It provides
+modelling, prediction and simulation under the linear models with
+independent or stationary, spatially correlated residuals, and allows
+the comparison of different, classical statistical or geostatistical,
+models in terms of (a) residuals and residual variograms (using OLS, WLS
+or GLS residuals), (b) predictions under the given model, (c)
+simulations given that model (d) cross validation statistics. The
+methods known as universal kriging, ``@I{irf-k}'', kriging with external
+drift, kriging the trend, simple, ordinary or universal kriging (or
+cokriging), collocated cokriging, standardized cokriging, indicator
+kriging (or cokriging) and probability kriging, as well as
+``traditional'' regression or ANOVA-based prediction can all be
+expressed in terms of the linear model framework provided by gstat.
+
+Features of gstat that are not found in the geostatistical software
+packages GSLIB (Deutsch and Journel, 1992) and GeoEAS (Englund and
+Sparks, 1988) are:
+(i) the availability of a complete, simple and human-readable command
+syntax that covers the full functionality,
+(ii) support for reading and writing GIS data (map) formats, and
+(iii) absence of built-in limits.
+Also, gstat is not a software @I{package} because a single binary takes
+care of the full functionality. Only for plotting variograms an
+additional program is used, but it is called by gstat in such a way that
+the user does not have to be aware of it.  Obviously, for specialized
+processing of the results, like printing the output maps, other programs
+(or a GIS) should be used.
+
+In GSLIB, flexibility comes from providing the source code (Deutsch and
+Journel, 1992, p. i): the code is meant as example programs that should
+be customized to specific problems. This requires from users that they
+are experienced Fortran programmers, or at least that they know how to
+handle a compiler. In gstat, once the binary executable of the program
+is available, its full potential is acquired: in contrast to GSLIB,
+flexibility in gstat comes from program design and the availability of a
+custom-designed command language for any problem ranging from trivial to
+very complex (section 4). Such a flexibility not only allows users who
+can program to concentrate on the real (geostatistical) problem instead
+of having to bother about source code, compilers or data conversion, it
+also allows users with no programming expertise to acces the whole
+framework of functions offered. (The price to pay for this flexibility
+is some run-time performance: some GSLIB programs written for special
+cases, like calculation of variograms from gridded data, will outperform
+gstat in those special cases.) The authors of GSLIB (Deutsch and
+Journel, 1992) do acknowledge other shortcomings of GSLIB, notably the
+absence of (i) dynamic memory allocation (p. 6), (ii) a portable
+graphical user interface (p. 21), (iii) ``an intelligent interpretation
+program that would read each parameter file and create a verbose English
+language description of the job being described by the parameters'' (p.
+21) and (iv) an implementation of the multiple grid concept (p. 124,
+187). Gstat fills most of these gaps.
+
+In contrast to GSLIB, GeoEAS is a software package that is completely
+menu-driven and that does not provide non-interactive use. This makes it
+unsuitable for larger projects (section 6): there's no way to guarantee
+the prevention of input errors. This, together with the data and grid
+limits of the original MS-DOS version of GeoEAS, were the initial
+reasons for writing gstat. (Recently, GeoEAS has been ported to Sun and
+Data General workstations, but we had no succes in compiling the source
+code on other unix platforms.)
+
+The gstat source code is easily extensible due to a clean modular setup
+of the components such as "I/O" (data and grid map formats), variogram
+model functions, prediction methods and the command file syntax. This
+allows programmers to add new functionality that is accessible for
+non-programmers through a modified gstat executable. Because the source
+code is copyrighted by the first author under the GNU General Public
+License, it can be freely obtained, redistributed and modified. The
+meschach matrix library and the PCRaster map library used by gstat, and
+the plotting program gnuplot are available under similar conditions.
+
+By the authors knowledge there is no other (free) geostatistical program
+or package that offers the same functionality on so many different
+platforms. Having a single @S ansi-c source makes porting to new
+platforms fairly trivial. The gnuplot program, needed for graphical
+display of variograms, is actively being maintained by a large user base
+on the internet, which guarantees that it will work on about any
+platform currently available.
+
+We do not doubt that for a considerable group of practitioners in the
+field of geostatistics, and for a certain set of practical problems,
+gstat is the best choice software with respect to time or money
+investments, or with respect to the computer skills required from the
+practitioners. Since it's free and easy to use, it is also very suitable
+for educational purposes.
+
+\section{ FIGURE CAPTIONS} 
+@B{ Figure 1.} Decision tree for the default program action 
+
+@B{Figure 2.} Decision tree for the prediction (or simulation) mode
+
+@B{Figure 3.} Variogram modelling menu and gnuplot window. Numbers in
+the variogram window refer to the number of point pairs used for each
+sample variogram estimate (+)
+
+@B{Figure 4.} Example of recursive multi-steps simulation on a grid with
+13 rows and 11 columns (circles in C). The coarsest grid with a factor 2
+grid spacing is randomly placed (A: a 2 $\multiply$ 2 grid with 8-cell
+grid spacing) and the random path is started through these cells.  Next,
+a grid with a halved cell spacing is randomly placed (4-cell grid
+spacing, black circles in B) and the random path is continued through
+them. Next, the random path is continued through the next randomly
+placed grid with halved grid spacing (2-cell grid spacing, black circles
+in C). Finally, the random path is completed through the remaining cells
+of the simulation grid (grey circles in C) 
+
+ @Fig { @IncludeGraphic { "decis1.eps" }}
+//1rt -2p @Font { Figure 1 (90d rotated) }
+@NP
+
+ @Fig { @IncludeGraphic { "decis2.eps" }}
+//1rt -2p @Font { Figure 2 (90d rotated) }
+@NP
+
+ @Fig { 90d @Rotate 0.59 @Scale @IncludeGraphic { "screen_bw.ps" }}
+//1rt -2p @Font { Figure 3 (90d rotated) }
+@NP
+
+ @Fig { 0.9 @Scale @IncludeGraphic { "msteps.eps" }}
+//1rt -2p @Font { Figure 4 (90d rotated) }

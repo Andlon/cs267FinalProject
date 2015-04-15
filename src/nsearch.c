@@ -11,9 +11,9 @@
    as a component of:
 
    Gstat, a program for geostatistical modelling, prediction and simulation
-   Copyright 1992-2009 (C) Edzer J. Pebesma
+   Copyright 1992-1998 (C) Edzer J. Pebesma
 
-   Edzer J. Pebesma (E.Pebesma@geo.uu.nl)
+   Edzer J. Pebesma (E.Pebesma@geog.uu.nl)
    Landscape and environmental research group
    Faculty of geographical sciences
    University of Amsterdam
@@ -95,10 +95,10 @@
 
 static void init_qtree(DATA *d);
 static void init_qnode(QTREE_NODE **p_node, int is_leaf, BBOX bb);
-static void qtree_push(DPOINT *p, QTREE_NODE **p_node, int recursion_depth);
+static void qtree_push(DPOINT *p, QTREE_NODE **p_node);
 static BBOX sub_bbox(const BBOX bb, int i);
 static int in_bbox(const DPOINT *p, BBOX bb);
-static void qtree_split_node(QTREE_NODE *node, BBOX bb, int rec_level);
+static void qtree_split_node(QTREE_NODE *node, BBOX bb);
 static QTREE_NODE *qtree_expand(const DPOINT *p, QTREE_NODE *root);
 static QTREE_NODE **qtree_find_node(const DPOINT *p, QTREE_NODE **p_node,
 	BBOX *bbox);
@@ -107,7 +107,7 @@ static void logprint_qtree(QTREE_NODE *node, int depth);
 static BBOX bbox_from_grid(const GRIDMAP *gt, const DATA_GRIDMAP *dg);
 static BBOX bbox_from_data(DATA *d);
 static void qtree_zero_all_leaves(QTREE_NODE *node);
-static int CDECL node_cmp(const QUEUE_NODE *a, const QUEUE_NODE *b);
+static int node_cmp(const QUEUE_NODE *a, const QUEUE_NODE *b);
 void logprint_queue(QUEUE *queue);
 
 static void init_qtree(DATA *d) {
@@ -141,12 +141,12 @@ static void init_qtree(DATA *d) {
 			bbox = bbox_from_data(d);
 	} else
 		bbox = bbox_from_data(d);
-	init_qnode(&(d->qtree_root), d->n_list < gl_split, bbox); /* ML1 */
+	init_qnode(&(d->qtree_root), d->n_list < gl_split, bbox);
 	
 	mode = bbox.mode;
 
 	for (i = 0; i < d->n_list; i++)
-		qtree_push_point(d, d->list[i]); /* now they won't be rejected */ /* ML2 */
+		qtree_push_point(d, d->list[i]); /* now they won't be rejected */
 
 	if (DEBUG_DUMP) {
 		printlog("top level search tree statistics for data(%s):\n",
@@ -172,7 +172,7 @@ static void init_qnode(QTREE_NODE **p_node, int isleaf, BBOX bb) {
 	int i;
 
 	if (*p_node == NULL) {
-		*p_node = (QTREE_NODE *) emalloc(sizeof(QTREE_NODE)); /* ML1 */
+		*p_node = (QTREE_NODE *) emalloc(sizeof(QTREE_NODE));
 		(*p_node)->bb = bb;
 	}
 
@@ -217,20 +217,17 @@ void qtree_push_point(DATA *d, DPOINT *where) {
 	/*
 	 * finally push the point onto the tree:
 	 */
-	qtree_push(where, &(d->qtree_root), 0);
+	qtree_push(where, &(d->qtree_root));
 	return;
 }
 
-static void qtree_push(DPOINT *where, QTREE_NODE **p_node, 
-				int recursion_depth) {
+static void qtree_push(DPOINT *where, QTREE_NODE **p_node) {
 /* add a data point to the quad tree starting at the node specified. */
 
 	QTREE_NODE **p_leaf, *node;
 	BBOX bb;
 
 	bb = (*p_node)->bb;
-	recursion_depth += 1;
-	/* printf("recursion_depth: %d, max %d\n", recursion_depth, MAX_RECURSION_DEPTH); */
 	/* find the leaf node where this point belongs */
 	p_leaf = qtree_find_node(where, p_node, &bb);
 
@@ -240,18 +237,17 @@ static void qtree_push(DPOINT *where, QTREE_NODE **p_node,
 	node = *p_leaf;
 
 	/* If it is already full, split it into another level and try again: */
-	if (node->n_node == gl_split && recursion_depth < MAX_RECURSION_DEPTH) {
-		qtree_split_node(node, (*p_node)->bb, recursion_depth); 
-		qtree_push(where, &node, recursion_depth);
+	if (node->n_node == gl_split) {
+		qtree_split_node(node, (*p_node)->bb); 
+		qtree_push(where, &node);
 		return;
 	}
 
-	/* XXX */
 	if (node->n_node == 0)
 		node->u.list = (DPOINT **) emalloc(sizeof(DPOINT *));
 	else
 		node->u.list = (DPOINT **) erealloc(node->u.list,
-			(node->n_node + 1) * sizeof(DPOINT *)); /* ML2 */
+			(node->n_node + 1) * sizeof(DPOINT *));
 	node->u.list[node->n_node] = where;
 	node->n_node++;
 	return;
@@ -306,14 +302,14 @@ void qtree_free(QTREE_NODE *node) {
 	if (!is_leaf(node)) {
 		for (i = 0; i < N_NODES(node); i++)
 			qtree_free(node->u.node[i]);
-		efree(node->u.node);
-	} else
+	} else {
 		efree(node->u.list);
-	efree(node);
+		efree(node);
+	}
 	return;
 }
 
-static void qtree_split_node(QTREE_NODE *node, BBOX bbox, int rec_level) {
+static void qtree_split_node(QTREE_NODE *node, BBOX bbox) {
 /*
  * split the quadtree at 'node' and redistribute its points
  */
@@ -329,8 +325,8 @@ static void qtree_split_node(QTREE_NODE *node, BBOX bbox, int rec_level) {
 
 	/* redistribute the points into the child nodes where they belong */
 	for (i = 0; i < n; i++)
-		qtree_push(list[i], &node, rec_level);
-	efree(list); 
+		qtree_push(list[i], &node);
+
 	return;
 }
 
@@ -345,9 +341,7 @@ static QTREE_NODE *qtree_expand(const DPOINT *where, QTREE_NODE *root) {
 	int i;
 
 	old_bb = root->bb;
-	old_centre.x = old_centre.y = old_centre.z = 0.0;
-	
-	if (old_bb.mode & X_BIT_SET)
+	if (old_bb.mode & Y_BIT_SET)
 		old_centre.x = old_bb.x + old_bb.size / 2.0;
 	if (old_bb.mode & Y_BIT_SET)
 		old_centre.y = old_bb.y + old_bb.size / 2.0;
@@ -596,7 +590,7 @@ static BBOX bbox_from_grid(const GRIDMAP *gt, const DATA_GRIDMAP *dg) {
 
 static BBOX bbox_from_data(DATA *d) {
 /* derive a sensible top level bounding box from a data var */
-	double maxspan, dy, dz;
+	double maxspan;
 	BBOX bbox;
 
 	if (d->grid)
@@ -607,16 +601,8 @@ static BBOX bbox_from_data(DATA *d) {
 	bbox.mode = d->mode; /* ??? */
 	/*
 	bbox.mode = d->mode & (X_BIT_SET|Y_BIT_SET|Z_BIT_SET);
-	maxspan = MAX((d->maxX-d->minX), MAX((d->maxY-d->minY),(d->maxZ-d->minZ)));
 	*/
-	maxspan = fabs(d->maxX - d->minX);
-	dy = fabs(d->maxY - d->minY);
-	if (dy > maxspan)
-		maxspan = dy;
-	dz = fabs(d->maxZ - d->minZ);
-	if (dz > maxspan)
-		maxspan = dz;
-		
+	maxspan = MAX((d->maxX-d->minX), MAX((d->maxY-d->minY),(d->maxZ-d->minZ)));
 	/* with d->grid_size entered by user:
 	if (d->grid_size > 0.0) {
 		bbox.x -= 0.5 * d->grid_size;
@@ -668,23 +654,22 @@ static DPOINT *get_nearest_point(QUEUE *q, DPOINT *where, DATA *d) {
  *
  * this and the following functions: Copyright (GPL) 1998 Edzer J. Pebesma
  */
-	QUEUE_NODE head, *el = NULL /* temporary storage */ ;
+	QUEUE_NODE head;
+	static QUEUE_NODE *el = NULL; /* temporary storage for dequeued elements */
 	QTREE_NODE *node;
-	int i, n;
+	int i, n, max;
 
+	max = MAX(gl_split, 8);
+	if (el == NULL)
+		el = (QUEUE_NODE *) emalloc(max * sizeof(QUEUE_NODE));
+		/* 8 -- or 4 in 2D, or 2 in 1D but who cares... */
 	while (q->length > 0) {  /* try: */
 		/* logprint_queue(q); */
 		head = dequeue(q);
-		if (! head.is_node) { /* nearest element is a point: */
-			if (el != NULL)
-				efree(el);
+		if (! head.is_node) /* nearest element is a point: */
 			return head.u.p;
-		}
 		node = head.u.n;
 		if (is_leaf(node)) { /* ah, the node dequeued is a leaf: */
-			/* printf("node->n_node: %d\n", node->n_node); */
-			if (node->n_node > 0)
-				el = (QUEUE_NODE *) erealloc(el, node->n_node * sizeof(QUEUE_NODE));
 			for (i = 0; i < node->n_node; i++) { /* enqueue it's DPOINT's: */
 				el[i].is_node = 0;
 				el[i].u.p = node->u.list[i];
@@ -693,8 +678,6 @@ static DPOINT *get_nearest_point(QUEUE *q, DPOINT *where, DATA *d) {
 			}
 			n = node->n_node;
 		} else { /* nope, but enqueue its sub-nodes: */
-			if (N_NODES(node) > 0)
-				el = (QUEUE_NODE *) erealloc(el, N_NODES(node) * sizeof(QUEUE_NODE));
 			for (i = n = 0; i < N_NODES(node); i++) {
 				if (node->u.node[i] != NULL) {
 					el[n].is_node = 1;
@@ -708,8 +691,6 @@ static DPOINT *get_nearest_point(QUEUE *q, DPOINT *where, DATA *d) {
 			enqueue(q, el, n);
 	}
 	/* the while-loop terminates when the queue is empty */
-	if (el != NULL)
-		efree(el);
 	return NULL;
 }
 
@@ -733,7 +714,7 @@ void logprint_queue(QUEUE *queue) {
 	}
 }
 
-static int CDECL node_cmp(const QUEUE_NODE *a, const QUEUE_NODE *b) {
+static int node_cmp(const QUEUE_NODE *a, const QUEUE_NODE *b) {
 /* ANSI qsort() conformant comparison function */
 
 	if (a->dist2 < b->dist2)

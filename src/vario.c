@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,6 +27,7 @@
 /*
  * vario.c: basic variogram model functions (init, print, update, etc.)
  */
+#include "defs.h"
 
 #include <stdio.h>
 #include <stdlib.h> /* getenv() */
@@ -36,7 +36,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "defs.h"
 #include "matrix2.h"
 
 #include "userio.h"
@@ -55,7 +54,7 @@ static int is_valid_cs(const VARIOGRAM *aa, const VARIOGRAM *bb,
 static int is_posdef(MAT *m);
 static void strcat_tm(char *cp, ANIS_TM *tm);
 static ANIS_TM *get_tm(double anis[5]);
-static void init_variogram_part(VGM_MODEL *v);
+static void init_variogram_part(VGM_MODEL *v, int nrangepars);
 
 const V_MODEL v_models[] = { /* the variogram model ``data base'': */
 	{	 NOT_SP, "Nsp", "Nsp (not specified)",  /* DON'T CHANGE THIS ONE!! */
@@ -78,19 +77,11 @@ const V_MODEL v_models[] = { /* the variogram model ``data base'': */
 		"Gau(a,x) = 1 - exp(-((x/a)**2))",
 		"Gau(a,x) = exp(-((x/a)**2))",
 		fn_gaussian, da_fn_gaussian },
-	{	EXCLASS, "Exc", "Exclass (Exponential class)", 
-		"# Exponential class model not supported by gnuplot",
-		"# Exponential class model not supported by gnuplot",
-		fn_exclass, NULL },
 #ifdef USING_R
 	{	MATERN, "Mat", "Mat (Matern)", 
 		"# Matern model not supported by gnuplot",
 		"# Matern model not supported by gnuplot",
 		fn_matern, NULL },
-	{	STEIN, "Ste", "Mat (Matern, M. Stein's parameterization)", 
-		"# Matern model not supported by gnuplot",
-		"# Matern model not supported by gnuplot",
-		fn_matern2, NULL },
 #endif
 	{ 	CIRCULAR, "Cir", "Cir (circular)", 
 		"Cir(a,x) = (x < a ? ((2*x)/(pi*a))*sqrt(1-(x/a)**2)+(2/pi)*asin(x/a) : 1)",
@@ -131,10 +122,6 @@ const V_MODEL v_models[] = { /* the variogram model ``data base'': */
 		"Spl(a,x) = x == 0 ? 0 : x * x * log(x)",
 		"Spl(a,x) = x == 0 ? 1 : 1 - x * x * log(x)",
 		fn_spline, NULL },
-	{	LEGENDRE, "Leg", "Leg (Legendre)", 
-		"",
-		"",
-		fn_legendre, NULL },
 	{	MERROR, "Err", "Err (Measurement error)", 
 		"Err(a,x) = 1 # I don't let gnuplot draw what happens at x=0",
 		"Err(a,x) = 0 # I don't let gnuplot draw what happens at x=0",
@@ -170,7 +157,6 @@ VARIOGRAM *init_variogram(VARIOGRAM *v) {
 	v->is_valid_covariance = 1;
 	v->isotropic = 1;
 	v->n_fit = 0;
-	v->fit_is_singular = 0;
 	v->descr = v->fname = v->fname2 = (char *) NULL;
 	v->max_range = (double) DBL_MIN;
 	v->sum_sills = 0.0;
@@ -179,9 +165,8 @@ VARIOGRAM *init_variogram(VARIOGRAM *v) {
 	v->min_val = 0.0;
 	vgm_init_block_values(v);
 	v->part = (VGM_MODEL *) emalloc(INIT_N_VGMM * sizeof(VGM_MODEL));
-	v->table = NULL;
 	for (i = 0; i < INIT_N_VGMM; i++)
-		init_variogram_part(&(v->part[i]));
+		init_variogram_part(&(v->part[i]), NRANGEPARS);
 	v->max_n_models = INIT_N_VGMM;
 	v->SSErr = 0.0;
 	v->ev = init_ev();
@@ -196,11 +181,12 @@ void vgm_init_block_values(VARIOGRAM *v) {
 	v->block_semivariance = -999999.0;
 }
 
-static void init_variogram_part(VGM_MODEL *p) {
+void init_variogram_part(VGM_MODEL *p, int nrangepars) {
 	int i;
 
 	p->sill = 0.0;
-	for (i = 0; i < NRANGEPARS; i++)
+	p->range = (double *) emalloc(nrangepars * sizeof(double));
+	for (i = 0; i < nrangepars; i++)
 		set_mv_double(&(p->range[i])); /* trigger errors if misused */
 	p->model = NOT_SP;
 	p->fit_sill = p->fit_range = 1;
@@ -231,12 +217,10 @@ SAMPLE_VGM *init_ev(void) {
 	ev->pseudo = 0;
 	ev->is_asym = -1;
 	ev->map = NULL;
-	ev->S_grid = NULL;
 	ev->direction.x = 1.0;
 	ev->direction.y = ev->direction.z = 0.0;
 	return ev;
 }
-
 
 void free_variogram(VARIOGRAM *v) {
 	int i;
@@ -253,17 +237,8 @@ void free_variogram(VARIOGRAM *v) {
 		efree(v->ev);
 	}
 	for (i = 0; i < v->max_n_models; i++)
-		if (v->part[i].tm_range != NULL)
-			efree(v->part[i].tm_range);
-		
-	if (v->descr != NULL)
-		efree(v->descr);
-
+		efree(v->part[i].range);
 	efree(v->part);
-	if (v->table) {
-		efree(v->table->values);
-		efree(v->table);
-	}
 	efree(v);
 }
 
@@ -271,11 +246,9 @@ void logprint_variogram(const VARIOGRAM *v, int verbose) {
 	printlog("%s", sprint_variogram(v, verbose));
 }
 
-#ifndef USING_R
 void fprint_variogram(FILE *f, const VARIOGRAM *v, int verbose) {
 	fprintf(f, "%s", sprint_variogram(v, verbose));
 }
-#endif
 
 const char *sprint_variogram(const VARIOGRAM *v, int verbose) {
 /* prints contents of VARIOGRAM v on string */
@@ -365,11 +338,8 @@ void update_variogram(VARIOGRAM *vp) {
 		if (p->model == BESSEL || p->model == GAUSSIAN ||
 				p->model == EXPONENTIAL || p->model == LOGARITHMIC ||
 				p->model == POWER || p->model == PERIODIC ||
-				p->model == EXCLASS || p->model == LEGENDRE ||
-				p->model == HOLE || /* more??? */
 #ifdef USING_R
 				p->model == MATERN ||
-				p->model == STEIN ||
 #endif
 				(p->model == LINEAR && p->range[0] == 0)) 
 					/* sill is reached asymptotically or oscillates */
@@ -404,15 +374,6 @@ void update_variogram(VARIOGRAM *vp) {
 			vp->n_fit++;
 		if (p->model == MERROR)
 			vp->measurement_error += p->sill;
-	}
-	if (vp->table != NULL) {
-		vp->sum_sills = vp->table->values[0];
-		vp->max_val = vp->table->values[0];
-		vp->min_val = vp->table->values[0];
-		for (i = 1; i < vp->table->n; i++) {
-			vp->max_val = MAX(vp->max_val, vp->table->values[i]);
-			vp->min_val = MIN(vp->min_val, vp->table->values[i]);
-		}
 	}
 	return;
 }
@@ -459,9 +420,6 @@ double get_semivariance(const VARIOGRAM *vp, double dx, double dy, double dz) {
 	int i;
 	double sv = 0.0, dist = 0.0;
 
-	if (vp->table != NULL)
-		return(SEM_TABLE_VALUE(vp->table, 
-				transform_norm(vp->table->tm_range, dx, dy, dz)));
 	if (! vp->isotropic) {
 		for (i = 0; i < vp->n_models; i++)
 			sv += vp->part[i].sill * vp->part[i].fnct(
@@ -484,22 +442,12 @@ double get_covariance(const VARIOGRAM *vp, double dx, double dy, double dz) {
 	static int warning = 0;
 	double ctmp = 0.0, dist;
 
-	if (vp == NULL) {
-		warning = 0;
-		return 0.0;
-	}
-
 	if (! vp->is_valid_covariance && !warning) {
 		pr_warning(
-			"%s: non-transitive variogram model not allowed as covariance function",
+			"%s: non-transitive variogram model not allowed as covariance",
 			vp->descr);
 		warning = 1;
 	}
-	if (!vp->is_valid_covariance && !DEBUG_FORCE)
-		ErrMsg(ER_IMPOSVAL, "covariance from non-transitive variogram not allowed ");
-	if (vp->table != NULL)
-		return(COV_TABLE_VALUE(vp->table, 
-				transform_norm(vp->table->tm_range, dx, dy, dz)));
 	if (! vp->isotropic) {
 		for (i = 0; i < vp->n_models; i++)
 			ctmp += vp->part[i].sill * (1.0 - vp->part[i].fnct(
@@ -740,15 +688,8 @@ double transform_norm(const ANIS_TM *tm, double dx, double dy, double dz) {
 }
 
 double da_general(VGM_MODEL *part, double h) {
-	int i;
-	double low, high, range, r[NRANGEPARS];
+	double low, high, range, r[2] = { 0.0, 0.0 };
 
-	for (i = 0; i < NRANGEPARS; i++) {
-		if (is_mv_double(&(part->range[i])))
-			set_mv_double(&(r[i]));
-		else
-			r[i] = part->range[i];
-	}
 	range = MAX(1e-20, part->range[0]);
 	r[0] = range * (1.0 + DA_DELTA);
 	low = part->fnct(h, r);
@@ -769,11 +710,8 @@ int push_variogram_model(VARIOGRAM *v, VGM_MODEL part) {
 		v->part = (VGM_MODEL *) erealloc(v->part, 
 				(v->max_n_models + INIT_N_VGMM) * sizeof(VGM_MODEL));
 		for (i = v->max_n_models; i < v->max_n_models + INIT_N_VGMM; i++)
-			init_variogram_part(&(v->part[i]));
+			init_variogram_part(&(v->part[i]), NRANGEPARS);
 		v->max_n_models += INIT_N_VGMM;
-#ifndef USING_R
-		printf("enlarging v->max_n_models\n");
-#endif
 	}
 	/*
 	 * check some things: 
@@ -793,9 +731,7 @@ int push_variogram_model(VARIOGRAM *v, VGM_MODEL part) {
 	} else if (part.range[0] == 0.0) 
 		ErrMsg(ER_RANGE, "range must be positive");
 	if (part.model == POWER && part.range[0] > 2.0)
-		ErrMsg(ER_RANGE, "power model range (parameter) cannot exceed 2.0");
-	if (part.model == EXCLASS && part.range[1] > 2.0)
-		ErrMsg(ER_RANGE, "exponentical class model shape parameter cannot exceed 2.0");
+		ErrMsg(ER_RANGE, "power model can not exceed 2.0");
 
 	if (part.id < 0) {
 		where = v->n_models;
@@ -860,7 +796,6 @@ double relative_nugget(VARIOGRAM *v) {
 	return (nug/(nug+sill));
 }
 
-#ifndef USING_R
 int vario(int argc, char **argv) {
 /* model from to nsteps */
 	double dist, from, to;
@@ -901,7 +836,6 @@ int vario(int argc, char **argv) {
 	}	
 	return 0;
 }
-#endif
 
 FIT_TYPE fit_int2enum(int fit) {
 	switch (fit) {
@@ -1012,7 +946,7 @@ void push_to_v(VARIOGRAM *v, const char *mod, double sill, double *range,
 	VGM_MODEL vm;
 	int i;
 
-	init_variogram_part(&vm);
+	init_variogram_part(&vm, NRANGEPARS);
 	vm.model = which_variogram_model(mod);
 	if (nrangepars > NRANGEPARS)
 		ErrMsg(ER_IMPOSVAL, "too many range parameters");
@@ -1023,30 +957,7 @@ void push_to_v(VARIOGRAM *v, const char *mod, double sill, double *range,
 	vm.fit_range = fit_range;
 	if (d != NULL && d[0] != -9999.0)
 		vm.tm_range = get_tm(d);
-#ifdef USING_R
-	if (vm.model == STEIN && range[1] > 100.0) {
-		vm.model = GAUSSIAN;
-		vm.range[1] = 0.0;
-		pr_warning("kappa values over 100 overflow gammafn: taking Gaussian approximation");
-	}
-#endif
 	push_variogram_model(v, vm);
-}
-
-void push_to_v_table(VARIOGRAM *v, double maxdist, int length, double *values,
-			double *anis) {
-	int i;
-
-	v->table = (COV_TABLE *) emalloc(sizeof(COV_TABLE));
-	v->table->n = length;
-	v->table->maxdist = maxdist;
-	v->table->values = (double *) emalloc(length * sizeof(double));
-	for (i = 0; i < length; i++)
-		v->table->values[i] = values[i];
-	if (anis != NULL)
-		v->table->tm_range = get_tm(anis);
-	else
-		v->table->tm_range = NULL;
 }
 
 static ANIS_TM *get_tm(double anis[5]) {

@@ -1,0 +1,305 @@
+@Section 
+ @Title { Program design and command file syntax }
+ @Tag { design }
+@Begin
+
+@DP
+Gstat is designed to make geostatistical computation an easy part of the
+daily routine, by implementing the linear model (1) with geostatistical
+models for (generalized) covariances. For this, several decisions
+have been made, comprising the use of command files, the command file
+syntax, the default program action, the prediction mode (univariable,
+multi-univariable, multivariable and stratified prediction), and the
+prediction target size (point values or block averages). They will be
+discussed in this section.
+
+@DP
+@I{Command files}
+@LP
+Gstat can read its instructions from a command file. The command file
+syntax is simple and does not need special formatting: white space
+(spaces, tabs, newlines) is ignored and comments may appear everywhere
+from a "#" to the end of the line.  Because gstat command files are
+easily ``readable'', they serve well for tracing back model assumptions
+underlying some results.
+
+@PP
+After gstat reads a command file it does some simple checks, and a helpful
+message is printed when a syntax error occurs in the command file.
+When an internal inconsistency is found, depending on how serious it
+is, a warning or error message is printed.
+
+@DP
+@I{Data definition}
+@LP
+Observations are read from files. These files should hold the values of
+@E{z}, the spatial coordinates @E{s}, and optionally the values of
+non-constant base functions @E{x sub j (s)}. If the observations are
+stored in a grid map file @Code{zinc.map}, which holds both measured
+values and their spatial location then it suffices to specify this data
+variable in a command file as:
+
+@ID @CodeFrag { @Verbatim { @Include { "frag1" }}}
+
+Here, @Code{zinc} is the unique identifier of the zinc data variable in
+the command file syntax. Alternatively, for a single datum @E{Z(s sub i
+)} all these values may appear in certain columns of a single row in an
+ascii column file or (simplified) GeoEAS file. For instance,
+observations (measurements) on zinc concentration may appear in a file
+called `zinc.eas', having zinc measurements on column 1, x coordinate on
+column 3 and y coordinate on column 4, and that starts like
+
+@ID @CodeFrag{ @Verbatim { @Include { "zinc.eas" }}}
+
+are specified in a gstat command file as
+
+@ID @CodeFrag { @Verbatim { @Include { "frag1a" }}}
+
+@IncludeFigures {
+@Figure
+ @Caption { Decision tree for the default program action }
+{ @Fig { 0.75 @Scale -90d @Rotate @IncludeGraphic "decis1.eps" } }
+}
+
+@DP
+@I{Default program action}
+@LP
+From the definitions in a command file, gstat derives the default program
+action, e.g. variogram modelling or various prediction methods. In this
+way, the user is forced to complete the necessary parts in a command file
+in order to get what is intended. The decision tree for determining the
+default program actions is given in Fig. 1. First the action variogram
+modelling is explained, then prediction is explained with some examples
+on gridded and non-gridded output. Finally, simulation and the commands
+for overriding the default action are explained. (Note that much of the
+functionality is accesible through an interactive user interface as
+well.)
+
+@DP
+@I{Variogram modelling as default program action}
+@LP
+After reading a command file that has no specification of prediction
+locations @E{s sub 0}, gstat will read the data defined, and will start
+the variogram modelling user interface. Variogram modelling is apparently
+what the user wants, because no prediction or simulation locations are
+specified.
+
+@PP
+For calculating the residuals used for the sample variogram or
+covariogram, the default model gstat assumes for a data variable is
+
+@DP
+@Deq{@E{Z(s)=beta sub 0 +e(s), @CSep @R Cov (e(s)) = sigma sup 2 I},}
+@DP
+
+thus, the default model has only an unknown intercept (optionally,
+@E{beta sub 0} can be defined in the command file, or no residuals are
+calculated).  When a more complex model for the trend @E{X beta} seems
+appropriate, then the non-constant base functions (predictor variables)
+should be specified.  For instance, if one wants to model the variogram
+of residuals from a model having topographic level, easting and northing
+as base functions, then the observations for this should be defined in
+the command file as
+
+@ID @CodeFrag { @Verbatim { @Include { "frag2" }}}
+
+and the linear model now adopted is
+@DP
+2c @Wide{} | @E{Z(s)=beta sub 0 + sum from j=1 to 3 x sub j beta sub
+j +e(s),}
+@DP
+with @E{x sub 1} topographic level (column 2 in @Code{zinc.eas}), @E{x
+sub 2} easting (x-coordinate) and @E{x sub 3} northing (y-coordinate).
+Right from the @Code{X=}, base functions can be specified as either
+polynomials of the coordinates (@Code{x} for @E{x}, @Code{xy} for
+@E{xy}, @Code{x2} for @E{x sup 2} etc.) or as column numbers in an ascii
+column file---allowing arbitrary base functions.  (If the base functions
+specified comprise an intercept, then the default intercept @E{beta sub
+0} is removed by specifying @Code{-1} as the first base function.) Other
+options that apply to a single variable are placed between the @Code{:}
+and @Code{;} following the @Code{data(@I{id})} command, e.g. indicator
+or logarithmic transformations, measurement error, the missing value
+flag, simple kriging mean and local (kriging) neighbourhood selection
+options.
+
+@DP
+@I{Prediction on a grid as default program action}
+@LP
+For prediction or simulation the locations where predictions are wanted
+have to be specified in the command file. Prediction locations may be
+specified either as a grid file, or as a (simplified GeoEAS or ascii)
+column file. Most grid file formats have a flag that is a special value
+for grid cells outside the area of interest, thus enabling the gridded
+representation of a non-rectangular area. This flag will be called the
+missing value flag. The map (file) that holds the prediction locations
+(i.e. the non-missing value flagged grid cells) is called the mask map.
+If prediction locations are specified as a mask map, then predictions
+(and prediction variances and covariances) will also be written to grid
+maps with the same grid topology (size and position), and with the same
+grid map format as the mask map. Thus, the output maps can readily be
+used in the GIS from which the mask map was generated (section
+@NumberOf{how}).
+
+@PP
+If prediction locations are specified as a mask map, and no base
+functions or variograms are specified, then inverse distance weighted
+interpolation is used as default prediction method, since all other
+prediction methods require additional parameters to be specified.
+Inverse distance weighted interpolation on the mask map @Code{mask.map},
+with results written to @Code{zinc_id.pr} is obtained by the command
+file
+
+@ID @CodeFrag{ @Verbatim { @Include { "frag3" }}} # inv. distance
+
+(The default inverse distance exponent is 2, other values can be
+specified.) If in addition to this the variogram of the variable has
+been defined, then the default prediction method is ordinary kriging
+(assuming the default linear model with only an intercept). Besides the
+ordinary kriging predictor, the prediction variance can be written to a
+grid map:
+
+@ID @CodeFrag{ @Verbatim { @Include { "frag3a" }}} # ordinary kriging
+
+The variogram used here is the sum of a nugget model with a variance of
+0.5 and a spherical model with a sill of 0.6 and an isotropic range of
+10. If the simple kriging mean @E{mu sub sk} (@Eqblp) is specified in the
+example above, then simple kriging will be used. For this, it suffices
+to change the first line in the previous example into:
+
+@ID @CodeFrag{ @Verbatim { @Include { "frag3b" }}} # simple kriging
+
+If in addition to the ordinary kriging command file specification one or
+more base functions are specified to define a more complex model for the
+trend, then universal kriging becomes the default prediction method.
+The value of coordinate polynomial base functions at observation and
+prediction locations is known, as it is derived from @E{s}. The value
+of other base functions at observation locations should be in the data
+file, and their value at the prediction locations should be held in the
+mask map, like:
+
+@ID @CodeFrag { @Verbatim { @Include { "frag5" }}}
+
+here, the map @Code{topo.map} contains for each prediction location @E{s
+sub 0} the base function value @E{x sub 1 (s sub 0 )} that correspond to
+the variable in column 2 of @Code{zinc.eas}; since @E{x sub 0 (s) = 1},
+and @E{x sub 2 (s sub 0 )} and @E{x sub 3 (s sub 0 )} are derived from
+@E{s sub 0}, @E{x (s sub 0 ) = (1, x sub 1 (s sub 0 ), x sub 2 (s sub 0
+), x sub 3 (s sub 0 ))} is completely known. (Multiple non-coordinate
+polynomial base function values at prediction locations can be held in a
+list of mask maps.)
+
+@PP
+If in the universal kriging example the variograms are left out, then OLS
+prediction is the resulting default prediction method. If, in addition,
+measurement error variances, to be used as (the inverse of) weights
+in the regression prediction are defined, then WLS prediction is the
+default prediction method. Specifying both variogram and measurement
+error results in kriging with known, non-stationary measurement error.
+
+@DP
+@I{Non-gridded prediction as default program action}
+@LP
+If predictions at arbitrary locations are needed, and these locations
+are defined in (the first two columns of) the file @Code{locations.eas}
+having topographic level values in the third colum, then this is
+accomplished by
+
+@ID @CodeFrag { @Verbatim { @Include { "frag6" }}}
+
+In this example, output is written to @Code{predictions.eas}, which has
+the same format as @Code{locations.eas}. (Note that the order of @Code{X}
+columns in the @Code{data()} command corresponds to those in the
+@Code{data(zinc)} command.)
+
+# MODES:
+@DP
+@I{Prediction modes}
+@LP
+If the @Code{zinc} residuals are spatially correlated with measurements
+on a variable @Code{distance}, then @I multivariable prediction
+(cokriging) can be used to improve their prediction. This is done
+adding the following lines to the previous example:
+
+@ID @CodeFrag { @Verbatim { @Include { "frag7" }}}
+
+Now, also predictions and prediction variances of @Code{distance}, as
+well as prediction covariances of @Code{zinc} and @Code{distance} are
+written to the file @Code{predictions.out}. Obviously, to save this
+information when prediction is done on a grid, the output grid map files
+should be specified, e.g. by adding the lines
+
+@ID @CodeFrag { @Verbatim { @Include { "frag8" }}}
+
+If, in the multivariable example the cross covariogram is removed, then
+predictions for @Code{zinc} and for @Code{distance} will be made
+independent of each other (the file @Code{zinc_dist.cov} will contain
+missing values only), which is called here ``multiple prediction''.
+
+@IncludeFigures {
+@Figure
+ @Caption { Decision tree for the prediction mode (or simulation mode) }
+{ @Fig { 0.75 @Scale -90d @Rotate @IncludeGraphic "decis2.eps" } }
+}
+
+@PP
+If the variables defined do not contain base functions (the ordinary or
+simple kriging case), or when only polynomial functions of the
+coordinates are used for base functions, then the actual values of
+non-missing valued cells in the mask map are not used. In this case
+the mask map values may be used to stratify the prediction area. If the
+(integer) mask map values are the strata @E{T sub 1 ,..., T sub r},
+then these strata are used to denote sub-areas where predictions for
+subsequently numbered variables @E{Z sub 1 (s),...,Z sub r (s)} will
+be made (different variables should not depend on each other; all
+predictions are written to the output maps of the first variable). The
+prediction mode---univariable, multiple (i.e. concerning multiple
+observation variables that are not interdependent), multivariable
+(interdependent variables) or stratified---is always derived implicitly
+from the command file specification (Fig. 2), and applies equally to
+prediction and simulation.
+
+@DP
+@I{Overruling the default program action}
+@LP
+So far, gstat decided what to do (modelling or prediction, the
+prediction method) implicitly from the definitions in the command file:
+there was no command like ``now do universal kriging'' or the like in
+them. After deciding what to do, gstat prints what it will do (action,
+prediction mode) as a check.
+
+@PP
+In certain cases the default decision has to be overruled. For instance,
+when sample variogram calculation takes a long time, the user does
+not want to calculated sample variograms from the user interface, but
+wants to calculate them in a batch (for instance to do the interactive
+modelling later). In this case, all options available from the interface
+can be specified in the command file, and the command @Code{method:
+semivariogram;} has to be added to let gstat know not to start the
+variogram modelling interface, but to do the calculation right away. Also,
+when Gaussian (co)simulation is wanted, all specifications should be like
+those of a simple (co)kriging (or, alternatively like those of universal
+or ordinary (co)kriging). In that case, the command @Code{method: gs;}
+has to be added to let gstat know that Gaussian simulation is requested
+instead of the default action, which is (co)kriging. For indicator
+(co)simulation this should be @Code{method: is;}.
+
+@DP
+@I{Data and target support}
+@LP
+The physical size (support) of observations is always taken as a point
+in space, and by default prediction and simulation also regards point
+values. For predicting block averages the size of the cells in the
+grid map, it suffices to add the command @Code{blocks;} to a command
+file. Setting the block size independently from this, for instance to
+a two-dimensional block with size 2 @Multiply 2 is done by adding
+
+@ID @CodeFrag { @Verbatim { @Include { "frag9" }}}
+
+to the command file. One-dimensional blocks (lines) are defined
+with @Code{ blocksize: dx=2;} and three-dimensional blocks with
+@Code{blocksize: dx=2, dy=2, dz=2;}. Averages of arbitrarily shaped
+blocks are obtained when the individual points that discretize the
+``block'' are defined with the @Code{area:...;} command that has the
+syntax of a @Code{data()} command.
+
+@End @Section

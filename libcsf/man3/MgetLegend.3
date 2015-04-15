@@ -1,0 +1,40 @@
+.lf 1 MgetLegend.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MgetLegend" 3 "13 August 1999" "c2man legend.c"
+.SH "NAME"
+MgetLegend \- read a legend
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int MgetLegend
+.br
+(
+.br
+	MAP *m,
+.br
+	CSF_LEGEND *l
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+Map handle
+.TP
+.B "CSF_LEGEND *l"
+array large enough to hold name and all entries,
+the entries are sorted
+struct CSF_LEGEND is typedef'ed in csfattr.h
+.SH "DESCRIPTION"
+MgetLegend reads a version 2 and 1 legend.
+Version 1 legend are converted to version 2: the first
+array entry holds an empty string in the description field.
+.SH "RETURNS"
+0 if no legend is available or in case of an error,
+nonzero otherwise
+.SH "SEE ALSO"
+MgetNrLegendEntries(3),
+MputLegend(3)

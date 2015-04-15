@@ -5,9 +5,7 @@ double fn_circular(double h, double *r);
 double fn_spherical(double h, double *r);
 double fn_bessel(double h, double *r);
 double fn_gaussian(double h, double *r);
-double fn_exclass(double h, double *r);
 double fn_matern(double h, double *r);
-double fn_matern2(double h, double *r);
 double fn_exponential(double h, double *r);
 double fn_pentaspherical(double h, double *r);
 double fn_periodic(double h, double *r);
@@ -15,7 +13,6 @@ double fn_hole(double h, double *r);
 double fn_logarithmic(double h, double *r);
 double fn_power(double h, double *r);
 double fn_spline(double h, double *r);
-double fn_legendre(double h, double *r);
 double fn_intercept(double h, double *r);
 
 /* the following functions are not all defined */

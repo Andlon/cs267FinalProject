@@ -1,0 +1,32 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MgetNrLegendEntries - get the number of legend entries</title>
+</header>
+<body>
+<h1>NAME</h1>
+MgetNrLegendEntries - get the number of legend entries
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+size_t MgetNrLegendEntries(MAP *m);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+the map pointer
+</dl>
+<h1>DESCRIPTION</h1>
+MgetNrLegendEntries tries to find a version 2 or version 1
+legend. The return number can be used to allocate the appropriate
+array for legend.
+<h1>RETURNS</h1>
+the number of entries in a legend plus 1 (for the name of the legend)
+or 0 if there is no legend
+<h1>SEE ALSO</h1>
+<a href=MgetLegend.html>MgetLegend</a>
+,
+<a href=MputLegend.html>MputLegend</a>
+
+
+</body>

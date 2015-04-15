@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,18 +46,9 @@
 #include "polygon.h"
 #include "random.h"
 #include "defaults.h"
-#include "matrix.h"
 #include "lm.h" /* free_lm() */
 #include "gls.h" /* free_glm() */
 #include "nsearch.h"
-#include "gcdist.h"
-
-#ifdef HAVE_EXT_DBASE
-#ifndef INCLUDED_EXT_DBASE
-#include "ext_dbase.h"
-#define INCLUDED_EXT_DBASE
-#endif
-#endif
 
 const DATA_TYPE data_types[] = {
 	{ DATA_UNKNOWN, "Unknown file type"},
@@ -79,9 +69,7 @@ const DATA_TYPE data_types[] = {
 	{ DATA_GMT, "GMT netCDF format" },
 	{ DATA_SURFER_DSAA, "Surfer DSAA ascii grid" },
 	{ DATA_GSLIB, "GSLIB grid" },
-	{ DATA_GRASS, "GRASS site list" },
-	{ DATA_GRASS_GRID, "GRASS raster" },
-	{ DATA_GDAL, "GDAL raster map" }
+	{ DATA_GRASS, "GRASS site list" }
 }; 
 
 static int read_data_line(FILE *f, char *line, DATA *d, DPOINT *current,
@@ -95,8 +83,8 @@ static int read_eas_header(FILE *infile, DATA *d, int ncols);
 static void calc_data_mean_std(DATA *d);
 static void correct_strata(DATA *d);
 static void field_error(char *fname, int line_nr, int fld, char *text);
+static void setup_polynomial_X(DATA *d);
 static int average_duplicates(DATA *d);
-#ifndef USING_R
 static int read_data_from_map(DATA *d);
 static int read_idrisi_points(DATA *d);
 static int read_idrisi_point_data(DATA *d, const char *fname);
@@ -104,7 +92,6 @@ static int read_idrisi_point_header(DATA *d, const char *fname);
 static int read_idrisi32_points(DATA *d);
 static int read_idrisi32_point_data(DATA *d, const char *fname);
 static int read_idrisi32_point_header(DATA *d, const char *fname);
-#endif
 static void transform_data(DATA *d);
 static void grid_push_point(DATA *d, DPOINT *p, int adjust_to_gridcentrs);
 static double point_norm_1D(const DPOINT *p);
@@ -113,12 +100,6 @@ static double point_norm_3D(const DPOINT *p);
 static double pp_norm_1D(const DPOINT *a, const DPOINT *b);
 static double pp_norm_2D(const DPOINT *a, const DPOINT *b);
 static double pp_norm_3D(const DPOINT *a, const DPOINT *b);
-
-/* great circle distances: */
-static double point_norm_gc(const DPOINT *p);
-static double pp_norm_gc2(const DPOINT *a, const DPOINT *b);
-static double pb_norm_gc2(const DPOINT *where, BBOX bbox);
-
 static void free_data_gridmap(DATA_GRIDMAP *t);
 static void logprint_data_header(const DATA *d);
 
@@ -165,7 +146,6 @@ const POLY_NM polynomial[N_POLY] =
  * if d->fname is "-", data is read from stdin (with a warning message);
  * in this case, it is assumed to be in GeoEAS format.
  */
-#ifndef USING_R
 DATA *read_gstat_data(DATA *d) {
 	int check = 0;
 	DATA *valdata;
@@ -219,31 +199,24 @@ DATA *read_gstat_data(DATA *d) {
 		set_norm_fns(d);
 		return d;
 	} 
-	/* CW trying is done by special fname format
-	 * so it must be tried first
-	 */
-#ifdef HAVE_EXT_DBASE
-	if (strncmp(d->fname,EXT_DBASE_FNAME_SIG,strlen(EXT_DBASE_FNAME_SIG))==0) {
-		read_ext_dbase(d);
-	} else
-#endif
 #ifdef HAVE_LIBGIS
 	if (grass()) {
-		DUMP(d->fname); 
-		DUMP(": trying Grass site list/raster ... ");
+		DUMP(d->fname); DUMP(": trying Grass sitelist ... ");
 		if (read_grass_data(d)) {
-			DUMP("Yes; site list\n");
-		} else if (read_data_from_map(d)) {
-			DUMP("Yes; raster\n");
+			DUMP("Yes\n");
 		} else {
-			DUMP("no\n");
-			ErrMsg(ER_READ, d->fname);
+			DUMP("No, trying grass raster map:\n");
+			if (! read_data_from_map(d)) {
+				DUMP("O.K.\n");
+			} else {
+				pr_warning("%s: ", d->fname);
+				ErrMsg(ER_IMPOSVAL, "cannot read data");
+			}
 		}
 	} else
 #endif
 	if (!read_data_from_map(d) && !read_idrisi_points(d) && 
 				!read_idrisi32_points(d)) {
-		/* last try assumes ascii/with geo-eas header */
 		DUMP(d->fname); DUMP(": trying GeoEAS or ascii table... ");
 		d = read_table(d);
 		if (d->type.type == DATA_EAS) {
@@ -252,21 +225,14 @@ DATA *read_gstat_data(DATA *d) {
 			DUMP("ascii\n");
 		}
 	}
+	transform_data(d);
 	set_norm_fns(d);
+	average_duplicates(d);
+	calc_data_mean_std(d);
+	correct_strata(d);
 	d->n_original = d->n_list;
-    if (d->type.type != DATA_EXT_DBASE) {
-	 /* CW only access data to get some info
-	  * not needed for current application of DATA_EXT_DBASE
-	  * or read_ext_dbase should compute/return that info
-	  */
-		transform_data(d); 
-		average_duplicates(d);
-		calc_data_mean_std(d);
-		correct_strata(d);
-    }
 	return d;
 }
-#endif
 
 void set_norm_fns(DATA *d) {
 
@@ -275,18 +241,9 @@ void set_norm_fns(DATA *d) {
 		d->pp_norm2 = pp_norm_3D;
 		d->pb_norm2 = pb_norm_3D;
 	} else if (d->mode & Y_BIT_SET) {
-		if (gl_longlat) {
-			d->point_norm = point_norm_gc;
-			d->pp_norm2 = pp_norm_gc2;
-			d->pb_norm2 = pb_norm_gc2;
-			/* if (gl_split != DEF_split)
-				pr_warning("longlat data cannot do quadtree, setting split to %d", INT_MAX); */
-			gl_split = INT_MAX;
-		} else {
-			d->point_norm = point_norm_2D;
-			d->pp_norm2 = pp_norm_2D;
-			d->pb_norm2 = pb_norm_2D;
-		}
+		d->point_norm = point_norm_2D;
+		d->pp_norm2 = pp_norm_2D;
+		d->pb_norm2 = pb_norm_2D;
 	} else {
 		d->point_norm = point_norm_1D;
 		d->pp_norm2 = pp_norm_1D;
@@ -322,7 +279,6 @@ void setup_data_minmax(DATA *d) {
 	}
 }
 
-#ifndef USING_R
 static DATA *read_table(DATA *d) {
 	int colmax = 0, i, line_size = 0, line2_size = 0, line_nr = 1, ncols;
 	static DPOINT current;
@@ -405,7 +361,6 @@ static DATA *read_table(DATA *d) {
 	efree(line);
 	return d;
 }
-#endif
 
 static void mk_var_names(DATA *d) {
 	char tmp1[100], tmp2[100]; 
@@ -468,14 +423,13 @@ static void init_dpoint(DATA *d, DPOINT *current) {
 	}
 }
 
-#ifndef USING_R
 static int read_data_line(FILE *f, char *line, DATA *d, DPOINT *current,
 		int *line_nr, int colmax) {
 /*
  * reads data from line;
  * if this one is a missing value, return 1, or else 0.
  */
-	int this_one_is_mv, field, line_size = 0, i;
+	int this_one_is_mv, field, line_size, i;
 	char *token = NULL;
 	char *category = NULL;
 
@@ -585,7 +539,6 @@ static int read_data_line(FILE *f, char *line, DATA *d, DPOINT *current,
 	} 
 	return this_one_is_mv;
 } 
-#endif
 
 static int double_is_mv(DATA *d, double *f) {
 	if (is_mv_double(&(d->mv)))
@@ -750,7 +703,7 @@ n:                       155     [y:] ycoord, m  : [    329714,    333611]
 	if (d->colnvariance) {
 		if (!(d->mode & V_BIT_SET))
 			printlog("%-33s", " ");
-			printlog("[V:] %-10s : [%10g,%10g]\n",
+		printlog("[V:] %-10s : [%10g,%10g]\n",
 			strncpy(tmp, NULS(d->V_coord), 10), d->minvariance, d->maxvariance);
 	}
 
@@ -842,20 +795,18 @@ static void transform_data(DATA *d) {
 				p->attr = 0.0;
 		}
 	} else if (d->nscore_table) {
-#ifndef USING_R
 		if (strlen(d->nscore_table) > 0) {
 			f = efopen(d->nscore_table, "w");
 			fprintf(f, "normal scores for %s\n", d->variable);
 			fprintf(f, "2\nobserved value\nnormal score\n");
 		}
-#endif
 		values = emalloc(d->n_list * sizeof(Double_index));
 		for (i = 0; i < d->n_list; i++) {
 			values[i].d = d->list[i]->attr; /* */
 			values[i].index = i; /* unique identifiers */
 		}
 		qsort((void *) values, (size_t) d->n_list, sizeof(Double_index),
-			(int CDECL (*)(const void *, const void *)) double_index_cmp);
+			(int (*)(const void *, const void *)) double_index_cmp);
 		for (i = 0; i < d->n_list; i += tie_length) { /* ignore ties: */
 			/* assume they're all ties, with min run length 1: */
 			tie_length = 1;
@@ -865,11 +816,9 @@ static void transform_data(DATA *d) {
 			q = (i + 0.5 * tie_length) / d->n_list;
 			nscore = q_normal(q);
 			for (j = 0; j < tie_length; j++) {
-#ifndef USING_R
 				if (f)
 					fprintf(f, "%g %g\n", d->list[values[i+j].index]->attr, 
 							nscore);
-#endif
 				/* transform: */
 				d->list[values[i+j].index]->attr = nscore;
 			}
@@ -884,7 +833,7 @@ static void transform_data(DATA *d) {
 	}
 }
 
-void setup_polynomial_X(DATA *d) {
+static void setup_polynomial_X(DATA *d) {
 
 	int i, j, degree;
 
@@ -909,7 +858,8 @@ void data_add_X(DATA *d, int col) {
 }
 
 void calc_polynomials(DATA *d) {
-	int i, j, do_block;
+	int i, j, k, do_block;
+	static DATA *bl = NULL;
 
 #define CHECK_BITX if(!(d->mode & X_BIT_SET)) ErrMsg(ER_VARNOTSET,"x coordinate not set")
 #define CHECK_BITY if(!(d->mode & Y_BIT_SET)) ErrMsg(ER_VARNOTSET,"y coordinate not set")
@@ -936,22 +886,16 @@ void calc_polynomials(DATA *d) {
  	}
 	for (j = do_block = 0; !do_block && j < d->n_X; j++)
 		do_block = (d->colX[j] < -1);
-	for (i = 0; do_block && i < d->n_list; i++)
+	for (i = 0; do_block && i < d->n_list; i++) {
+		bl = block_discr(bl, get_block_p(), d->list[i]);
 		/* bl is a single point-list if IS_POINT(d->list[i]) */
-		calc_polynomial_point(d, d->list[i]);
-}
-
-void calc_polynomial_point(DATA *d, DPOINT *pt) {
-	static DATA *bl = NULL;
-	int j, k;
-
-	bl = block_discr(bl, get_block_p(), pt);
-	for (j = 0; j < d->n_X; j++) {
-		if (d->colX[j] < -1)
-			/* do eventual block averaging here: */
-			for (k = 0, pt->X[j] = 0.0; k < bl->n_list; k++)
-				pt->X[j] += bl->list[k]->u.weight *
-						calc_polynomial(bl->list[k], d->colX[j]);
+		for (j = 0; j < d->n_X; j++) {
+			if (d->colX[j] < -1)
+				/* do eventual block averaging here: */
+				for (k = 0, d->list[i]->X[j] = 0.0; k < bl->n_list; k++)
+					d->list[i]->X[j] += bl->list[k]->u.weight *
+							calc_polynomial(bl->list[k], d->colX[j]);
+		}
 	}
 }
 
@@ -1033,7 +977,6 @@ static int average_duplicates(DATA *d) {
 	return d->n_averaged = n_tot;
 }
 
-#ifndef USING_R
 static int read_eas_header(FILE *infile, DATA *d, int ncols) {
 	char *line = NULL, *cp;
 	int i, size = 0; 
@@ -1065,7 +1008,6 @@ static int read_eas_header(FILE *infile, DATA *d, int ncols) {
 		efree(line);
 	return ncols;
 }
-#endif
 
 static void field_error(char *fname, int line_nr, int fld, char *text) {
 	message("gstat:%s:%d: read error on field %d\n", fname, line_nr, fld);
@@ -1080,23 +1022,19 @@ void free_data(DATA *d) {
 		return;
 	if (d->P_base) { /* segmented: */
 		efree(d->P_base);
-		if (d->n_X && d->X_base)
+		if (d->n_X)
 			efree(d->X_base);
 	} else { /* non-segmented */
-		if (d->list) /* CW at all MV on output both P_base and d_list are 0 */
-			for (i = d->n_list - 1; i >= 0; i--)
-				pop_point(d, i);
+		for (i = d->n_list - 1; i >= 0; i--)
+			pop_point(d, i);
 	}
 
 	if (d->sel != NULL && d->sel != d->list)
 		efree(d->sel);
 	if (d->list) 
 		efree(d->list);
-	if (d->colX) 
-		efree(d->colX);
 
-	if (d->qtree_root != NULL)
-		qtree_free(d->qtree_root);
+	qtree_free(d->qtree_root);
 
 	if (d->lm) 
 		free_lm(d->lm);
@@ -1109,10 +1047,6 @@ void free_data(DATA *d) {
     if (d->point_ids)
         for (i = d->n_list - 1; i >= 0; i--)
             efree(d->point_ids[i]);
-#ifdef HAVE_EXT_DBASE
-	if (d->ext_dbase)
-	  unlink_ext_dbase(d);
-#endif
     
 	efree(d);
 	return;
@@ -1144,7 +1078,7 @@ DATA *init_one_data(DATA *data) {
 	data->colny = 0;
 	data->colnz = 0;
 	data->colns = 0;
-	data->coln_id = 0;
+      data->coln_id = 0;
 	data->colnvariance = 0;
 	data->n_list = -1;
 	data->n_max = -1;
@@ -1168,7 +1102,6 @@ DATA *init_one_data(DATA *data) {
 	data->offset = 0;
 	data->skip = 0;
 	data->prob = 1.0;
-	data->lambda = 1.0;
 	data->calc_residuals = 1;
 	data->is_residual = 0;
 	data->polynomial_degree = 0;
@@ -1218,10 +1151,6 @@ DATA *init_one_data(DATA *data) {
 	set_mv_double(&(data->Icutoff));
 	set_mv_double(&(data->mv));
 
-#ifdef HAVE_EXT_DBASE
-	data->ext_dbase = NULL;
-#endif
-
 	return data;
 }
 
@@ -1260,12 +1189,6 @@ void print_data(const DATA *d, int list) {
 		printlog("current list:\n");
 		logprint_data_header(d);
 		if (d->n_list) {
-#ifdef HAVE_EXT_DBASE
-         if (d->type.type == DATA_EXT_DBASE)
-			printlog("<extdbase>\n");
-		 else
-#endif
-
 			for (i = 0; i < d->n_list; i++)
 				logprint_point(d->list[i], d);
 		} else
@@ -1350,7 +1273,7 @@ void push_point(DATA *d, const DPOINT *p) {
 				d->n_max = MAX_DATA;
 		} else {
 			d->n_max += MAX_DATA; /* or else: d->n_max *= 2; */
-			if (d->init_max > 0 && DEBUG_DUMP)
+			if (d->init_max > 0)
 				pr_warning("exceeding nmax, now %d", d->n_max);
 		}
 
@@ -1400,7 +1323,6 @@ void push_point(DATA *d, const DPOINT *p) {
 #endif
 
 	if (d->n_X > 0 && !intercept_only(d)) { 
-#define SLOW 1
 #ifdef SLOW
 	/* slow... copy X row */
 		for (i = 0; i < d->n_X; i++)
@@ -1497,26 +1419,6 @@ static double pp_norm_3D(const DPOINT *a, const DPOINT *b) {
 	return dx * dx + dy * dy + dz * dz;
 }
 
-static double point_norm_gc(const DPOINT *p) {
-/* calculate norm of vector (p->x, p->y, p->z) */
-	ErrMsg(ER_IMPOSVAL, "long/lat: this function should never be called?");
-	return gstat_gcdist(p->x, 0.0, p->y, 0.0);
-}
-
-double pp_norm_gc(const DPOINT *a, const DPOINT *b) {
-	return gstat_gcdist(a->x, b->x, a->y, b->y); /* dist */
-}
-
-static double pp_norm_gc2(const DPOINT *a, const DPOINT *b) {
-	return pow(gstat_gcdist(a->x, b->x, a->y, b->y), 2.0); /* squared dist */
-}
-
-static double pb_norm_gc2(const DPOINT *where, BBOX bbox) {
-	/* ErrMsg(ER_IMPOSVAL, "great circle distances cannot be combined with quadtree"); */
-	return 0.0; /* always inside, no quadtree */
-}
-
-
 int coordinates_are_equal(const DATA *a, const DATA *b) {
 	int i, equal = 1 /* try to disprove equality */;
 
@@ -1532,14 +1434,13 @@ int coordinates_are_equal(const DATA *a, const DATA *b) {
 	return equal;
 }
 
-#ifndef USING_R
 static int read_data_from_map(DATA *d) {
 	DPOINT current;
 	unsigned int i, j, first_cell = 1;
 	GRIDMAP *m = NULL;
 
-	current.z = 0.0;
-	current.bitfield = 0;
+    current.z = 0.0;
+    current.bitfield = 0;
     
 	if (d->id == ID_OF_VALDATA && max_block_dimension(0) > 0.0)
 		SET_BLOCK(&current);
@@ -1547,14 +1448,14 @@ static int read_data_from_map(DATA *d) {
 		SET_POINT(&current);
 	current.X = (double *) emalloc(sizeof(double));
 	current.X[0] = 1.0;
-	m = new_map(READ_ONLY);
+	m = new_map();
 	m->filename = d->fname;
+	m->is_write = 0;
 	if (map_read(m) == NULL) {
 		map_free(m);
 		return 0;
 	}
-	d->grid = gsetup_gridmap(m->x_ul, m->y_ul, m->cellsizex, m->cellsizey, 
-			m->rows, m->cols);
+	d->grid = copy_data_gridmap(m);
 	switch(m->type) {
 		case MT_UNKNOWN: break;
 		case MT_CSF: d->type = data_types[DATA_CSF]; break;
@@ -1572,8 +1473,7 @@ static int read_data_from_map(DATA *d) {
 		case MT_GMT: d->type = data_types[DATA_GMT]; break;
 		case MT_SURFER: d->type = data_types[DATA_SURFER_DSAA]; break;
 		case MT_GSLIB: d->type = data_types[DATA_GSLIB]; break;
-		case MT_GRASS: d->type = data_types[DATA_GRASS_GRID]; break;
-		case MT_GDAL: d->type = data_types[DATA_GDAL]; break;
+		case MT_GRASS: d->type = data_types[DATA_GRASS]; break;
 		default:
 			ErrMsg(ER_IMPOSVAL, "m->type value not evaluated");
 	}
@@ -1901,7 +1801,7 @@ static int read_idrisi32_point_data(DATA *d, const char *fname) {
 			total = file_size(fname);
             total = total - 261;
             if (total < 65520)
-    			vecptr = (double *) (emalloc((unsigned int) total));
+    			vecptr = (double *) (emalloc(total));
 			else 
 				vecptr = (double *) (emalloc(65520));
             tmp = (char *) (emalloc(261));
@@ -1911,10 +1811,9 @@ static int read_idrisi32_point_data(DATA *d, const char *fname) {
             read(fb,n_points2,4);
             read(fb, tmp, 256);
 			*/
-			if (fread(tmp, 1, 1, f) != 1 ||
-				fread(n_points2, 4, 1, f) != 1 ||
-				fread(tmp, 256, 1, f) != 1)
-					ErrMsg(ER_READ, fname);
+			fread(tmp, 1, 1, f);
+			fread(n_points2, 4, 1, f);
+			fread(tmp, 256, 1, f);
 
             efree(n_points2); 
 			efree(tmp);
@@ -1922,8 +1821,7 @@ static int read_idrisi32_point_data(DATA *d, const char *fname) {
 
             if (total < 65520) {
             	/* KS: read(fb,vecptr,total); */
-				if (fread(vecptr, (unsigned int) total, 1, f) != 1)
-					ErrMsg(ER_READ, fname);
+				fread(vecptr, total, 1, f);
             	total = (int)(total/8);
             	i = 0;
     			while (i < total) {
@@ -1991,7 +1889,7 @@ char *print_data_line(const DATA *d, char **to) {
 	if (d->fname)
 		est_length += strlen(d->fname);
 
-	*to = (char *) erealloc(*to, (unsigned int) est_length);
+	*to = (char *) erealloc(*to, est_length);
 	*to[0] = '\0';
 	if (d->fname) {
 		strcat(*to, "'");
@@ -2093,7 +1991,6 @@ char *print_data_line(const DATA *d, char **to) {
 	strcat(*to, ";"); 
 	return *to;
 } /* print_data_line */
-#endif
 
 int push_to_merge_table(DATA *d, int to_var, int col_this_X, int col_other_X) {
 	int i;
@@ -2101,8 +1998,7 @@ int push_to_merge_table(DATA *d, int to_var, int col_this_X, int col_other_X) {
 
 	data = get_gstat_data();
 	if (to_var >= d->id) { /* should not occur by construction */
-		pr_warning("use push_to_merge_table only backwards (%d >= %d)",
-				to_var, d->id);
+		pr_warning("use push_to_merge_table only backwards");
 		return 1;
 	}
 	if (col_this_X >= d->n_X || col_other_X >= data[to_var]->n_X) {
@@ -2128,19 +2024,19 @@ int push_to_merge_table(DATA *d, int to_var, int col_this_X, int col_other_X) {
 	return 0;
 }
 
-DATA_GRIDMAP *gsetup_gridmap(double x_ul, double y_ul, double cellsizex, 
-			double cellsizey, unsigned int rows, unsigned int cols) {
-
+DATA_GRIDMAP *copy_data_gridmap(void *map) {
 	DATA_GRIDMAP *t;
+	GRIDMAP *m;
 	int i, j;
 
+	m = (GRIDMAP *) map;
 	t = (DATA_GRIDMAP *) emalloc(sizeof(DATA_GRIDMAP));
-	t->x_ul = x_ul;
-	t->y_ul = y_ul;
-	t->cellsizex = cellsizex;
-	t->cellsizey = cellsizey;
-	t->rows = rows;
-	t->cols = cols;
+	t->x_ul = m->x_ul;
+	t->y_ul = m->y_ul;
+	t->cellsizex = m->cellsizex;
+	t->cellsizey = m->cellsizey;
+	t->rows = m->rows;
+	t->cols = m->cols;
 	t->dpt = (DPOINT ***) emalloc(t->rows * sizeof(DPOINT **));
 	t->grid_base = (DPOINT **) emalloc(t->rows * t->cols * sizeof(DPOINT *));
 	for (i = 0; i < t->rows; i++)
@@ -2185,51 +2081,27 @@ void datagrid_rebuild(DATA *d, int adjust_to_gridcentres) {
 }
 
 double data_block_diagonal(DATA *data) {
-	DPOINT a, b;
+	double dx = 0.0, dy = 0.0, dz = 0.0;
 
-	a.x = data->maxX;
-	b.x = data->minX;
-	if (data->mode & Y_BIT_SET) {
-		a.y = data->maxY;
-		b.y = data->minY;
-	} else {
-		a.y = 0.0;
-		b.y = 0.0;
-	}
-	if (data->mode & Z_BIT_SET) {
-		a.z = data->maxZ;
-		b.z = data->minZ;
-	} else {
-		a.z = 0.0;
-		b.z = 0.0;
-	}
-	return sqrt(data->pp_norm2(&a, &b));
+	dx = data->maxX - data->minX;
+	if (data->mode & Y_BIT_SET)
+		dy = data->maxY - data->minY;
+	if (data->mode & Z_BIT_SET)
+		dz = data->maxZ - data->minZ;
+	return sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-D_VECTOR *push_d_vector(double d, D_VECTOR *v) {
+D_VECTOR *push_to_vector(double d, D_VECTOR *v) {
 	if (v == NULL) {
 		v = (D_VECTOR *) emalloc(sizeof(D_VECTOR));
-		v->size = v->max_size = 0;
-		v->val = NULL;
-	}
-	v->size++;
-	if (v->size > v->max_size) { /* (re)allocate v->val */
-		if (v->val == NULL)
-			v->val = (double *) emalloc(v->size * sizeof(double));
-		else
-			v->val = (double *) erealloc(v->val, v->size * sizeof(double));
-		v->max_size = v->size;
+		v->size = 1;
+		v->val = (double *) emalloc(sizeof(double));
+	} else {
+		v->size++;
+		v->val = (double *) erealloc(v->val, v->size * sizeof(double));
 	}
 	v->val[v->size - 1] = d;
 	return v;
-}
-
-void free_d_vector(D_VECTOR *v) {
-	if (v != NULL) {
-		if (v->size > 0)
-			efree(v->val);
-		efree(v);
-	}
 }
 
 int intercept_only(const DATA *d) {
@@ -2241,14 +2113,6 @@ double v_mu(double mu) {
 	return mu;
 }
 
-double v_mu2(double mu) {
-	return mu * mu;
-}
-
-double v_mu3(double mu) {
-	return mu * mu * mu;
-}
-
 double v_bin(double mu) {
 	return (mu * (1.0 - mu));
 }
@@ -2257,7 +2121,7 @@ double v_identity(double mu) {
 	return 1.0;
 }
 
-#ifndef USING_R
+
 #ifdef HAVE_LIBGIS
 static DATA *read_grass_data(DATA * d) {
 /* From: "main.c" for GRASS Program "v.bubble". 
@@ -2275,38 +2139,26 @@ static DATA *read_grass_data(DATA * d) {
 	point.u.stratum = 0;
 /* Make sure that the current projection is UTM or defined-99 or  */
 /* unreferenced XY projection.                       */
-	if (!gl_longlat) { /* user apparently knows what she/he does! */
-		if ((G_projection() != 0) && (G_projection() != 1)
-				&& (G_projection() != 99))
-			G_fatal_error(
-			"%s:  Projection must be either Unreferenced XY (value 0) or \
-	UTM (value 1).  Change the value \"proj\" in file \"WIND\" to either \
-	0 or 1 and then re-execute \"%s\".",
+	if ((G_projection() != 0) && (G_projection() != 1)
+			&& (G_projection() != 99))
+		G_fatal_error(
+		"%s:  Projection must be either Unreferenced XY (value 0) or \
+UTM (value 1).  Change the value \"proj\" in file \"WIND\" to either \
+0 or 1 and then re-executed \"%s\".",
 				G_program_name(), G_program_name());
-	}
 
 	/* Obtain the mapset name for the chosen site_lists file d->fname */
-	/*
-	 * EJP, 01/18/05; grass 6.0beta1
 	if ((site_mapset = G_find_file("site_lists", d->fname, "")) == NULL)
-	*/
-	if ((site_mapset = G_find_sites(d->fname, "")) == NULL)
-		/*
-		G_fatal_error("%s: Site_list file: <%s> does not exist.",
+		G_fatal_error("%s: Site_lists file: <%s> does not exist.",
 				G_program_name(), d->fname);
-		*/
-		return NULL;
 
 	/* Get "mapset". */
 	vect_mapset = G_mapset();
 
 	/* Open site_lists file. */
 	if ((fd = G_fopen_sites_old(d->fname, site_mapset))== NULL)
-		/*
 		G_fatal_error("%s: Unable to open site_lists file <%s> in mapset <%s>",
 				G_program_name(), d->fname, site_mapset);
-		*/
-		return NULL;
 
 	if (G_site_describe(fd, &dims, &cat, &strs, &dbls) != 0)
 		G_fatal_error("%s: G_site_describe() failed to guess format!",
@@ -2446,11 +2298,7 @@ static DATA *read_grass_data(DATA * d) {
 	printlog("gstat/grass: %d sites read successfully.\n", d->n_list);
 	d->type = data_types[DATA_GRASS];
 	G_site_free_struct(site);
-	/* EJP, 01/18/05, grass 6.0beta1
 	fclose(fd);
-	*/
-	G_sites_close(fd);
 	return d;
 }
-#endif
 #endif

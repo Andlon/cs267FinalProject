@@ -1,0 +1,18 @@
+# x
+# y
+#
+
+default:
+	@echo usage: SPLUS=Splus61 make library
+	@echo replace Splus61 with the shell script that starts your S-Plus version
+
+library:
+	(cd gstat;  \
+		$(SPLUS) CHAPTER *.q *.c *.sgml;  \
+		$(SPLUS) make;  \
+		$(SPLUS) make clean \
+	)
+
+veryclean:
+	(cd gstat; rm -f *.[chyl] *.hin *.sgml *.q)
+	rm -f config.status config.cache config.log maxint macheps

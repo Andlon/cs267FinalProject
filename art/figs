@@ -1,0 +1,44 @@
+@NP
+@CD @B{ FIGURE CAPTIONS} 
+@B { Figure 1.} Decision tree for the default program action 
+@DP
+@DP
+
+@B{Figure 2.} Decision tree for the prediction (or simulation) mode
+@DP
+@DP
+
+@B{Figure 3.} Variogram modelling menu and gnuplot window. Numbers in
+the variogram window refer to the number of point pairs used for each
+sample variogram estimate (+)
+@DP
+@DP
+
+@B{Figure 4.} Example of recursive multi-steps simulation on a grid with
+13 rows and 11 columns (circles in C). The coarsest grid with a factor 2
+grid spacing is randomly placed (A: a 2 @Multiply 2 grid with 8-cell
+grid spacing) and the random path is started through these cells.  Next,
+a grid with a halved cell spacing is randomly placed (4-cell grid
+spacing, black circles in B) and the random path is continued through
+them. Next, the random path is continued through the next randomly
+placed grid with halved grid spacing (2-cell grid spacing, black circles
+in C). Finally, the random path is completed through the remaining cells
+of the simulation grid (grey circles in C) 
+
+@NP
+
+@CD @Fig { @IncludeGraphic { "decis1.eps" }}
+//1rt -2p @Font { Figure 1 (90d rotated) }
+@NP
+
+@CD @Fig { @IncludeGraphic { "decis2.eps" }}
+//1rt -2p @Font { Figure 2 (90d rotated) }
+@NP
+
+@CD @Fig { 90d @Rotate 0.59 @Scale @IncludeGraphic { "screen_bw.ps" }}
+//1rt -2p @Font { Figure 3 (90d rotated) }
+@NP
+
+@CD @Fig { 0.9 @Scale @IncludeGraphic { "msteps.eps" }}
+//1rt -2p @Font { Figure 4 (90d rotated) }
+

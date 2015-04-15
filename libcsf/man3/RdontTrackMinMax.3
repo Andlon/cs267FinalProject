@@ -1,0 +1,22 @@
+.lf 1 RdontTrackMinMax.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RdontTrackMinMax" 3 "13 August 1999" "c2man trackmm.c"
+.SH "NAME"
+RdontTrackMinMax \- disable automatic tracking of minimum and maximum value
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+void RdontTrackMinMax(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+map handle
+.SH "DESCRIPTION"
+A call to RdontTrackMinMax disables the automatic tracking
+of the min/max value in succesive cell writes.
+If used, one must always
+use RputMinVal and RputMaxVal to set the correct values.

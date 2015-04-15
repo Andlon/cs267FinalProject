@@ -1,0 +1,54 @@
+.lf 1 MstrProjection.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MstrProjection" 3 "13 August 1999" "c2man strconst.c"
+.SH "NAME"
+MstrProjection \- string with projection
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+const char *MstrProjection(CSF_PT p);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "CSF_PT p"
+projection constant, 0 is
+top to bottom. non-0 is bottom
+to top
+.sp
+Possible values for a \fBCSF_PT\fR are as follows:
+.IP
+* these two can be returned by or passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_YINCT2B\fR
+Y increase from top to bottom
+.TP \n(TLu
+\fBPT_YDECT2B\fR
+Y decrease from top to bottom
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.SH "DESCRIPTION"
+The string is in lower case.
+string with name of projection
+.SH "SEE ALSO"
+RstrCellRepr(3),
+RstrValueScale(3)

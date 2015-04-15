@@ -1,0 +1,30 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>Mclose - close a map</title>
+</header>
+<body>
+<h1>NAME</h1>
+Mclose - close a map
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int Mclose(MAP *m);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+map to close, map descriptor
+is deallocated
+</dl>
+<h1>DESCRIPTION</h1>
+the Mclose function closes a map
+if the map is being used for output
+all header data is rewritten first
+<h1>RETURNS</h1>
+Upon succesful completion 0 is returned.
+Otherwise, a non-zero value is returned
+<h1>MERRNO</h1>
+WRITE_ERROR (map descriptor still in tact if this happens)
+
+</body>

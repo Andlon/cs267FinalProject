@@ -1,0 +1,8 @@
+rm -fr ./gstat
+mkdir gstat gstat/usr gstat/usr/bin gstat/usr/share gstat/usr/share/gstat \
+	gstat/DEBIAN
+cp src/gstat gstat/usr/bin
+cp doc/tex/gstat.pdf gstat/usr/share/gstat
+cp control.deb gstat/DEBIAN/control
+dpkg-deb --build gstat
+rm -fr gstat

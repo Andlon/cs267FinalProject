@@ -9,7 +9,7 @@ char *helpmenu[] = {
 "    c              write gstat commands to file (data, variograms, ...)",
 "    e              write sample variogram estimates to file",
 "    g              write gnuplot commands to file",
-"    p              write plot to PNG file",
+"    p              write plot to file (device controlled by GNUTERM)",
 "    P              write plot to Postscript (EPS) file",
 "    G              write plot to gif file",
 "    f              fix, unfix ranges in fit",

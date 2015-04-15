@@ -1,0 +1,4 @@
+data(zinc): 'zinc.eas', v=1, x=3, y=4, X=2&x&y;
+variogram(zinc): 0.5 nug() + 0.6 sph(10);
+data(): 'locations.eas', x=1, y=2, X=3&x&y;
+output: 'predictions.eas';

@@ -2,7 +2,7 @@
 /* Any machine specific stuff goes here */
 /* Add details necessary for your own installation here! */
 
-/* RCS id: $Id: machine.hin,v 1.2 2008-05-19 09:58:07 edzer Exp $ */
+/* RCS id: $Id: machine.h.in,v 1.3 1995/03/27 15:36:21 des Exp $ */
 
 /* Note special macros: ANSI_C (ANSI C syntax)
 			SEGMENTED (segmented memory machine e.g. MS-DOS)
@@ -14,9 +14,11 @@
 
 /* #undef const */
 
+/* #undef MALLOCDECL */
 #define NOT_SEGMENTED 1
 #define HAVE_MEMORY_H 1
 #define HAVE_COMPLEX_H 1
+#define HAVE_MALLOC_H 1
 #define STDC_HEADERS 1
 #define HAVE_BCOPY 1
 #define HAVE_BZERO 1
@@ -64,7 +66,11 @@
 #define	SEGMENTED
 #endif
 
-/* EJP: removed malloc.h stuff */
+/* if the system has malloc.h */
+#ifdef HAVE_MALLOC_H
+#define	MALLOCDECL	1
+#include	<malloc.h>
+#endif
 
 /* any compiler should have this header */
 /* if not, change it */

@@ -1,0 +1,94 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RputRow - write one row to a CSF raster file</title>
+</header>
+<body>
+<h1>NAME</h1>
+RputRow - write one row to a CSF raster file
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+size_t RputRow
+(
+	MAP *map,
+	size_t rowNr,
+	void *buf
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *map<dd>
+map handle
+<dt>
+size_t rowNr<dd>
+Row number of row
+<dt>
+void *buf<dd>
+read-write. Buffer large enough to
+hold one row in the in-file cell representation
+or the in-app cell representation.
+If these types are not equal then the buffer is
+converted from the in-app to the in-file
+cell representation.
+</dl>
+<h1>DESCRIPTION</h1>
+RputRow writes one row of cell values to a
+file.
+<h1>RETURNS</h1>
+number of cells successfully written. Should be equal
+to the number of columns if everything is OK.
+<h1>EXAMPLE</h1>
+<tt><pre>
+
+#include &lt;stdlib.h&gt;
+#include &quot;csf.h&quot;
+
+/* process a raster per row
+ * minimal checking
+ */
+
+extern void DoThatWithRow(REAL4 *, size_t );
+
+void main(int argc, char *argv[] )
+{
+
+  REAL4 *buf;
+  MAP *map;                      
+  size_t r;
+  size_t nrOfCells;
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  map = Mopen(argv[1], M_READ_WRITE);
+  if (map == NULL)  
+  {  
+     Mperror(argv[1]);
+     exit(1);
+  }
+
+  nrOfCells = RgetNrCols(map); 
+
+  (void)RuseAs(map, CR_REAL4); 
+
+  buf = (REAL4 *)Rmalloc(map, nrOfCells);
+
+  for(r=0; r &lt; RgetNrRows(map); r++ )
+  {
+    RgetRow(map, r, buf); 
+    DoThatWithRow(buf, nrOfCells);
+    RputRow(map,r, buf); 
+  }
+
+  Mclose(map);
+  free(buf);
+
+  exit(0);
+}
+</pre></tt>
+
+</body>

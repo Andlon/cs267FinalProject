@@ -6,7 +6,7 @@ data(zinc.0): 'zinc.eas', x=1, y=2, v=3, d=0, log;
 data(zinc.1): 'zinc.eas', x=1, y=2, v=3, d=1, log;
 data(zinc.2): 'zinc.eas', x=1, y=2, v=3, d=2, log;
 data(zinc.3): 'zinc.eas', x=1, y=2, v=3, d=3, log;
-mask:                'mask_map.tif'; 
+mask:                'mask_map'; 
 # predict block averages for very small blocks:
 blocksize: dx=1, dy=1;
 # variances apply to mean values,

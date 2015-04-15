@@ -1,0 +1,95 @@
+.lf 1 RputCell.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputCell" 3 "13 August 1999" "c2man _putcell.c"
+.SH "NAME"
+RputCell \- write one cell to a CSF raster file
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t RputCell
+.br
+(
+.br
+	MAP *map,
+.br
+	size_t rowNr,
+.br
+	size_t colNr,
+.br
+	void *cellValue
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "size_t rowNr"
+Row number of cell
+.TP
+.B "size_t colNr"
+Column number of cell
+.TP
+.B "void *cellValue"
+read-write. Buffer large enough to
+hold one cell in the in-file cell representation
+or the in-app cell representation.
+If these types are not equal then the buffer is
+converted from the in-app to the in-file
+cell representation.
+.SH "DESCRIPTION"
+RputCell writes one cell value to a
+file.
+.SH "RETURNS"
+1 if cell is successfully written, not 1 if not.
+.SH "EXAMPLE"
+.lf 1 examples/rawbin.tr
+.DS
+ 
+ #include <stdio.h>
+ #include "csf.h"
+ 
+ /* a simple raw binary to csf
+  * program, with minimal checking
+  * for example 512*512 b/w image
+  * stored in byte format
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+ 
+   FILE *in;
+   MAP  *out;                      
+   size_t r,c;
+   UINT1 val;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   in = fopen(argv[1], "rb");
+   out = Rcreate(argv[2], 512, 512, CR_UINT1, VS_BOOLEAN, 
+                  PT_YINCT2B, 0.0, 0.0, 0.0, 100.0);
+ 
+   for(r=0; r < 512; r++)
+    for(c=0; c < 512; c++)
+    {
+        fread(&val, 1, 1, in);
+        val = (val != 0);
+        RputCell(out,r,c,&val); 
+    }
+ 
+   fclose(in);
+   Mclose(out);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 50 RputCell.3

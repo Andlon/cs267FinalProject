@@ -1,0 +1,39 @@
+CC = @CC@
+
+DEFS = -I../include @DEFS@
+
+RANLIB = @RANLIB@
+
+CFLAGS = @DEBUG_FLAG@
+
+TARGET = libcsf.a
+
+.c.o:
+	$(CC) -c $(CFLAGS) $(DEFS) $(MDEFS) $<
+
+
+HBASE= ../include/csf.h ../include/csfattr.h ../include/csftypes.h
+
+OBJS = _getcell.o _getrow.o _gsomece.o _putcell.o _rputrow.o angle.o \
+	attravai.o attrsize.o cellsize.o create2.o csfglob.o csfsup.o delattr.o \
+	dumconv.o endian.o filename.o gattrblk.o gattridx.o gcellrep.o \
+	gdattype.o getattr.o getx0.o gety0.o ggisfid.o gmaxval.o gminval.o \
+	gnrcols.o gnrrows.o gproj.o gputproj.o gvalscal.o gvartype.o gversion.o \
+	ismv.o kernlcsf.o legend.o mclose.o mopen.o moreattr.o mperror.o \
+	pgisfid.o pmaxval.o pminval.o putallmv.o putattr.o putsomec.o putx0.o \
+	puty0.o pvalscal.o rattrblk.o rcomp.o rcoords.o rdup2.o reseterr.o \
+	rmalloc.o rrowcol.o ruseas.o setangle.o setmv.o setvtmv.o strconst.o \
+	strpad.o swapio.o trackmm.o vs2.o vsdef.o vsis.o vsvers.o wattrblk.o
+
+$(TARGET): $(OBJS)
+	ar ru $(TARGET) $(OBJS)
+	$(RANLIB) $(TARGET)
+
+
+link:
+	ar ru $(TARGET) $(OBJS)
+	$(RANLIB) $(TARGET)
+
+$(OBJS):	$(HBASE)
+
+clean:;	rm -fr $(OBJS)

@@ -1,11 +1,10 @@
 /*
-    Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Gstat, a program for geostatistical modelling, prediction and
+    simulation Copyright 1992, 1999 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -68,7 +67,7 @@ int map_nominal(int argc, char *argv[]) {
 		exit(0);
 	}
 	for (k = 2; k < argc; k++) {
-		in = new_map(READ_ONLY);
+		in = new_map();
 		in->filename = argv[k];
 		if ((in = map_read(in)) == NULL) {
 			printf("cannot read map %s\n", argv[k]);
@@ -104,7 +103,7 @@ int map_cover(int argc, char *argv[]) {
 		exit(0);
 	}
 	for (k = 2; k < argc; k++) {
-		in = new_map(READ_ONLY);
+		in = new_map();
 		in->filename = argv[k];
 		if ((in = map_read(in)) == NULL) {
 			printf("cannot read map %s\n", argv[k]);
@@ -147,7 +146,7 @@ int map_cut(int argc, char *argv[]) {
 		ErrMsg(ER_RDINT, argv[4]);
 	from_row--; from_col--; to_row--; to_col--; /* start counting at 0 */
 
-	in = new_map(READ_ONLY);
+	in = new_map();
 	in->filename = argv[5];
 	if ((in = map_read(in)) == NULL) {
 		printf("cannot read map %s\n", argv[5]);
@@ -164,7 +163,7 @@ int map_cut(int argc, char *argv[]) {
 
 	if (in->CSF_MAP) {
 #ifdef HAVE_LIBCSF
-		out = new_map(READ_ONLY);
+		out = new_map();
 		out->CSF_MAP = Rcreate(argv[6],
 			to_row - from_row + 1, to_col - from_col + 1,
 			RgetCellRepr(in->CSF_MAP), RgetValueScale(in->CSF_MAP), 
@@ -203,13 +202,13 @@ int map_diff(int argc, char *argv[]) {
 		printf("usage: %s map_a map_b\n", argv[0]);
 		return(1);
 	}
-	a = new_map(READ_ONLY);
+	a = new_map();
 	a->filename = argv[1];
 	if ((a = map_read(a)) == NULL) {
 		printf("cannot read map %s\n", argv[1]);
 		return(1);
 	}
-	b = new_map(READ_ONLY);
+	b = new_map();
 	b->filename = argv[2];
 	if ((b = map_read(b)) == NULL) {
 		printf("cannot read map %s\n", argv[2]);
@@ -266,13 +265,13 @@ int map_lnh(int argc, char *argv[]) {
 		printf("usage: %s m2s p2s out level\n", argv[0]);
 		exit(0);
 	}
-	m2s = new_map(READ_ONLY);
+	m2s = new_map();
 	m2s->filename = argv[1];
     if ((m2s = map_read(m2s)) == NULL) {
         ErrMsg(ER_READ, argv[1]);
         exit(1);
     }
-	p2s = new_map(READ_ONLY);
+	p2s = new_map();
 	p2s->filename = argv[2];
     if ((p2s = map_read(p2s)) == NULL) {
         ErrMsg(ER_READ, argv[2]);
@@ -347,7 +346,7 @@ int map_q(int argc, char *argv[]) {
 	in = (GRIDMAP **) emalloc(n * sizeof(GRIDMAP *));
 	stack = (double *) emalloc(n * sizeof(double));
 	for (i = 0; i < n; i++) {
-		in[i] = new_map(READ_ONLY);
+		in[i] = new_map();
 		in[i]->filename = argv[i+3];
 		in[i] = map_read(in[i]);
 	}
@@ -358,7 +357,7 @@ int map_q(int argc, char *argv[]) {
 				for (k = 0; k < n; k++)
 					stack[k] = map_get_cell(in[k], i, j);
     			qsort(stack, (size_t) n, sizeof(double),
-	        		(int CDECL (*)(const void *, const void *)) d_cmp);
+	        		(int (*)(const void *, const void *)) d_cmp);
 				map_put_cell(out, i, j, (float) est_quant(stack, q, n));
 			}
 		}
@@ -391,7 +390,7 @@ int map_convert(int argc, char *argv[]) {
 		convert_help(argv[0]);
 		exit(0);
 	}
-	in = new_map(READ_ONLY);
+	in = new_map();
 	in->filename = argv[optind];
 	if ((in = map_read(in)) == NULL)
 		ErrMsg(ER_READ, argv[optind]);

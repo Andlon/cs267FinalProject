@@ -1,0 +1,148 @@
+@Section 
+ @Title { What can gstat do? }
+ @Tag { what }
+@Begin
+
+@DP
+This section describes what can be done with gstat, and forms the bridge
+between the previous section on theory, and the next section on how
+gstat works. Gstat can do variogram modelling by using the two-step
+procedure of first calculating the sample variogram and fitting a model
+to this sample variogram (by estimating model parameters), or by
+directly fitting of a (nested) variogram model using restricted maximum
+likelyhood (REML, Mardia and Marshall, 1984).
+
+# modelling
+@DP
+@I{Sample variogram calculation}
+@LP
+Gstat calculates the sample variogram or covariogram from raw data or
+from residuals. Residuals @E{e hat (s) = z(s) - X beta hat} are obtained
+by ordinary least squares, weighted least squares or generalized least
+squares estimation of the trend parameters @E{beta hat} (by default from
+OLS residuals).  When calculating a sample variogram, one may choose to
+calculate squared differences @E{1 frac 2 ( e hat (s sub i )- e hat (s
+sub j )) sup 2} for each observation pair (variogram cloud), or to
+average squared differences over distance intervals for a number of
+distance intervals @E{[h sub i , h sub i + delta sub i ] , i = 0...r}
+(sample variogram).  The number of intervals @E{r}, their (constant or
+varying) width @E{delta sub i} and the direction interval in which the
+vector between observation pairs must lie can be specified.
+
+@PP
+For single variables, the ``classic'' sample variogram (or
+semivariogram, or moments estimator, Journel and Huijbregts, 1978, II.6)
+can be calculated, or optionally Cressie's square-root robust variogram
+estimator (e.g. Cressie 1985, (4); Cressie 1991, (2.4.12)). For pairs of
+variables, the ``classic'' cross variogram (Journel and Huijbregts,
+1978, II.15) is calculated when the observation locations of both
+variables coincide, or else the ``pseudo'' cross variogram (Myers, 1991;
+Ver Hoef and Cressie, 1993) is calculated. In addition, the ordinary
+(moments) covariogram (Journel and Huijbregts, 1978, II.2) and the cross
+covariograms (Journel and Huijbregts, 1978, II.15) can be calculated.
+
+@DP
+@I{Fitting variogram models}
+@LP
+In gstat, variogram models are defined as one simple variogram model or
+as a sum of two or more simple variogram models. A simple variogram
+model consists of a model type and a variance scaling factor (usually
+the ``partial sill''), most models also have a distance scaling factor
+(usually the ``partial range''). Model types supported include the nugget,
+linear, spherical, exponential, Gaussian, circular, pentaspherical,
+power and logarithmic model. The range parameter can be defined as an
+ellipse in 2 dimensions or an ellipsoid in 3 dimensions (as in GSLIB,
+Deutsch and Journel, 1992). This allows the modelling of geometric and
+zonal anisotropy (Isaaks and Srivastava, 1989).
+
+@PP
+Following Cressie (1985), variogram models can be fitted to each of the
+above sample variograms by non-linear weighted least squares estimation
+of variogram model parameters. Weights can be chosen to be proportional
+to either @E{N sub i} or to @E{(gamma( h overbar sub i )) sup -2 N sub
+i}, with @E{N sub i} the number of observation pairs in distance
+interval @E{i}, and @E{gamma( h overbar sub i )} the variogram model
+value at @E{h overbar sub i}, the average distance between pairs of
+observations in interval @E{i}. (Note that the latter weighting factor
+has received some criticism from Zhang, Van Eijkeren and Heemink (1995)
+and from Safai-Naraghi and Marcotte (1997).) The variogram fitting
+procedure in gstat allows to exclude one or more variogram parameters
+(partial sill or range) from a fit.
+
+@PP
+Because it is an iterative procedure, non-linear estimation is not
+guaranteed to converge to good estimates and it is always possible that
+some local minimum is found. Choosing suitable initial parameter
+estimates is an important aspect for the succes of non-linear estimation
+(Draper and Smith, 1981). A procedure that may circumvent convergence to
+a local minimum to some extent is the following: (i) estimate the number
+of nested models and their ranges from the sample variogram plot (trying
+several combinations of @E{delta sub i}, @E{r}, and directions), (ii)
+fix the range parameters and estimate the sills of the models and (iii)
+use these values as initial estimates for a non-linear fit. It is
+standard practice to check each fit by simultaneous plotting of the
+sample variogram and the fitted model. Anisotropy parameters cannot be
+estimated automatically in gstat, they should be chosen by trial and
+error.
+
+@PP
+Simultaneous estimation of multiple direct and cross variograms cannot
+be done automatically in gstat. However, by only estimating partial
+sills (fixing range parameters) a linear model of coregionalization can
+easily be constructed. (Presence of the linear model of
+coregionalization or intrinsic correlation is checked and notified to
+the user by gstat before a cokriging or co-simulation is started.)
+
+@PP
+Maximum likelyhood estimation in gstat currently involves only the
+estimation of partial sills of the simple models, and is not implemented
+for cross (co)variograms.
+
+@DP
+@I{Prediction and simulation}
+@LP
+Prediction in gstat comprises universal kriging ((@Eqblup) and
+(@Eqblupv), using coordinate polynomial or arbitrary, user-defined base
+functions), ordinary kriging, and simple kriging ((@Eqblp) and
+(@Eqblpv)), as well as weighted least squares or ordinary least squares
+prediction and inverse distance weighted interpolation (e.g. Burrough,
+1986).  All kriging methods may be multivariable, and different
+variables may share one or more common parameters. By default,
+prediction methods refer to prediction of a quantity, the size of a
+single observation (point prediction). Optionally, block means (the
+average of all observations over some block) can be predicted (block
+prediction).  Blocks may be rectangular in 1, 2 or 3 dimensions or
+user-defined (e.g.  irregularly shaped).
+
+@PP
+Prediction may be global, using all observations for each prediction, or
+local, using only a subset of observations in a neighbourhood around the
+prediction location. Relative to the prediction location, this subset
+may be defined in terms of the maximum distance or the number of closest
+observations, or a combination. The distance criterium may be either the
+geographical (euclidian) distance or the variogram distance (allowing
+the prevalence of the most correlated data points). The maximum number
+of closest observations may be specified per quadrant (2D) or octant
+(3D), and the number of non-empty quadrants (octants) can be reported
+for diagnostic purposes.
+
+@PP
+As an alternative to prediction, the estimated trend at prediction
+locations, @E{x (s sub 0 ) beta hat} can be obtained, along with its
+estimation variance (the last (third) term in the right-hand
+side of (@Eqblupv)). This can be done by generalized, weighted or
+ordinary least squares, using a global or local neighbourhood.
+
+@PP
+Simulation in gstat comprises (multi-) Gaussian or (multi-) indicator
+simulation. Gaussian simulation may apply to point values or to block
+averages. For simulation, the sequential simulation algorithm (Johnson,
+1987) is used. Compared to other simulation methods, sequential
+simulation is robust: it can handle arbitrary covariance structures and
+data dimensions, and an arbitrary number of variables or simulation
+locations. Certain practical drawbacks of the technique can be overcome
+by a clever choice of the visiting sequence (section
+@NumberOf{implementation}).
+
+
+@End @Section

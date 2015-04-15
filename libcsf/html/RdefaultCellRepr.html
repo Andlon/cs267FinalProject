@@ -1,0 +1,66 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RdefaultCellRepr - returns default cell representation of a value scale/cellRepr</title>
+</header>
+<body>
+<h1>NAME</h1>
+RdefaultCellRepr - returns default cell representation of a value scale/cellRepr
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+CSF_CR RdefaultCellRepr(CSF_VS vs);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+CSF_VS vs<dd>
+value scale
+<p>
+Possible values for a <pre>CSF_VS</pre>
+ are as follows:
+	* version 1 datatypes, 
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>VS_NOTDETERMINED - Version 1.<p>
+<li>VS_CLASSIFIED - Version 1.<p>
+<li>VS_CONTINUOUS - Version 1.<p>
+</ul>	* version 2 datatypes
+these two can be returned by or passed to a csf2 function
+<ul><li>VS_BOOLEAN - Boolean, always UINT1, values: 0,1 or MV_UINT1.<p>
+<li>VS_NOMINAL - Nominal, UINT1 or INT4.<p>
+<li>VS_ORDINAL - Ordinal, UINT1 or INT4.<p>
+<li>VS_SCALAR - Scalar, REAL4 or (maybe) REAL8.<p>
+<li>VS_DIRECTION - Directional REAL4 or (maybe) REAL8, -1 means no direction.<p>
+<li>VS_LDD - Local drain direction, always UINT1, values: 1-9 or MV_UINT1.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>VS_UNDEFINED - Just some value different from the rest.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+returns default cell representation of a value scale/cellRepr
+<h1>RETURNS</h1>
+the appropriate cell representation constant (CR_something)
+or CR_UNDEFINED if vs is not a csf2 datatype
+<p>
+Possible values for a <pre>CSF_CR</pre>
+ are as follows:
+	* preferred version 2 cell representations
+<ul><li>CR_UINT1 - Boolean, ldd and small nominal and small ordinal.<p>
+<li>CR_INT4 - Large nominal and large ordinal.<p>
+<li>CR_REAL4 - Single scalar and single directional.<p>
+</ul>	* other version 2 cell representations
+<ul><li>CR_REAL8 - Double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision.<p>
+</ul>	* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>CR_INT1 - <br>
+.<p>
+<li>CR_INT2 - <br>
+.<p>
+<li>CR_UINT2 - <br>
+.<p>
+<li>CR_UINT4 - <br>
+.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>CR_UNDEFINED - Just some value different from the rest.<p>
+</ul>
+</body>

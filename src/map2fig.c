@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2000 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,6 +30,7 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
 #include <math.h>
 
 #include "defs.h"
@@ -95,7 +95,7 @@ int map2fig(int argc, char *argv[]) {
 				while ((cp = strtok(nclass == -1 ? optarg : NULL, " \t,"))) {
 					if (read_double(cp, &class))
 						ErrClo(c);
-					classes = push_d_vector(class, classes);
+					classes = push_to_vector(class, classes);
 					nclass++;
 				}
 				break;
@@ -145,7 +145,7 @@ int map2fig(int argc, char *argv[]) {
         return 0;
     }
 
-	m = new_map(READ_ONLY);
+	m = new_map();
 	m->filename = argv[optind];
 	if (map_read(m) == NULL) { /* fig data: */
 		map_free(m);
@@ -197,7 +197,7 @@ int map2fig(int argc, char *argv[]) {
 		draw_map(m, 0);
 
 	if (map_name) {
-		m = new_map(READ_ONLY);
+		m = new_map();
 		m->filename = map_name;
 		draw_map(map_read(m), 1);
 	} 
@@ -254,11 +254,11 @@ D_VECTOR *find_classes(GRIDMAP *m, DATA *d, double min, double max,
 		min = log(min);
 		max = log(max);
 		for (i = 0; i <= nclass; i++)
-			classes = push_d_vector(
+			classes = push_to_vector(
 				exp(min + ((max - min)* i)/nclass), classes);
 	} else
 		for (i = 0; i <= nclass; i++)
-			classes = push_d_vector(
+			classes = push_to_vector(
 					min + ((max - min) * i)/nclass, classes);
 	return classes;
 }

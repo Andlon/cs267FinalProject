@@ -1,0 +1,46 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>Rcompare - compare 2 maps for their location attributes</title>
+</header>
+<body>
+<h1>NAME</h1>
+Rcompare - compare 2 maps for their location attributes
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int Rcompare
+(
+	const MAP *m1,
+	const MAP *m2
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m1<dd>
+map handle 1
+<dt>
+const MAP *m2<dd>
+map handle 2
+</dl>
+<h1>DESCRIPTION</h1>
+Rcompare compares 2 maps for all location attributes:
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+projection,
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+xUL, yUL, angle,
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+cell size and
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+number of rows and columns
+<h1>RETURNS</h1>
+0 if one of these attributes differ or in case of an error, 1
+if they are all equal.
+<h1>MERRNO</h1>
+NOT_RASTER
+
+</body>

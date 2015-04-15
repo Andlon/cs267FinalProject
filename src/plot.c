@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,13 +27,12 @@
 /*
  * plot.c: kriging weights/variogram plot drivers to gnuplot and jgraph
  */
+#include "defs.h"
 
 #include <stdio.h>
 #include <stdlib.h> /* getenv() */
 #include <string.h>
 #include <math.h>
-
-#include "defs.h"
 #include "userio.h"
 #include "debug.h"
 #include "data.h"
@@ -62,11 +60,11 @@ GNUPLOT_TERM gnuplot_terms[] = {
  { PSLATEX, 1, 1, "pslatex", "", "$\\gamma(h)$", "$h$" },
  { CGM, 1, 1, "cgm", "", NULL },
  { GIF, 2, 2, "gif", 
- 	"transparent size 640, 480 xffffff x000000 x404040 xff0000 x0000ff x00ff00",
+ 	"transparent size 480, 360 xffffff x000000 x404040 xff0000 x0000ff x00ff00",
 	NULL, NULL },
  { EPS, 1, 1, "postscript", "eps solid 17", NULL, NULL },
  { PNG, 2, 3, 
- 		"png", "small transparent xffffff x000000 x404040 xff0000",
+ 		"png", "small transparent color xffffff x000000 x404040 xff0000",
 		NULL, NULL },
  { EEPIC, 2, 3, "eepic", "", "{$\\gamma(h)$}", "{$h$}" },
  { UNKNOWN, 0, 0, NULL, NULL, NULL, NULL }
@@ -75,7 +73,6 @@ GNUPLOT_TERM gnuplot_terms[] = {
 static int set_key(FILE *f, const VARIOGRAM *v, double min, double max);
 static void get_minmax_y(const VARIOGRAM *v, double max_x, double *min_y, double *max_y);
 
-#ifndef USING_R
 int fprint_gnuplot_variogram(FILE *stream, const VARIOGRAM *v,
 		char *fname, PLOT_TYPE p, int window_nr) {
 	double min_y = 0.0, max_y = 0.0, max_x = 0.0, range;
@@ -400,7 +397,6 @@ int fprint_jgraph_variogram(FILE *f, const VARIOGRAM *v) {
 	} 
 	return 0;
 }
-#endif
 
 static void get_minmax_y(const VARIOGRAM *v, double max_x, double *min_y, double *max_y) {
 	int i;

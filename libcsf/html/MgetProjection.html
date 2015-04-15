@@ -1,0 +1,36 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MgetProjection - get projection type</title>
+</header>
+<body>
+<h1>NAME</h1>
+MgetProjection - get projection type
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+CSF_PT MgetProjection(const MAP *map);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *map<dd>
+map handle
+</dl>
+<h1>DESCRIPTION</h1>
+MgetProjection returns the projection type of the map.
+In version 2, projections are simplified. We only discern between
+a projection with y increasing (PT_YINCT2B) and decreasing (PT_YDECT2B)
+from top to bottom.
+The old constants are mapped to these two.
+<h1>RETURNS</h1>
+PT_YINCT2B or PT_YDECT2B
+<p>
+Possible values for a <pre>CSF_PT</pre>
+ are as follows:
+	* these two can be returned by or passed to a csf2 function 
+<ul><li>PT_YINCT2B - Y increase from top to bottom.<p>
+<li>PT_YDECT2B - Y decrease from top to bottom.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>PT_UNDEFINED - Just some value different from the rest.<p>
+</ul>
+</body>

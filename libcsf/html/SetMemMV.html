@@ -1,0 +1,57 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>SetMemMV - set an array of cells to missing value</title>
+</header>
+<body>
+<h1>NAME</h1>
+SetMemMV - set an array of cells to missing value
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void SetMemMV
+(
+	void *buf,
+	size_t nrElements,
+	CSF_CR cellRepr
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+void *buf<dd>
+write-only buffer with cells
+<dt>
+size_t nrElements<dd>
+number of cells
+<dt>
+CSF_CR cellRepr<dd>
+cell representation
+<p>
+Possible values for a <pre>CSF_CR</pre>
+ are as follows:
+	* preferred version 2 cell representations
+<ul><li>CR_UINT1 - Boolean, ldd and small nominal and small ordinal.<p>
+<li>CR_INT4 - Large nominal and large ordinal.<p>
+<li>CR_REAL4 - Single scalar and single directional.<p>
+</ul>	* other version 2 cell representations
+<ul><li>CR_REAL8 - Double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision.<p>
+</ul>	* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>CR_INT1 - <br>
+.<p>
+<li>CR_INT2 - <br>
+.<p>
+<li>CR_UINT2 - <br>
+.<p>
+<li>CR_UINT4 - <br>
+.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>CR_UNDEFINED - Just some value different from the rest.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+SetMemMV sets an array of cells to missing value
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+</body>

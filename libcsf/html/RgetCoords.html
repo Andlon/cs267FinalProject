@@ -1,0 +1,61 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RgetCoords - compute true world co-ordinate of a pixel</title>
+</header>
+<body>
+<h1>NAME</h1>
+RgetCoords - compute true world co-ordinate of a pixel
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int RgetCoords
+(
+	const MAP *m,
+	int inCellPos,
+	size_t row,
+	size_t col,
+	double *x,
+	double *y
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m<dd>
+map handle
+<dt>
+int inCellPos<dd>
+nonzero if you want the co-ordinate
+at the centre of the cell, 0 if you
+want the upper left co-ordinate of the cell
+<dt>
+size_t row<dd>
+Row number (relates to y position).
+<dt>
+size_t col<dd>
+Column number (relates to x position).
+<dt>
+double *x<dd>
+write-only. Returns x of true co-ordinate
+<dt>
+double *y<dd>
+write-only. Returns y of true co-ordinate
+</dl>
+<h1>DESCRIPTION</h1>
+RrowCol2Coords computes the true world co-ordinate from a
+row, column index.
+The row, column co-ordinate
+don't have to be on the map. They are just relative to upper left position.
+For example (row,col) = (-1,0) computes the (x,y) co-ordinate of
+the pixel that is right above upper left pixel.
+<h1>RETURNS</h1>
+0  if the co-ordinate is outside the map.
+1 if inside.
+-1 in case of an error.
+<h1>MERRNO</h1>
+ILL_CELLSIZE
+<h1>SEE ALSO</h1>
+<a href=RrowCol2Coords.html>RrowCol2Coords</a>
+
+
+</body>

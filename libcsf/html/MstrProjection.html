@@ -1,0 +1,38 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MstrProjection - string with projection</title>
+</header>
+<body>
+<h1>NAME</h1>
+MstrProjection - string with projection
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+const char *MstrProjection(CSF_PT p);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+CSF_PT p<dd>
+projection constant, 0 is
+top to bottom. non-0 is bottom
+to top
+<p>
+Possible values for a <pre>CSF_PT</pre>
+ are as follows:
+	* these two can be returned by or passed to a csf2 function 
+<ul><li>PT_YINCT2B - Y increase from top to bottom.<p>
+<li>PT_YDECT2B - Y decrease from top to bottom.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>PT_UNDEFINED - Just some value different from the rest.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+The string is in lower case.
+string with name of projection
+<h1>SEE ALSO</h1>
+<a href=RstrCellRepr.html>RstrCellRepr</a>
+,
+<a href=RstrValueScale.html>RstrValueScale</a>
+
+
+</body>

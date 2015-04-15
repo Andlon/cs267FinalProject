@@ -29,10 +29,7 @@
 #include	<stdio.h>
 #include 	"matrix.h"
 
-#include "../src/s.h"
-#include "../src/config.h"
-
-static	char	rcsid[] = "$Id: ivecop.c,v 1.1.1.1 2003-06-23 18:31:42 cees Exp $";
+static	char	rcsid[] = "$Id: ivecop.c,v 1.5 1994/01/13 05:45:30 des Exp $";
 
 static char    line[MAXLINE];
 
@@ -208,7 +205,6 @@ IVEC	*iv_sub(IVEC *iv1,IVEC *iv2,IVEC *out)
    return (out);
 }
 
-#ifndef USING_R /* EJP */
 /* iv_foutput -- print a representation of iv on stream fp */
 void	iv_foutput(FILE *fp,IVEC *iv)
 {
@@ -331,7 +327,6 @@ void	iv_dump(FILE *fp,IVEC *iv)
    if ( i % 8 )
      fprintf(fp,"\n");
 }	
-#endif
 
 #define	MAX_STACK	60
 

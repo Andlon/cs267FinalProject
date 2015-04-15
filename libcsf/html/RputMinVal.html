@@ -1,0 +1,86 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RputMinVal - set new minimum cell value</title>
+</header>
+<body>
+<h1>NAME</h1>
+RputMinVal - set new minimum cell value
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void RputMinVal
+(
+	MAP *map,
+	const void *minVal
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *map<dd>
+map handle
+<dt>
+const void *minVal<dd>
+New minimum value
+</dl>
+<h1>DESCRIPTION</h1>
+RputMinVal set a new value stored in
+the header as the minimum value.
+minMaxStatus is set to MM_DONTKEEPTRACK
+<h1>NOTE</h1>
+Note that the header minimum set must be equal or
+smaller than the minimum value in the map.
+<h1>EXAMPLE</h1>
+<tt><pre>
+#include &lt;stdio.h&gt;
+#include &quot;csf.h&quot;
+
+/* set header min/max of a scalar map
+ * to 0 and 1, since it's a membership
+ * function
+ */
+
+void main(int argc, char *argv[] )
+{
+  MAP *map;
+  REAL8 min,max;
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  if ((map = Mopen(argv[1], M_READ_WRITE)) == NULL)
+    {
+        Mperror(argv[1]);
+        exit(1);
+    }
+  
+  if ( (! RvalueScaleIs(map, VS_SCALAR))
+       || RuseAs(map, CR_REAL8) )
+  {
+   fprintf(stderr,&quot;%s is not a scalar map\n&quot;, argv[1]);
+   exit(1);
+  }
+  
+  if ( RgetMinVal(map, &amp;min) &amp;&amp;
+       RgetMaxVal(map, &amp;max) &amp;&amp;
+       min &gt;= 0 &amp;&amp; max &lt;= 1)
+  {
+   min = 0; max = 1;
+   RputMinVal(map,&amp;min);
+   RputMaxVal(map,&amp;max);
+  }
+  else {
+   fprintf(stderr,
+           &quot;%s: min/max not set or not in [0, 1]\n&quot;,
+           argv[1]);
+   exit(1);
+  }
+  Mclose(map);
+  exit(0);
+}
+</pre></tt>
+
+</body>

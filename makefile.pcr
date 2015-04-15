@@ -1,0 +1,13 @@
+first: all
+
+LIB_TARGET    = gstat
+OBJS          = gstatexcept.o gstatwrp.o errorwrp.o gstatio.o block.o data.o \
+                direct.o fig.o fit.o getest.o getopt.o gls.o glvars.o gstat.o \
+                lex.o lm.o mapio.o maputils.o msim.o parse.o plot.o polygon.o \
+                pqueue.o predict.o random.o read.o reml.o report.o sample.o \
+                nsearch.o select.o sem.o sem_main.o sim.o stat.o ui.o userio.o \
+                utils.o vario.o vario_fn.o vario_io.o writecmd.o xvalid.o \
+                map2fig.o map2gd.o palet.o 
+PCRLIBS       = meschach csf
+
+include $(PCRTREE)/template/make/makelib

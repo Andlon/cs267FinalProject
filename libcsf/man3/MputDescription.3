@@ -1,0 +1,47 @@
+.lf 1 MputDescription.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MputDescription" 3 "13 August 1999" "c2man moreattr.c"
+.SH "NAME"
+MputDescription \- put the description attribute
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int MputDescription
+.br
+(
+.br
+	MAP *m,
+.br
+	char *des
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map to get it from
+.TP
+.B "char *des"
+the  new description string.
+Is a C-string, `\0`-terminated
+.SH "DESCRIPTION"
+MputDescription writes the description string to a map.
+An existing description is overwritten.
+.SH "RETURNS"
+0 if not available or in case of error,
+nonzero otherwise
+.SH "SEE ALSO"
+MgetHistorySize(3),
+MgetDescriptionSize(3),
+MgetNrColourPaletteEntries(3),
+MgetNrGreyPaletteEntries(3),
+MgetDescription(3),
+MgetHistory(3),
+MgetColourPalette(3),
+MgetGreyPalette(3),
+MputHistory(3),
+MputColourPalette(3),
+MputGreyPalette(3)

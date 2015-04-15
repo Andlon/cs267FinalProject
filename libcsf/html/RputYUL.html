@@ -1,0 +1,36 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RputYUL - change the y value of upper left co-ordinate</title>
+</header>
+<body>
+<h1>NAME</h1>
+RputYUL - change the y value of upper left co-ordinate
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+REAL8 RputYUL
+(
+	MAP *map,
+	REAL8 yUL
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *map<dd>
+map handle
+<dt>
+REAL8 yUL<dd>
+new y value of upper left co-ordinate
+</dl>
+<h1>DESCRIPTION</h1>
+RputYUL changes the y value of upper left co-ordinate.
+Whether this is the largest or smallest y value depends on the
+projection (See MgetProjection()).
+<h1>RETURNS</h1>
+the new y value of upper left co-ordinate or 0
+case of an error.
+<h1>MERRNO</h1>
+NOACCESS
+
+</body>

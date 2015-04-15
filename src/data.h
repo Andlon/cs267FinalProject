@@ -52,7 +52,7 @@ typedef struct { 		/* structure to hold one point value: */
 } DPOINT;
 
 /* qtree_search structs (nsearch.c): */
-typedef struct {	/* defining a rectangular bounding box */
+typedef struct {	/* four coordinates for a rectangular bounding box */
 	double 	x, y, z, size;
 	int mode;
 } BBOX;
@@ -61,8 +61,8 @@ typedef struct qnode {	/* the struct used to define nodes in the search tree */
 	int n_node;			/* >= 0: number of data points in this node */
 					 	/* negative (-1) if u is a node list */
 	union {
-		struct qnode **node;/* pointers to 4 or 8 other nodes */			
-		DPOINT **list; 	    /* or pointers to data points within this leaf */
+		struct qnode **node;/* pointers to 4 other nodes */			
+		DPOINT **list; 	    /* or pointers to data points */
 	} u;
 	BBOX bb;
 } QTREE_NODE;
@@ -109,10 +109,7 @@ typedef enum {
 	DATA_GMT,			/* GMT netCDF format */
 	DATA_SURFER_DSAA,	/* Surfer DSAA ascii grid */
 	DATA_GSLIB,			/* GSLIB ascii grid */
-	DATA_GRASS,			/* GRASS site list */
-	DATA_GRASS_GRID,	/* GRASS raster */
-	DATA_GDAL, 			/* GDAL raster */
-	DATA_EXT_DBASE  /* CW external database */
+	DATA_GRASS			/* GRASS site list */
 } DATA_TYPE_;
 
 typedef struct {
@@ -129,28 +126,10 @@ typedef struct {
 } MERGE_TABLE;
 
 typedef struct {
-	int size, max_size;
+	int size;
 	double *val;
 } D_VECTOR;
-
-D_VECTOR *push_d_vector(double d, D_VECTOR *v);
-void free_d_vector(D_VECTOR *v);
-
-/* CW added, FTTB copies of DATA members
- * SEARCH_CRITERIA should become part of DATA
- * Dit zijn degene die ik begrijp
- */
-typedef struct {
- /* DATA::prob sample later */
- int
-		force, 			/* force neighbourhood selection */
-		sel_min,
-		sel_max,		/* min and max number for neighbourhood selection */
-		oct_max,		/* max # pts for each octant; 0: use no octant search */
-		oct_filled, /* RETURN VALUE? number of non-empty octants in selection */
-		square;     /* use square search neighbourhood, default circular */
-	double sel_rad;		/* radius for neighbourhhood selection */
-}SEARCH_CRITERIA;
+D_VECTOR *push_to_vector(double d, D_VECTOR *v);
 
 typedef struct {		/* structure that holds data info and lists */
 	char *variable,		/* attr name, log(..) */
@@ -184,7 +163,7 @@ typedef struct {		/* structure that holds data info and lists */
 		colnvariance,	/* column that holds variance */
 		colnvalue,		/* column that holds attribute values */
 		colns,          /* column that holds u (if strata) */
-		coln_id,        /* column with ID */
+              coln_id,        /* column with ID */
 		sel_min,
 		sel_max,		/* min and max number for neighbourhood selection */
 		oct_max,		/* max # pts for each octant; 0: use no octant search */
@@ -215,23 +194,12 @@ typedef struct {		/* structure that holds data info and lists */
 		minvariance, maxvariance, /* min/max variance */
 		mv,				/* missing value */
 		dX,				/* max. vector norm X-space distance */
-		prob,			/* inclusion probability (to sample data file) */
-		lambda;			/* lambda value for box-cox transform */
+		prob;			/* inclusion probability (to sample data file) */
 	int  minstratum, maxstratum; /* min/max stratum */
 	double mean, std;	/* sample mean and st.dev. of attribute */
-
-/* CW members to hold data in this struct (DATA_TYPE!= DATA_EXT_DBASE)
- */
-	DPOINT **list;		/* list of data points, of length n_list */
+	DPOINT **list,		/* list of data points, of length n_list */
+		**sel;			/* list of selection indices, of length n_sel */
 	DPOINT *P_base;		/* base for pointer array, if allocated blockwise */
-#ifdef HAVE_EXT_DBASE
-/* CW members when data is held external (DATA_TYPE== DATA_EXT_DBASE) */
-	void   *ext_dbase;  /* ptr to EXTDBASE_LINK struct */
-/* CW end of edits */
-#endif
-
-	DPOINT **sel;			/* list of selection indices, of length n_sel */
-
 	double (*point_norm)(const DPOINT *); /* eucl. vector length */
 	double (*pp_norm2)(const DPOINT *, const DPOINT *); /* point-point squared distance */
 	double (*pb_norm2)(const DPOINT *, BBOX); /* point-BBOX distance: nsearch.c */
@@ -304,20 +272,14 @@ extern const POLY_NM polynomial[N_POLY];
 #define POLY_DEGREE(i) polynomial[i - POLY_MIN].degree
 void data_add_X(DATA *d, int i);
 int push_to_merge_table(DATA *d, int to_var, int col_this_X, int col_other_X);
-DATA_GRIDMAP *gsetup_gridmap(double x_ul, double y_ul, double cellsizex, 
-			double cellsizey, unsigned int rows, unsigned int cols);
+DATA_GRIDMAP *copy_data_gridmap(void *map);
 void datagrid_rebuild(DATA *d, int adjust_to_gridcentres);
 void set_norm_fns(DATA *d);
 double data_block_diagonal(DATA *data);
 int intercept_only(const DATA *d);
 double v_mu(double mu);
-double v_mu2(double mu);
-double v_mu3(double mu);
 double v_bin(double mu);
 double v_identity(double mu);
-void setup_polynomial_X(DATA *d);
-void calc_polynomial_point(DATA *d, DPOINT *pt);
-double pp_norm_gc(const DPOINT *a, const DPOINT *b);
 
 #if defined(__cplusplus)
 }

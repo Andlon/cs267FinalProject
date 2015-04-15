@@ -1,0 +1,84 @@
+.lf 1 MperrorExit.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MperrorExit" 3 "13 August 1999" "c2man mperror.c"
+.SH "NAME"
+MperrorExit \- write error message to stderr and exits
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+void MperrorExit
+.br
+(
+.br
+	const char *userString,
+.br
+	int exitCode
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const char *userString"
+prefix string
+.TP
+.B "int exitCode"
+exit code
+.SH "DESCRIPTION"
+Mperror first writes the error message belonging to the current Merrno
+value to stderr, prefixed by userString, separated by a semicolon.
+Then Mperror exits by calling exit() with the given exit code.
+.SH "RETURNS"
+NEVER RETURNS!
+.SH "EXAMPLE"
+.lf 1 examples/csfdump2.tr
+.DS
+ #include <stdio.h>
+ #include "csf.h"
+ 
+ /* a simple csf to stdout
+  * program, with minimal 
+  * checking
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+ 
+   REAL8 cellValue;
+   MAP *map;                      
+   size_t r,c;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   map = Mopen(argv[1], M_READ);
+   if (map == NULL)  
+      MperrorExit(argv[1], 1);
+ 
+   RuseAs(map, CR_REAL8); 
+ 
+   for(r=0; r < RgetNrRows(map); r++)
+   {
+    for(c=0; c < RgetNrCols(map); c++)
+    {
+     RgetCell(map,r,c,&cellValue); 
+     printf("%g ",(double)cellValue);
+    }
+    printf("\\n");
+   }
+ 
+   Mclose(map);
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 36 MperrorExit.3
+.SH "SEE ALSO"
+Mperror(3),
+MstrError(3)

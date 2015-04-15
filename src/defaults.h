@@ -32,12 +32,12 @@
 #define DEF_iwidth         -1.0
 #define DEF_jgraph            0
 #define DEF_lhs               0
-#define DEF_longlat           0
 #define DEF_n_marginals       0
 #define DEF_nocheck           0 /* do check */
 #define DEF_marginal_names NULL
 #define DEF_marginal_values NULL
-#define DEF_mv_string       "NaN"
+#define DEF_mvbeta            1
+#define DEF_mv_string       "NA"
 #define DEF_nblockdiscr       4
 #define DEF_n_uk        INT_MAX
 #define DEF_numbers           1
@@ -48,11 +48,9 @@
 #define DEF_pager         "more"
 #define DEF_pairs             0
 #define DEF_quantile        0.5
-#define DEF_rowwise           1
 #define DEF_rp                1
 #define DEF_secure            0
 #define DEF_seed              0
-#define DEF_sim_beta          0
 #define DEF_sparse            0
 #define DEF_spiral            0
 #define DEF_split             4

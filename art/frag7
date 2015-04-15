@@ -1,0 +1,3 @@
+data(distance):   'dist.eas', x=2, y=3, v=1;
+variogram(distance):         1 nug() + 1.5 sph(10); 
+variogram(zinc, distance): 0.3 nug() + 0.7 sph(10);

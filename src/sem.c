@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,13 +34,6 @@
 #include <math.h>
 #include <time.h>
 #include <limits.h>
-
-#include "config.h"
-
-#ifdef USING_R
-# include <R.h>
-# include <Rdefines.h>
-#endif
 
 #include "defs.h"
 #include "read.h"
@@ -111,16 +103,13 @@ int calc_variogram(VARIOGRAM *v /* pointer to VARIOGRAM structure */,
 		no output has to be written to file */ )
 {
 	DATA **d = NULL, *d1 = NULL, *d2 = NULL;
-#ifndef USING_R
 	FILE *f = NULL;
-#endif
 
 	assert(v);
 
 	d = get_gstat_data();
 	d1 = d[v->id1];
 	d2 = d[v->id2];
-#ifndef USING_R
 	if (v->fname && (d1->dummy || d2->dummy)) {
 		if ((v->ev = load_ev(v->ev, v->fname)) == NULL)
 			ErrMsg(ER_READ, "could not read sample variogram");
@@ -128,14 +117,12 @@ int calc_variogram(VARIOGRAM *v /* pointer to VARIOGRAM structure */,
 		v->ev->recalc = 0;
 		return 0;
 	}
-#endif
 	if (d1->sel == NULL) 
 		select_at(d1, NULL); /* global selection (sel = list) */
 	if (d2->sel == NULL)
 		select_at(d2, NULL);
 
-	if (v->ev->evt == CROSSVARIOGRAM && 
-			(v->ev->pseudo == -1 || v->ev->is_asym == -1)) {
+	if (v->ev->evt == CROSSVARIOGRAM && v->ev->is_asym == -1) {
 		/* v's first time */
 		if (coordinates_are_equal(d[v->id1], d[v->id2]))
 			v->ev->pseudo = 0;
@@ -163,19 +150,18 @@ int calc_variogram(VARIOGRAM *v /* pointer to VARIOGRAM structure */,
 
 	fill_cutoff_width(d1, v);
 
-	if (v->ev->map && v->fname == NULL && v->ev->S_grid == NULL)
+	if (v->ev->map && v->fname == NULL)
 		return -1;
 
 	v->ev->cloud = (v->ev->iwidth <= 0.0);
 	if (v->ev->cloud &&
-			 (d[v->id1]->n_sel >= MAX_NH ||  d[v->id2]->n_sel >= MAX_NH))
+			 (d[v->id1]->n_list >= MAX_NH ||  d[v->id2]->n_list >= MAX_NH))
 		pr_warning("observation numbers in cloud will be wrong");
 	set_direction_values(gl_alpha, gl_beta, gl_tol_hor, gl_tol_ver);
 
 	v->ev->is_directional = is_directional(v);
 	if (v->ev->recalc) {
 		switch (v->ev->evt) {
-			case PRSEMIVARIOGRAM:
 			case SEMIVARIOGRAM:
 				semivariogram(d[v->id1], v->ev);
 				break;
@@ -195,8 +181,7 @@ int calc_variogram(VARIOGRAM *v /* pointer to VARIOGRAM structure */,
 				break;
 		}
 	}
-#ifndef USING_R
-	if (v->ev->map && !v->ev->S_grid)
+	if (v->ev->map)
 		ev2map(v);
 	else if (fname != NULL) {
 		f = efopen(fname, "w");
@@ -205,7 +190,6 @@ int calc_variogram(VARIOGRAM *v /* pointer to VARIOGRAM structure */,
 	}
 	if (f && f != stdout)
 		return efclose(f);
-#endif
 	return 0;
 }
 
@@ -213,10 +197,9 @@ static SAMPLE_VGM *semivariogram(DATA *d, SAMPLE_VGM *ev) {
 /*
  *  calculate sample variogram of 0.5 E[(Z(x)-Z(x+h))2]
  */
-	if (ev->evt == PRSEMIVARIOGRAM)
-		d->calc_residuals = 0;
+	ev->evt = SEMIVARIOGRAM;
 	ev = alloc_exp_variogram(d, NULL, ev);
-	if (d->grid != NULL && d->prob > 0.5 && d->every == 1)
+	if (d->grid != NULL)
 		ev = semivariogram_grid(d, ev);
 	else 
 		ev = semivariogram_list(d, ev);
@@ -229,22 +212,19 @@ static SAMPLE_VGM *semivariogram_list(DATA *d, SAMPLE_VGM *ev) {
 	unsigned long uli, ulj;
 	int i, j, index = 0, divide_by = 1;
 	unsigned int total_steps;
-	double gamma, ddist, head, tail, gam;
+	double gamma, ddist;
 
-	while (d->n_sel / divide_by > 0.5 * sqrt(INT_MAX))
+	while (d->n_sel / divide_by > sqrt(INT_MAX))
 		divide_by <<= 1; /* prevent overflow on calculating total_steps */
 
 	total_steps = (d->n_sel / divide_by) * (d->n_sel - 1) / 2;
 	print_progress(0, total_steps);
-	
+
 	if (DEBUG_DUMP)
 		printlog("Calculating semivariogram from %d points...\n", d->n_sel);
 
 	for (i = 0; i < d->n_sel; i++) {
 		print_progress((i / divide_by) * (i - 1) / 2, total_steps);
-#ifdef USING_R
-		R_CheckUserInterrupt();
-#endif
 		/*
 		printlog("step: %u of %u\n", (i /divide_by) * (i - 1) / 2, total_steps);
 		*/
@@ -252,17 +232,14 @@ static SAMPLE_VGM *semivariogram_list(DATA *d, SAMPLE_VGM *ev) {
 			ddist = valid_distance(d->sel[i], d->sel[j], ev->cutoff, 1,
 				d, d, (GRIDMAP *) ev->map);
 			if (ddist >= 0.0 && i != j) {
-				head = d->sel[i]->attr;
-				tail = d->sel[j]->attr;
 				if (! ev->cloud) {
 					index = get_index(ddist, ev);
 					if (gl_cressie)  /* sqrt abs diff */
-						ev->gamma[index] += sqrt(fabs(head - tail));
-					else if (ev->evt == PRSEMIVARIOGRAM) {
-						gam = 2.0 * (head - tail)/(head + tail);
-						ev->gamma[index] += SQR(gam);
-					} else { /* SEMIVARIOGRAM: */
-						ev->gamma[index] += SQR(head - tail);
+						ev->gamma[index] +=
+							sqrt(fabs(d->sel[i]->attr - d->sel[j]->attr));
+					else {
+						ev->gamma[index] +=
+							SQR(d->sel[i]->attr - d->sel[j]->attr);
 #ifdef ADJUST_VARIANCE
 						if (d->colnvariance)
 							ev->gamma[index] -= d->sel[i]->variance +
@@ -270,23 +247,20 @@ static SAMPLE_VGM *semivariogram_list(DATA *d, SAMPLE_VGM *ev) {
 #endif
 					}
 					ev->dist[index] += ddist;
-					ev->pairs[index] = register_pairs(ev->pairs[index],
-						ev->nh[index], d->sel[i], d->sel[j]);
+					if (d->sel == d->list)
+						ev->pairs[index] = register_pairs(ev->pairs[index],
+							ev->nh[index], d->sel[i], d->sel[j]);
 					ev->nh[index]++;
 				} else { /* cloud: */
 					if (! (ev->zero == ZERO_AVOID && ddist == 0.0)) {
 						if (gl_cressie)
-							gamma = sqrt(fabs(head - tail));
-						else if (ev->evt == PRSEMIVARIOGRAM) {
-							gam = 2.0 * (head - tail)/(head + tail);
-							gamma = gam * gam;
-						} else {
-							gamma = SQR(head - tail);
+							gamma = sqrt(fabs(d->sel[i]->attr - d->sel[j]->attr));
+						else
+							gamma = SQR(d->sel[i]->attr - d->sel[j]->attr);
 #ifdef ADJUST_VARIANCE
-							if (d->colnvariance)
-								gamma -= d->sel[i]->variance + d->sel[j]->variance;
+						if (d->colnvariance)
+							gamma -= d->sel[i]->variance + d->sel[j]->variance;
 #endif
-						}
 						uli = i; ulj = j;
 						push_to_cloud(ev, gamma / 2.0, ddist, TO_NH(uli,ulj));
 					}
@@ -312,14 +286,14 @@ static SAMPLE_VGM *semivariogram_grid(DATA *d, SAMPLE_VGM *ev) {
 	} grid_ev;
 	int row, col, irow, icol, i, max_index, index;
 	unsigned long ula, ulb;
-	double gamma, ddist, head, tail, gam;
+	double gamma, ddist;
 	DPOINT a, b, *dpa = NULL, *dpb = NULL;
 
-	max_index = (int) floor(ev->cutoff / SQUARECELLSIZE(d->grid));
+	max_index = floor(ev->cutoff / SQUARECELLSIZE(d->grid));
 	grid_ev.gi = (grid_index *) emalloc(2 * (max_index + 1) * (max_index + 1)
 		* sizeof(grid_index));
 	grid_ev.n = 0;
-	a.x = a.y = a.z = b.z = 0.0;
+	a.x = a.y = a.z = 0;
 	/* setup the grid: */
 	for (row = 0; row <= max_index; row++) {
 		for (col = (row == 0 ? 1 : -max_index); col <= max_index; col++) {
@@ -351,18 +325,13 @@ static SAMPLE_VGM *semivariogram_grid(DATA *d, SAMPLE_VGM *ev) {
 							&& icol < d->grid->cols
 							&& ((dpb = d->grid->dpt[irow][icol]) != NULL)) {
 						ddist = grid_ev.gi[i].dist;
-						head = dpa->attr;
-						tail = dpb->attr;
 						if (! ev->cloud) {
 							index = grid_ev.gi[i].ev_index;
 							if (gl_cressie)  /* sqrt abs diff */
-								ev->gamma[index] += sqrt(fabs(head - tail));
+								ev->gamma[index] +=
+									sqrt(fabs(dpa->attr - dpb->attr));
 							else {
-								if (ev->evt == PRSEMIVARIOGRAM) {
-									gam = 2.0 * (head - tail)/(head + tail);
-									ev->gamma[index] += gam * gam;
-								} else
-									ev->gamma[index] += SQR(head - tail);
+								ev->gamma[index] += SQR(dpa->attr - dpb->attr);
 #ifdef ADJUST_VARIANCE
 								if (d->colnvariance)
 									ev->gamma[index] -= dpa->variance +
@@ -375,17 +344,13 @@ static SAMPLE_VGM *semivariogram_grid(DATA *d, SAMPLE_VGM *ev) {
 							ev->nh[index]++;
 						} else { /* cloud: */
 							if (gl_cressie)
-								gamma = sqrt(fabs(head - tail));
-							else if (ev->evt == PRSEMIVARIOGRAM) {
-								gam = 2.0 * (head - tail)/(head + tail);
-								gamma = gam * gam;
-							} else {
-								gamma = SQR(head - tail);
+								gamma = sqrt(fabs(dpa->attr - dpb->attr));
+							else
+								gamma = SQR(dpa->attr - dpb->attr);
 #ifdef ADJUST_VARIANCE
-								if (d->colnvariance)
-									gamma -= dpa->variance + dpb->variance;
+							if (d->colnvariance)
+								gamma -= dpa->variance + dpb->variance;
 #endif
-							}
 							ula = GET_INDEX(dpa);
 							ulb = GET_INDEX(dpb);
 							push_to_cloud(ev, gamma / 2.0, ddist, TO_NH(ula,ulb));
@@ -395,9 +360,6 @@ static SAMPLE_VGM *semivariogram_grid(DATA *d, SAMPLE_VGM *ev) {
 			} /* if this grid cell is non-NULL */
 		} /* for all cols */
 		print_progress(row + 1, d->grid->rows);
-#ifdef USING_R
-		R_CheckUserInterrupt();
-#endif
 	} /* for all rows */
 	efree(grid_ev.gi);
 	return ev;
@@ -411,32 +373,28 @@ static SAMPLE_VGM *covariogram(DATA *d, SAMPLE_VGM *ev) {
 
 	ev->evt = COVARIOGRAM;
 	ev = alloc_exp_variogram(d, NULL, ev);
-	for (i = 0; i < d->n_sel; i++) {
-		print_progress(i, d->n_sel);
-#ifdef USING_R
-		R_CheckUserInterrupt();
-#endif
-		for (j = 0; j <= (ev->map != NULL ? d->n_sel-1 : i); j++) {
-			ddist = valid_distance(d->sel[i], d->sel[j], ev->cutoff, 1,
+	for (i = 0; i < d->n_list; i++) {
+		for (j = 0; j <= (ev->map != NULL ? d->n_list-1 : i); j++) {
+			ddist = valid_distance(d->list[i], d->list[j], ev->cutoff, 1,
 				d, d, (GRIDMAP *) ev->map);
 			if (ddist >= 0.0) {
 				if (! ev->cloud) {
 					index = get_index(ddist, ev);
-					ev->gamma[index] += d->sel[i]->attr * d->sel[j]->attr;
+					ev->gamma[index] += d->list[i]->attr * d->list[j]->attr;
 #ifdef ADJUST_VARIANCE
 					if (d->colnvariance && i == j)
-						ev->gamma[index] -= d->sel[i]->variance;
+						ev->gamma[index] -= d->list[i]->variance;
 #endif
 					ev->dist[index] += ddist;
 					ev->pairs[index] = register_pairs(ev->pairs[index],
-						ev->nh[index], d->sel[i], d->sel[j]);
+						ev->nh[index], d->list[i], d->list[j]);
 					ev->nh[index]++;
 				} else {
 					if (! (ev->zero == ZERO_AVOID && ddist == 0.0)) {
-						gamma = d->sel[i]->attr * d->sel[j]->attr;
+						gamma = d->list[i]->attr * d->list[j]->attr;
 #ifdef ADJUST_VARIANCE
 						if (d->colnvariance && i == j)
-							gamma -= d->sel[i]->variance;
+							gamma -= d->list[i]->variance;
 #endif
 						uli = i;
 						ulj = j;
@@ -446,7 +404,6 @@ static SAMPLE_VGM *covariogram(DATA *d, SAMPLE_VGM *ev) {
 			}/* if ddist >= 0 */
 		}  /* for j */
 	} /* for i */
-	print_progress(d->n_sel, d->n_sel);
 	divide(ev);
 	ev->recalc = 0;
 	return ev;
@@ -459,28 +416,24 @@ static SAMPLE_VGM *cross_variogram(DATA *a, DATA *b, SAMPLE_VGM *ev) {
 
 	ev->evt = CROSSVARIOGRAM;
 	ev = alloc_exp_variogram(a, b, ev);
-	for (i = 0; i < a->n_sel; i++) {
-		print_progress(i, a->n_sel);
-#ifdef USING_R
-		R_CheckUserInterrupt();
-#endif
-		for (j = 0; j < b->n_sel; j++) {
-			ddist = valid_distance(a->sel[i], b->sel[j], ev->cutoff,
+	for (i = 0; i < a->n_list; i++) {
+		for (j = 0; j < b->n_list; j++) {
+			ddist = valid_distance(a->list[i], b->list[j], ev->cutoff,
 				gl_sym_ev || !ev->pseudo, a, b, (GRIDMAP *) ev->map); 
 			if (ddist >= 0.0) {
 				if (!ev->pseudo && i != j) {
 					if (! ev->cloud) {
 						index = get_index(ddist, ev);
 						ev->gamma[index] += 
-							(a->sel[i]->attr - a->sel[j]->attr) *
-							(b->sel[i]->attr - b->sel[j]->attr);
+							(a->list[i]->attr - a->list[j]->attr) *
+							(b->list[i]->attr - b->list[j]->attr);
 						ev->dist[index] += ddist;
 						ev->pairs[index] = register_pairs(ev->pairs[index],
-							ev->nh[index], a->sel[i], a->sel[j]);
+							ev->nh[index], a->list[i], a->list[j]);
 						ev->nh[index]++;
 					} else if (!(ddist == 0.0 && ev->zero == ZERO_AVOID)) { 
-						gamma = (a->sel[i]->attr - a->sel[j]->attr) *
-							(b->sel[i]->attr - b->sel[j]->attr);
+						gamma = (a->list[i]->attr - a->list[j]->attr) *
+							(b->list[i]->attr - b->list[j]->attr);
 						uli = i; 
 						ulj = j;
 						push_to_cloud(ev, gamma / 2.0, ddist, TO_NH(uli,ulj));
@@ -489,21 +442,21 @@ static SAMPLE_VGM *cross_variogram(DATA *a, DATA *b, SAMPLE_VGM *ev) {
 					if (! ev->cloud) {
 						index = get_index(ddist, ev);
 						ev->gamma[index] += 
-							SQR(a->sel[i]->attr - b->sel[j]->attr);
+							SQR(a->list[i]->attr - b->list[j]->attr);
 #ifdef ADJUST_VARIANCE
 						if (a->colnvariance || b->colnvariance)
-							ev->gamma[index] -= a->sel[i]->variance +
-								 b->sel[j]->variance;
+							ev->gamma[index] -= a->list[i]->variance +
+								 b->list[j]->variance;
 #endif
 						ev->dist[index] += ddist;
 						ev->pairs[index] = register_pairs(ev->pairs[index],
-							ev->nh[index], a->sel[i], b->sel[j]);
+							ev->nh[index], a->list[i], b->list[j]);
 						ev->nh[index]++;
 					} else if (! (ev->zero == ZERO_AVOID && ddist == 0.0)) {
-						gamma = SQR(a->sel[i]->attr - b->sel[j]->attr);
+						gamma = SQR(a->list[i]->attr - b->list[j]->attr);
 #ifdef ADJUST_VARIANCE
 						if (a->colnvariance || b->colnvariance)
-							gamma -= a->sel[i]->variance + b->sel[j]->variance;
+							gamma -= a->list[i]->variance + b->list[j]->variance;
 #endif
 						uli = i;
 						ulj = j;
@@ -513,7 +466,6 @@ static SAMPLE_VGM *cross_variogram(DATA *a, DATA *b, SAMPLE_VGM *ev) {
 			}/* if ddist >= 0 */
 		}  /* for j */
 	} /* for i */
-	print_progress(a->n_sel, a->n_sel);
 	divide(ev);
 	ev->recalc = 0;
 	return ev;
@@ -526,24 +478,20 @@ static SAMPLE_VGM *cross_covariogram(DATA *a, DATA *b, SAMPLE_VGM *ev) {
 
 	ev->evt = CROSSCOVARIOGRAM;
 	ev = alloc_exp_variogram(a, b, ev);
-	for (i = 0; i < a->n_sel; i++) {      /* i -> a */
-#ifdef USING_R
-		R_CheckUserInterrupt();
-#endif
-		print_progress(i, a->n_sel);
-		for (j = 0; j < b->n_sel; j++) {  /* j -> b */
-			ddist = valid_distance(a->sel[i], b->sel[j], ev->cutoff,
+	for (i = 0; i < a->n_list; i++) {      /* i -> a */
+		for (j = 0; j < b->n_list; j++) {  /* j -> b */
+			ddist = valid_distance(a->list[i], b->list[j], ev->cutoff,
 				gl_sym_ev, a, b, (GRIDMAP *) ev->map); 
 			if (ddist >= 0.0) {
 				if (! ev->cloud) {
 					index = get_index(ddist, ev);
-					ev->gamma[index] += a->sel[i]->attr * b->sel[j]->attr;
+					ev->gamma[index] += a->list[i]->attr * b->list[j]->attr;
 					ev->dist[index] += ddist;
 					ev->pairs[index] = register_pairs(ev->pairs[index],
-						ev->nh[index], a->sel[i], b->sel[j]);
+						ev->nh[index], a->list[i], b->list[j]);
 					ev->nh[index]++;
 				} else if (! (ev->zero == ZERO_AVOID && ddist == 0.0)) {
-					gamma = a->sel[i]->attr * b->sel[j]->attr;
+					gamma = a->list[i]->attr * b->list[j]->attr;
 					uli = i; 
 					ulj = j;
 					push_to_cloud(ev, gamma, ddist, TO_NH(uli,ulj));
@@ -551,7 +499,6 @@ static SAMPLE_VGM *cross_covariogram(DATA *a, DATA *b, SAMPLE_VGM *ev) {
 			}/* if ddist >= 0 */
 		}  /* for j */
 	} /* for i */
-	print_progress(a->n_sel, a->n_sel);
 	divide(ev);
 	ev->recalc = 0;
 	return ev;
@@ -561,7 +508,7 @@ static double valid_distance(DPOINT *a, DPOINT *b, double max,
 		int symmetric, DATA *d1, DATA *d2, GRIDMAP *map) {
 	double ddist, dX, dX2, inprod;
 	DPOINT p;
-	int /* mode = 0, */ i;
+	int mode = 0, i;
 	unsigned int row, col;
 
 	assert(a != NULL);
@@ -569,7 +516,7 @@ static double valid_distance(DPOINT *a, DPOINT *b, double max,
 	assert(d1 != NULL);
 	assert(d2 != NULL);
 
-	/* mode = d1->mode & d2->mode; */
+	mode = d1->mode & d2->mode;
 /*
  * even if modes don't correspond, valid_direction() will 
  * calculate valid distances 
@@ -577,18 +524,18 @@ static double valid_distance(DPOINT *a, DPOINT *b, double max,
 	p.x = a->x - b->x;
 	p.y = a->y - b->y;
 	p.z = a->z - b->z;
-	if (map && !gl_longlat) {
+	if (map) {
 		/* transform here p to allow directional 2d cuts in a 3d world */
 		if (map_xy2rowcol(map, p.x, p.y, &row, &col))
 			return -1.0;
 		else
 			ddist = (1.0 * row) * map->cols + col + 0.5;
 	} else {
-		if (!gl_longlat && (p.x > max || p.y > max || p.z > max))
+		if (p.x > max || p.y > max || p.z > max) 
 			return -1.0;
 		/* Changed K.M. Fri Feb 27 15:56:57 1998 */
 		/* if ddist < 0.0 then we don't need to check for dX! */
-		if ((ddist = valid_direction(a, b, symmetric, d1)) > max || ddist < 0.0) 
+		if ((ddist = valid_direction(&p, symmetric, d1)) > max || ddist < 0.0) 
 			return -1.0;
 	}
 	dX = MIN(d1->dX, d2->dX);
@@ -597,13 +544,10 @@ static double valid_distance(DPOINT *a, DPOINT *b, double max,
 		/* allow only points for which 2-norm ||x_i-x_j|| < dX */
 		if (d1->n_X != d2->n_X)
 			ErrMsg(ER_IMPOSVAL, "valid_distance(): d1->n_X != d2->n_X");
-		for (i = 0, inprod = 0.0; i < d1->n_X; i++) {
+		for (i = 0, inprod = 0.0; i < d1->n_X; i++)
 			inprod += SQR(a->X[i] - b->X[i]);
-			/* printf("a->X[%d]: %g, b->X[%d]: %g", i, a->X[i], i, b->X[i]); */
-		}
 		if (inprod > dX2)
 			ddist = -1.0;
-		/* printf("dX2: %g, inprod: %g ddist: %g\n", dX2, inprod, ddist); */
 	}
 	/*
 	if (d1->coln_id > 0 && d2->coln_id > 0 && strcmp())
@@ -643,31 +587,18 @@ void fill_cutoff_width(DATA *data /* pointer to DATA structure to derive
 	double d = 0.0;
 	int i;
 	GRIDMAP *m;
-	DATA_GRIDMAP *dg;
 	SAMPLE_VGM *ev;
 
 	assert(data);
 	assert(v);
 
 	ev = v->ev;
-	if ((get_n_masks() > 0 && get_method() != LSEM) || ev->S_grid != NULL) {
-		m = new_map(READ_ONLY);
-		if (ev->S_grid) {
-			/* process S_grid to m */
-			dg = (DATA_GRIDMAP *) ev->S_grid;
-			m->x_ul = dg->x_ul;
-			m->y_ul = dg->y_ul;
-			m->cellsizex = dg->cellsizex;
-			m->cellsizey = dg->cellsizey;
-			m->rows = dg->rows;
-			m->cols = dg->cols;
-		} else {
-#ifndef USING_R
-			m->filename = get_mask_name(0);
-			if ((m = map_read(m)) == NULL)
-				ErrMsg(ER_READ, "cannot open map");
-#endif
-		}
+	if (get_n_masks() > 0) {
+		m = new_map();
+		m->is_write = 0;
+		m->filename = get_mask_name(0);
+		if ((m = map_read(m)) == NULL)
+			ErrMsg(ER_READ, "cannot open map");
 		ev->iwidth = 1.0;
 		ev->cutoff = m->rows * m->cols; 
 			/* not a real cutoff, but rather the size of the container array */
@@ -698,9 +629,8 @@ void fill_cutoff_width(DATA *data /* pointer to DATA structure to derive
 	}
 }
 
-#ifndef USING_R
 void fprint_header_vgm(FILE *f, const DATA *a, const DATA *b,
-			const SAMPLE_VGM *ev) {
+		const SAMPLE_VGM *ev) {
 	time_t tp;
 	char *cp = NULL;
 	/* char *pwd; */
@@ -745,7 +675,6 @@ void fprint_header_vgm(FILE *f, const DATA *a, const DATA *b,
 			vgm_type_str[ev->evt]);
 	return;
 }
-#endif
 
 static SAMPLE_VGM *alloc_exp_variogram(DATA *a, DATA *b, SAMPLE_VGM *ev) {
 	int i;
@@ -817,10 +746,6 @@ static void resize_ev(SAMPLE_VGM *ev, unsigned int size) {
 
 static void *register_pairs(void *pairs, unsigned long nh,
 		DPOINT *a, DPOINT *b) {
-/* 
- * while I'm here -- there may be a problem when ->list != ->sel on
- * the DATA used, but I don't know why. Probably will never be used.
- */
 	/* resize pairs; add a and b to it */
 	if (gl_register_pairs == 0)
 		return NULL;
@@ -893,9 +818,6 @@ static void divide(SAMPLE_VGM *ev) {
 				case CROSSCOVARIOGRAM:
 					ev->gamma[i] /= (1.0 * ev->nh[i]);
 					break;
-				case PRSEMIVARIOGRAM:
-					ev->gamma[i] /= (2.0 * ev->nh[i]);
-					break;
 				case NOTSPECIFIED: /* BREAKTHROUGH */
 				default:
 					assert(0);
@@ -913,13 +835,8 @@ void fprint_sample_vgm(FILE *f, const SAMPLE_VGM *ev) {
 	if (! ev->cloud) {
 		/* start writing: distance 0 */
 		if (ev->zero == ZERO_SPECIAL && ev->nh[ev->n_est-1])
-#ifndef USING_R
-			Rprintf(EVFMT, 0.0, 0.0, ev->nh[ev->n_est-1], 
-				ev->dist[ev->n_est-1], ev->gamma[ev->n_est-1]);
-#else 
 			fprintf(f, EVFMT, 0.0, 0.0, ev->nh[ev->n_est-1], 
 				ev->dist[ev->n_est-1], ev->gamma[ev->n_est-1]);
-#endif
 		/* continue writing: */
 		if (ev->zero == ZERO_SPECIAL || ev->zero == ZERO_AVOID)
 			n = ev->n_est - 1;
@@ -938,13 +855,8 @@ void fprint_sample_vgm(FILE *f, const SAMPLE_VGM *ev) {
 					to = gl_bounds[i];
 				}
 				to = MIN(ev->cutoff, to);
-#ifndef USING_R
-				Rprintf(EVFMT, from, to, ev->nh[i],
-					ev->dist[i], ev->gamma[i]);
-#else
 				fprintf(f, EVFMT, from, to, ev->nh[i],
 					ev->dist[i], ev->gamma[i]);
-#endif
 				/*
 				for (j = 0; j < ev->nh[i]; j++)
 					fprintf(f, "[%d,%d] ",
@@ -956,17 +868,10 @@ void fprint_sample_vgm(FILE *f, const SAMPLE_VGM *ev) {
 		}
 	} else {
 		for (i = 0; i < ev->n_est; i++)
-#ifndef USING_R
-			Rprintf("%ld %ld %g %g\n", HIGH_NH(ev->nh[i]) + 1,
-				LOW_NH(ev->nh[i]) + 1, ev->dist[i], ev->gamma[i]);
-#else
 			fprintf(f, "%ld %ld %g %g\n", HIGH_NH(ev->nh[i]) + 1,
 				LOW_NH(ev->nh[i]) + 1, ev->dist[i], ev->gamma[i]);
-#endif
 	}
-#ifndef USING_R
 	fflush(f);
-#endif
 	return;
 } /* fprint_sample_vgm */
 
@@ -996,7 +901,6 @@ static void ev2map(VARIOGRAM *v) {
 	return;
 }
 
-#ifndef USING_R
 static SAMPLE_VGM *load_ev(SAMPLE_VGM *ev, const char *fname) {
 	char *s = NULL, *tok;
 	int i, size = 0, incr = 100;
@@ -1066,4 +970,3 @@ static SAMPLE_VGM *load_ev(SAMPLE_VGM *ev, const char *fname) {
 	efclose(f);
 	return ev;
 }
-#endif

@@ -1,0 +1,58 @@
+@Section
+ @Title{ Managing geostatistical projects }
+ @Tag{how}
+@Begin
+
+@DP
+In practice, geostatistical projects are often performed in a complex
+environment, e.g. an environment where data are obtained from a large
+database, where maps are stored, processed and printed using a GIS
+(geographical information system, Burrough, 1986) or where resulting
+maps (e.g.  simulations) are input to complex models. Also, large
+geostatistical projects may involve the modelling and prediction of many
+variables, or multiple simulation of many variables. Post processing of
+results may involve sensitivity analysis, map production or statistical
+analysis.
+
+@PP
+Essential to the success of such a complex project is the structuring of
+data flow and data processing steps. This structuring is best done by
+cutting the project into small steps (sub-processes) that are easily
+understood, verified and controlled. Intermediate results can be stored
+in files on a filesystem or in some database, and easy rules (commands)
+should create, update or verify files when necessary.
+
+@PP
+Often, a large part of such sub-processes has a repetitive nature and
+does not need user interaction. To avoid the risc of mistakes resulting
+from user interaction, that part should be automated. Project management
+tools can be instructed how files depend on each other, and how a
+dependent file should be updated when it is older than a file it depends
+on. In such an environment, gstat lends itself well for executing small,
+non-interactive steps, because the full functionality is available
+through command files. To register data flow, gstat documents the most
+relevant execution information (program version, command file name,
+prediction method and contents of the output variable) in the output
+files, whenever the file format used permits inclusion of such meta data.
+
+@PP
+An instance of automated data processing for a complex problem is the
+production of a groundwater quality atlas of the Netherlands (Pebesma,
+1996). The atlas comprised about 350 separate maps, 350 variograms and
+involved about 1000 distinct kriging settings. After visual examination
+(and iterated modification) of the sample variograms and fitted models,
+the data selection, generation of command files, postprocessing of
+resulting maps, plotting of the maps and the generation of the final
+report were all done with the unix tools awk, sh, sed, grep, along
+with gstat, PCRaster (a grid-based GIS, Wesseling et al., 1996), and a
+document formatting system (Kingston, 1993). The file dependency
+management was done with make, typing `make all' would trigger the
+execution of all commands necessary to produce the atlas. Currently
+gstat is being used for the generation of input maps for a Monte Carlo
+simulation, where the uncertainty of groundwater quality model outputs
+that results from uncertainty in input variables, is studied. To
+increase the efficiency of the Monte Carlo procedure, latin hypercube
+sampling (Stein, 1987) of the spatially correlated simulations has been
+implemented.
+
+@End @Section

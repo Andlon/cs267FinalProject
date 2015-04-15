@@ -31,12 +31,16 @@
   Radical revision completed Mon 07th Dec 1992, 10:59:57 AM
 */
 
-static	char	rcsid[] = "$Id: spbkp.c,v 1.2 2008-05-19 09:58:07 edzer Exp $";
+static	char	rcsid[] = "$Id: spbkp.c,v 1.5 1994/01/13 05:44:35 des Exp $";
 
 #include	<stdio.h>
 #include        "sparse2.h"
 #include	<math.h>
 
+
+#ifdef MALLOCDECL
+#include <malloc.h>
+#endif
 
 #define alpha	0.6403882032022076 /* = (1+sqrt(17))/8 */
 
@@ -559,9 +563,9 @@ SPMAT	*A;
 PERM	*pivot, *blocks;
 double	tol;
 {
-    int		i, j, k, l, n, onebyone /* , r */ ;
+    int		i, j, k, l, n, onebyone, r;
     int		idx, idx1, idx_piv;
-    /* int		row_num; */
+    int		row_num;
     int		best_deg, best_j, best_l, best_cost, mark_cost, deg, deg_j,
 			deg_l, ignore_deg;
     int		list_idx, list_idx2, old_list_idx;
@@ -653,7 +657,7 @@ double	tol;
 	/* now we can chase through the nodes in order of increasing
 	   degree, picking out the ones that satisfy our stability
 	   criterion */
-	list_idx = 0;	/* r = -1 */ ;
+	list_idx = 0;	r = -1;
 	best_j = best_l = -1;
 	for ( deg = 0; deg <= n; deg++ )
 	{
@@ -809,7 +813,7 @@ double	tol;
 	    scan_idx = iv_resize(scan_idx,r_piv->len);
 	    col_list = iv_resize(col_list,r_piv->len);
 	    orig_idx = iv_resize(orig_idx,r_piv->len);
-	    /* row_num = i; */	s_idx = idx = 0;
+	    row_num = i;	s_idx = idx = 0;
 	    e = &(r_piv->elt[idx]);
 	    for ( idx = 0; idx < r_piv->len; idx++, e++ )
 	    {

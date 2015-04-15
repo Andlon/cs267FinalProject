@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -147,8 +146,6 @@ void curses_printlog(const char *s);
 void set_mouse_on(void);
 int get_mouse_y(void);
 int get_mouse_button(void);
-void curses_warning(const char *msg);
-void curses_error(const char *msg, int errno);
 
 VGM_MODEL_TYPE toggle_model(int i, VGM_MODEL_TYPE m);
 
@@ -509,6 +506,7 @@ void enter_data(int key) {
 	char s[STRLEN];
 	DATA **d = NULL, *data = NULL;
 	VARIOGRAM *vp = NULL;
+	FILE *f = NULL;
 
 	s[0] = '\0';
 	n_at_start = get_n_vars();
@@ -641,7 +639,7 @@ void vgm_model(int key) {
 			prompt_for(vgm_s, PR_DOUBLE, &(vp->sill));
 			m = toggle_model(i, vp->model);
 			sprintf(vgm_s, "\rModel %d, range:", i+1);
-			prompt_for(vgm_s, PR_DOUBLE, &(vp->range[0]));
+			prompt_for(vgm_s, PR_DOUBLE, &(vp->range));
 			if (vp->tm_range != NULL) {
 				move(LINES - 5, 0); /* place cursor */
 				sprintf(vgm_s, "\rModel %d, angle 1:", i+1);
@@ -1664,7 +1662,7 @@ void fix_toggle(VARIOGRAM *v, int fix) {
 }
 
 void curses_printlog(const char *s) {
-	addstr((char *) s);
+	addstr(s);
 }
 
 void set_mouse_on(void) {

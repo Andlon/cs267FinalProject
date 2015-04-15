@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,11 +42,7 @@
 #include "random.h"
 #include "predict.h"
 #include "defaults.h" /* default values for gl_* variables */
-
-#ifndef USING_R
-# include "writecmd.h" /* printlog_glvars() */
-#endif
-
+#include "writecmd.h" /* printlog_glvars() */
 #include "glvars.h"
 #include "gls.h"
 #include "block.h"
@@ -76,7 +71,7 @@ int gl_gauss; /* gaussian quadr. block covariances ? */
 int gl_iter; /* max. n. iter for mivque estimates */
 int gl_jgraph; /* do jgraph plot in batch mode ? */
 int gl_lhs; /* apply Latin hypercube sampling to Gaussian simulations */
-int gl_longlat; /* indicates whether coordinates are longitude/latitude, or Euclidian */
+int gl_mvbeta; /* estimate beta multivariable */
 int gl_nblockdiscr; /* block discrimination in each dimension */
 int gl_n_intervals; /* n variogram intervals */
 int gl_n_marginals; /* the n marginal distributions */
@@ -87,11 +82,9 @@ int gl_nocheck; /* do not check LMC/IC ? */
 int gl_order; /* do order relation correction */
 int gl_plotweights; /* plot kriging weights? */
 int gl_register_pairs; /* register sample variogram pairs? */
-int gl_rowwise; /* deal with raster maps row-wise, or as complete blocks? */
 int gl_rp; /* follow random path for gs/is? */
 int gl_secure; /* disallow system() and popen()? */
 int gl_seed; /* seed is set? */
-int gl_sim_beta; /* simulation mode for beta: 0 multiv GLS, 1 univ GLS, 2 OLS */
 int gl_spiral; /* do spiral search if possible? */
 int gl_split; /* see nsearch.c: was Q_SPLIT_AT */
 int gl_sym_ev; /* default symmetric ps.cr.v./cr.cv. ? */
@@ -139,7 +132,7 @@ const METHODS methods[] = { /* methods and codes */
 	{ UKR,      0, "uk" },   /* universal kriging */
 	{ SKR,      0, "sk" },  /* simple kriging */
 	{ IDW,      0,  "id" }, /* inverse distance interpolation */
-	{ MED,      0, "med" }, /* (local) sample median or quantiles */
+	{ MED,      0, "med" }, /* (local) sample median or quantile */
 	{ NRS,      0, "n$r" }, /* neighbourhood size */
 	{ LSLM,     0, "tr$end" },  /* uncorrelated (or weighted) linear model */
 	{ GSI,      1,  "gs" }, /* gaussian (conditional) simulation */
@@ -150,9 +143,7 @@ const METHODS methods[] = { /* methods and codes */
 	{ SPREAD,   0, "di$stance" }, /* distance to nearest sample */
 	{ XYP,      0, "xy" },  /* x and y coordinate of location */
 	{ POLY,     0, "point-in-polygon" }, /* point-in-polygon */
-	{ DIV,      0, "div" }, /* diversity and modus */
-	{ SKEW,     0, "skew" }, /* skewness and kurtosis */
-	{ LSEM,     0, "lsem" }, /* locally estimated/fitted variogram parameters */
+	{ DIV,      0, "div" }, /* diversity and range */
 	{ TEST,     0, "test" },  /* do-nothing? */
 	{ NSP,      0, NULL } /* terminating field */
 };
@@ -190,7 +181,7 @@ int init_global_variables(void) {
 	gl_iter            = DEF_iter;
 	gl_jgraph          = DEF_jgraph;
 	gl_lhs             = DEF_lhs;
-	gl_longlat         = DEF_longlat;
+	gl_mvbeta          = DEF_mvbeta;
 	gl_nblockdiscr     = DEF_nblockdiscr;
 	gl_n_intervals     = DEF_intervals;
 	gl_n_marginals     = DEF_n_marginals;
@@ -201,11 +192,9 @@ int init_global_variables(void) {
 	gl_order           = DEF_order;
 	gl_plotweights     = DEF_plotweights;
 	gl_register_pairs  = DEF_pairs;
-	gl_rowwise         = DEF_rowwise;
 	gl_rp              = DEF_rp;
 	gl_secure          = DEF_secure;
 	gl_seed            = DEF_seed;
-	gl_sim_beta        = DEF_sim_beta;
 	gl_spiral          = DEF_spiral;
 	gl_split           = DEF_split;
 	gl_sym_ev          = DEF_sym_ev;
@@ -213,7 +202,7 @@ int init_global_variables(void) {
 	gl_sparse          = DEF_sparse;
 	gl_xvalid          = DEF_xvalid;
 	gl_zero_est        = DEF_zero_est;
-	gl_bounds          = DEF_bounds;
+	gl_bounds      = DEF_bounds;
 	gl_marginal_values = DEF_marginal_values;
 	gl_cutoff       = DEF_cutoff;
 	gl_fit_limit    = DEF_fit_limit;
@@ -247,13 +236,10 @@ int init_global_variables(void) {
 	plotfile         = NULL;
 	
 	init_gstat_data(0);
-	/* EJPXX 
-	 * 	if (valdata == NULL)
-	 * 	*/
-	valdata = init_one_data(valdata);
+	valdata = (DATA *) emalloc(sizeof(DATA));
+	init_one_data(valdata);
 	block.x = block.y = block.z = 0.0;
 	set_mv_double(&gl_zmap);
-	get_covariance(NULL, 0, 0, 0);
 	return 0;
 }
 
@@ -487,7 +473,7 @@ const char *method_string(METHOD i) {
 			sprintf(mstr, "using %suniversal %skriging", str, co);
 			break;
 		case GSI:
-			sprintf(mstr, "using %s%sconditional Gaussian %ssimulation%s",
+			sprintf(mstr, "using %s%sconditional gaussian %ssimulation%s",
 				str, un, co, gsum);
 			break;
 		case ISI:
@@ -498,13 +484,7 @@ const char *method_string(METHOD i) {
 			sprintf(mstr, "point-in-polygon");
 			break;
 		case DIV:
-			sprintf(mstr, "within-neighbourhood diversity and modus");
-			break;
-		case SKEW:
-			sprintf(mstr, "skewness and kurtosis");
-			break;
-		case LSEM:
-			sprintf(mstr, "local semivariance or locally fitted semivariogram parameters");
+			sprintf(mstr, "within-neighbourhood diversity");
 			break;
 	}
 	return mstr;
@@ -604,7 +584,6 @@ double max_block_dimension(int reset) {
 	return dim;
 }
 
-#ifndef USING_R
 int dump_all(void) {
 	int i;
 	char *cp = NULL;
@@ -644,7 +623,6 @@ int dump_all(void) {
 	printlog("method: %s\n", method_string(get_method()));
 	return 0;
 }
-#endif
 
 void setup_valdata_X(DATA *d) {
 /* 
@@ -722,9 +700,7 @@ METHOD get_default_method(void) {
  * check on variograms
  */
 	for (i = 0, Vgm_set = 0; i < get_n_vars(); i++)
-		if (vgm[LTI(i,i)] != NULL && 
-				(vgm[LTI(i,i)]->n_models > 0 || vgm[LTI(i,i)]->table != NULL)) 
-					/* was: ->id >= 0*/
+		if (vgm[LTI(i,i)] != NULL && vgm[LTI(i,i)]->n_models > 0) /* was: ->id >= 0*/
 			Vgm_set++;
 	if (!(Vgm_set == 0 || Vgm_set == get_n_vars()))
 		ErrMsg(ER_SYNTAX, "set either all or no variograms");
@@ -793,10 +769,8 @@ void set_mode(void) {
 		/* if STRATIFIED: first mask categories, then base functions */
 		check_failed = (1 + nm != n_masks);
 	}
-#ifndef USING_R
 	if (! check_failed)
 		check_failed = !is_valid_strata_map(get_mask_name(0), get_n_vars());
-#endif
 	if (check_failed) {
 		mode = SIMPLE;
 		return;
@@ -982,11 +956,9 @@ void check_global_variables(void) {
 		if (data[i]->sel_rad == DBL_MAX && data[i]->oct_max > 0)
 			ErrMsg(ER_IMPOSVAL, 
 				"define maximum search radius (rad) for octant search");
-#ifndef USING_R
 		if (data[i]->vdist && (vgm[LTI(i,i)] == NULL 
 				|| vgm[LTI(i,i)]->n_models <= 0))
 			ErrMsg(ER_IMPOSVAL, "define direct variogram models to use vdist");
-#endif
 		if (data[i]->vdist && data[i]->sel_rad == DBL_MAX)
 			ErrMsg(ER_IMPOSVAL, "when using vdist, radius should be set");
 		if (! data[i]->dummy && ! (data[i]->mode & V_BIT_SET)) {
@@ -1049,7 +1021,6 @@ void check_global_variables(void) {
 			ErrMsg(ER_IMPOSVAL, "# marginals should be 2 x # of variables");
 	}
 	v_tmp = init_variogram(NULL);
-#ifndef USING_R
 	for (i = 0; i < get_n_vgms(); i++) {
 		if (vgm[i]) {
 			if (vgm[i]->fname && read_variogram(v_tmp, vgm[i]->fname) == 0)
@@ -1058,30 +1029,18 @@ void check_global_variables(void) {
 				pr_warning("NOTE that `%s' is a file name, variogram models never have quotes", vgm[i]->fname2);
 		}
 	}
-#endif
-	free_variogram(v_tmp);
 } 
 
 void remove_all(void) {
 
 	while (n_vars)
 		remove_id(0); /* hard way */
-	/* for (i = n_vars-1; i >= 0; i--)
-		remove_id(i);
-	*/
-	/* remove_id(n_vars - 1);  */
+		/* remove_id(n_vars - 1);  */
 	/* the hard way; remove_id(n_vars-1) would be the ``easy'' alternative */
 	gls(NULL, 0, GLS_INIT, NULL, NULL); /* cleans up static arrays */
 	what_is_outfile(-1); /* cleans up static array */
 	reset_block_discr(); /* resets block settings */
 	max_block_dimension(1); /* reset */
-	if (gl_bounds != NULL) {
-		efree(gl_bounds);
-		gl_bounds = NULL;
-	}
-	if (valdata != NULL)
-		free_data(valdata);
-	valdata = NULL;
 }
 
 int remove_id(const int id) {

@@ -1,0 +1,112 @@
+.lf 1 RcomputeExtend.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RcomputeExtend" 3 "13 August 1999" "c2man rextend.c"
+.SH "NAME"
+RcomputeExtend \- compute (xUL,yUL) and nrRows, nrCols from some coordinates
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+void RcomputeExtend
+.br
+(
+.br
+	REAL8 *xUL,
+.br
+	REAL8 *yUL,
+.br
+	size_t *nrRows,
+.br
+	size_t *nrCols,
+.br
+	double x_1,
+.br
+	double y_1,
+.br
+	double x_2,
+.br
+	double y_2,
+.br
+	CSF_PT projection,
+.br
+	REAL8 cellSize,
+.br
+	double rounding
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "REAL8 *xUL"
+write-only, resulting xUL
+.TP
+.B "REAL8 *yUL"
+write-only, resulting yUL
+.TP
+.B "size_t *nrRows"
+write-only, resulting nrRows
+.TP
+.B "size_t *nrCols"
+write-only, resulting nrCols
+.TP
+.B "double x_1"
+first x-coordinate
+.TP
+.B "double y_1"
+first y-coordinate
+.TP
+.B "double x_2"
+second x-coordinate
+.TP
+.B "double y_2"
+second y-coordinate
+.TP
+.B "CSF_PT projection"
+required projection
+.sp
+Possible values for a \fBCSF_PT\fR are as follows:
+.IP
+* these two can be returned by or passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_YINCT2B\fR
+Y increase from top to bottom
+.TP \n(TLu
+\fBPT_YDECT2B\fR
+Y decrease from top to bottom
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.TP
+.B "REAL8 cellSize"
+required cellsize, > 0
+.TP
+.B "double rounding"
+assure that (xUL/rounding), (yUL/rouding)
+(xLL/rounding) and (yLL/rounding) will
+will all be an integers values > 0
+.SH "DESCRIPTION"
+RcomputeExtend computes parameters to create a raster maps
+from minimum and maximum x and y coordinates, projection information,
+cellsize and units. The resulting parameters are computed that the
+smallest raster map can be created that will include the two
+coordinates given, assuming a default angle of 0.
+Which coordinates are the maximum or minimum are
+determined by the function itself.

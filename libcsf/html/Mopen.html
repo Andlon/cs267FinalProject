@@ -1,0 +1,75 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>Mopen - open an existing CSF file</title>
+</header>
+<body>
+<h1>NAME</h1>
+Mopen - open an existing CSF file
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+MAP *Mopen
+(
+	const char *fileName,
+	enum MOPEN_PERM mode
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const char *fileName<dd>
+file name
+<dt>
+enum MOPEN_PERM mode<dd>
+file permission
+<p>
+Possible values for an <pre>enum MOPEN_PERM</pre>
+ are as follows:
+<ul><li>M_READ - Open read only.<p>
+<li>M_WRITE - Open write only.<p>
+<li>M_READ_WRITE - Open for both reading and writing.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+Mopen opens a CSF file. It allocates space for
+the MAP runtime-structure, reads the header file
+and performs test to determine if it is a CSF file.
+The MinMaxStatus is set to MM_KEEPTRACK if the min/max
+header fields are not MV or MM_WRONGVALUE if one of them
+contains a MV.
+<h1>RETURNS</h1>
+a pointer the MAP runtime structure if the file is
+successfully opened as a CSF file, NULL if not.
+<h1>MERRNO</h1>
+NOCORE BADACCESMODE OPENFAILED NOT_CSF BAD_VERSION
+<h1>EXAMPLE</h1>
+<tt><pre>
+#include &lt;stdio.h&gt;
+#include &quot;csf.h&quot;
+
+/* test if files are CSF files
+ * writing error messages to
+ * stdout  
+ */
+
+void main(int argc, char *argv[] )
+{
+  MAP *map;
+  int i;
+
+  for(i=1; i &lt; argc; i++)
+    if ((map = Mopen(argv[1], M_READ)) == NULL)
+    {
+        printf(&quot;%s %s\n&quot;, argv[i], MstrError());
+        ResetMerrno();
+    }
+    else
+    {
+        printf(&quot;%s is a CSF file\n&quot;,argv[i]);
+        Mclose(map);
+    }
+
+  exit(0);
+}
+</pre></tt>
+
+</body>

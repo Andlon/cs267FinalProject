@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -86,11 +85,7 @@ static void fill_est(DATA **d, VEC *blup, MAT *MSPE, int n_vars, double *est);
 static void debug_result(VEC *blup, MAT *MSPE, enum GLS_WHAT pred);
 static VEC *get_mu(VEC *mu, const VEC *y, DATA **d, int nvars);
 static MAT *get_corr_mat(MAT *C, MAT *R);
-
-#ifndef USING_R
 static void plot_weights(DATA **d, int nvars, DPOINT *where, MAT *weights);
-#endif
-
 #define M_DEBUG(a,b) { if (DEBUG_COV){printlog("\n# %s:\n", b); \
 	m_logoutput(a);}}
 #define V_DEBUG(a,b) {if (DEBUG_COV){printlog("\n# %s:\n", b); \
@@ -148,8 +143,7 @@ void gls(DATA **d /* pointer to DATA array */,
 		*Tmp1 = MNULL, *Tmp2 = MNULL, *Tmp3, *R = MNULL;
 	static VEC *blup = VNULL, *tmpa = VNULL, *tmpb = VNULL;
 	volatile unsigned int i, rows_C;
-	unsigned int j, k, l = 0, row, col, start_i, start_j, start_X, global,
-		one_nbh_empty;
+	unsigned int j, k, l = 0, row, col, start_i, start_j, start_X, global;
 	VARIOGRAM *v = NULL;
 	static enum GLS_WHAT last_pred = GLS_INIT; /* the initial value */
 	double c_value, *X_ori;
@@ -219,23 +213,17 @@ void gls(DATA **d /* pointer to DATA array */,
 /* 
  * selection dependent problem dimensions: 
  */
-	for (i = rows_C = 0, one_nbh_empty = 0; i < n_vars; i++) {
+	for (i = rows_C = 0; i < n_vars; i++)
 		rows_C += d[i]->n_sel;
-		if (d[i]->n_sel == 0)
-			one_nbh_empty = 1;
-	}
 
-	if (rows_C == 0 /* all selection lists empty */
-			|| one_nbh_empty == 1) { /* one selection list empty */
+	if (rows_C == 0) { /* empty selection list(s) */
 		if (pred == GLS_BLP || UPDATE_BLP)
 			debug_result(blup, MSPE, pred);
 		return;
 	}
 
 	for (i = 0, global = 1; i < n_vars && global; i++)
-		global = (d[i]->sel == d[i]->list 
-				&& d[i]->n_list == d[i]->n_original
-				&& d[i]->n_list == d[i]->n_sel);
+		global = (d[i]->sel == d[i]->list && d[i]->n_list == d[i]->n_original);
 
 /*
  * global things: enter whenever (a) first time, (b) local selections or
@@ -539,10 +527,8 @@ void gls(DATA **d /* pointer to DATA array */,
 		Tmp1 = m_mlt(glm->CinvX, Tmp3, Tmp1);
 		Tmp2 = m_add(Tmp1, CinvC0, Tmp2);
 		M_DEBUG(Tmp2, "kriging weights");
-#ifndef USING_R
 		if (plotfile)
 			plot_weights(d, n_vars, where, Tmp2);
-#endif
 		if (DEBUG_COV)
 			printlog("\n\n");
 	}
@@ -611,9 +597,6 @@ static void debug_result(VEC *blup, MAT *MSPE, enum GLS_WHAT pred) {
 }
 
 double *make_gls(DATA *d, int calc_residuals) {
-/* 
- * if calc_residuals == 0, return value is allocated, but not freed 
- */
 	int i, j, size;
 	double *est = NULL;
 	DATA **data;
@@ -662,9 +645,6 @@ double *make_gls(DATA *d, int calc_residuals) {
 }
 
 double *make_gls_mv(DATA **d, int n_vars) {
-/* 
- * allocates memory for est (return value) but does not free it 
- */
 	int i, j, sum_X, index, size = 0;
 	double *est = NULL;
 	GLM *glm;
@@ -695,7 +675,6 @@ double *make_gls_mv(DATA **d, int n_vars) {
 		}
 	}
 	gls(NULL, 0, GLS_INIT, NULL, NULL);
-	efree(where.X);
 	return est;
 }
 
@@ -728,16 +707,6 @@ void free_glm(void *v_glm) {
 		v_free(glm->y);
 	if (glm->beta)
 		v_free(glm->beta);
-	if (glm->mu0)
-		v_free(glm->mu0);
-	if (glm->mu)
-		v_free(glm->mu);
-	/* EJPXX
-	if (glm->mu)
-		v_free(glm->mu);
-	if (glm->mu0)
-		v_free(glm->mu0);
-	*/
 	free(glm);
 }
 
@@ -749,10 +718,7 @@ static void convert_C(MAT *C, VEC *mu, double (*fn)(double)) {
 	assert(C->m == mu->dim);
 
 	for (i = 0; i < mu->dim; i++) {
-		/* assert(mu->ve[i] >= 0.0); */
-		/* be more friendly: */
-		if (mu->ve[i] < 0.0)
-			ErrMsg(ER_IMPOSVAL, "can not take square root of negative mean values!");
+		assert(mu->ve[i] >= 0.0);
 		C->me[i][i] *= fn(mu->ve[i]);
 		sqrtfni = sqrt(fn(mu->ve[i]));
 		for (j = 0; j < i; j++)
@@ -826,7 +792,6 @@ static MAT *get_corr_mat(MAT *C, MAT *R) {
 	return(R);
 }
 
-#ifndef USING_R
 static void plot_weights(DATA **d, int nvars, DPOINT *where, MAT *weights) {
 	int i, j, k, l, ps;
 	static int ps_min = 0, ps_max = 0, *index = NULL /*, gif = 0 */ ;
@@ -918,7 +883,7 @@ static void plot_weights(DATA **d, int nvars, DPOINT *where, MAT *weights) {
 	fprintf(plotfile, "\n"); /* newline before next point location */
 	return;
 }
-#endif /* USING_R */
+
 
 #ifdef HAVE_SPARSE
 /* sp_foutput -- output sparse matrix A to file/stream fp */

@@ -1,0 +1,64 @@
+@SysInclude { doc }
+@Doc @Text @Begin
+
+
+lines @Break { 
+Mrs Kathryn MacKinnon
+(Editorial Assistant Computers and Geosciences)
+P.O. Box 26128
+72 Robertson Road
+Nepean
+Ontario, Canada K2H 9R0
+}
+
+@DP
+@DP
+Amsterdam, @Date @Right { Manuscript Number: 97-50 }
+@DP
+@DP
+Dear Mrs MacKinnon,
+@DP
+With this letter I submit the revised version of manuscript 97-50
+(``Gstat, a program for geostatistical modelling, prediction and
+simulation''), along with the copyright form and the text diskette.
+
+@DP
+Besides very minor text updates, in this revision I followed all the
+comments of the reviewers.  Following reviewer 964, the following
+modifications were made: (i) the search strategy in gstat was modified,
+octant or quadrant search was added and this is reported in the paper
+(note 4) (ii) text modifications and reference suggestions (notes 1, 2,
+3 and 5-10) were followed.  Following the advice of reviewer 153, the
+discussion was completely rewritten. The strengths of gstat and the need
+to publish this new program are better explained, and the additional
+value of it were clarified and compared to GSLIB and GeoEAS.
+
+@DP
+Development of gstat is still continuing, and the latest stable version
+is always placed on the gstat homepage,
+"http://www.frw.uva.nl/~pebesma/gstat/" .  This is written in the
+manual, but I would appreciate it very much when the FTP site IAMG.ORG
+would point people who download gstat to this site.  Since the program
+is available on the gstat homepage along with manuals, binary
+executables, example data sets and command files, demonstration pages, I
+will not send it on a separate disk. (I do not favour copying sources
+only to the IAMG site because after a while a newer version will become
+available, and all other information on the gstat home page seems
+relevant somehow. However, anyone is free to do so.)
+
+@DP
+
+@DP
+Best regards,
+
+@DP @DP @DP
+lines @Break { Edzer J. Pebesma
+email: "e.j.pebesma@frw.uva.nl"
+phone: +31 20 5257398 (work) or +31 30 2885130 (home)
+fax: +31 20 5257431
+University of Amsterdam,
+Landscape and Environmental Research Group
+Nieuwe Prinsengracht 130, 1018 VZ Amsterdam
+The Netherlands
+}
+@End @Text

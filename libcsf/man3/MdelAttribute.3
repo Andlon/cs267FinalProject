@@ -1,0 +1,91 @@
+.lf 1 MdelAttribute.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MdelAttribute" 3 "13 August 1999" "c2man delattr.c"
+.SH "NAME"
+MdelAttribute \- delete attribute from map
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+CSF_ATTR_ID MdelAttribute
+.br
+(
+.br
+	MAP *m,
+.br
+	CSF_ATTR_ID id
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+map handle
+.TP
+.B "CSF_ATTR_ID id"
+identification of attribute
+.sp
+Possible values for a \fBCSF_ATTR_ID\fR are as follows:
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'ATTR_ID_DESCRIPTION'u+0.2i
+.ft R
+.TP \n(TLu
+\fBATTR_ID_LEGEND_V1\fR
+version 1 legend
+.TP \n(TLu
+\fBATTR_ID_HISTORY\fR
+history fields
+.TP \n(TLu
+\fBATTR_ID_COLOUR_PAL\fR
+colour palette
+.TP \n(TLu
+\fBATTR_ID_GREY_PAL\fR
+grey palette
+.TP \n(TLu
+\fBATTR_ID_DESCRIPTION\fR
+description
+.TP \n(TLu
+\fBATTR_ID_LEGEND_V2\fR
+version 2 legend
+.RE
+.PD
+.SH "DESCRIPTION"
+MdelAttribute deletes an attribute
+from a map, if the attribute is available.
+.SH "RETURNS"
+the id argument if the attribute is succesfully deleted,
+or 0 in case of error or if the attribute is not found.
+.sp
+Possible values for a \fBCSF_ATTR_ID\fR are as follows:
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'ATTR_ID_DESCRIPTION'u+0.2i
+.ft R
+.TP \n(TLu
+\fBATTR_ID_LEGEND_V1\fR
+version 1 legend
+.TP \n(TLu
+\fBATTR_ID_HISTORY\fR
+history fields
+.TP \n(TLu
+\fBATTR_ID_COLOUR_PAL\fR
+colour palette
+.TP \n(TLu
+\fBATTR_ID_GREY_PAL\fR
+grey palette
+.TP \n(TLu
+\fBATTR_ID_DESCRIPTION\fR
+description
+.TP \n(TLu
+\fBATTR_ID_LEGEND_V2\fR
+version 2 legend
+.RE
+.PD
+.SH "MERRNO"
+NOACCESS
+WRITE_ERROR

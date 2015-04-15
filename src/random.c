@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h> /* rand(), drand48() */
 #include <math.h> 	/* sqrt() */
+#include <assert.h>
 
 #include "defs.h" /* may define HAVE_DRAND48 */
 #include "utils.h"
@@ -110,7 +110,7 @@ void set_rng_functions(
 		const char *name) {
 	my_rng.r_unif = unif;
 	my_rng.r_normal = norm;
-	sprintf(start_up, "%s", name);
+	sprintf(start_up, name);
 	init = 1; /* the caller's responsibility, obviously */
 	return;
 }
@@ -132,8 +132,9 @@ static unsigned long int time_seed(void) {
 
 #ifdef HAVE_GETTIMEOFDAY
 	struct timeval tv;
+	struct timezone tz;
 
-	if (gettimeofday(&tv, NULL) == 0)
+	if (gettimeofday(&tv, &tz) == 0)
 		return (unsigned long int) tv.tv_sec * 1000000 + tv.tv_usec;
 	else
 		return (unsigned long int) time(NULL);
@@ -168,8 +169,17 @@ static void init_random(void) {
 	my_rng.r_normal = my_gsl_normal;
 	printlog("using the GSL random number generator\n");
 	return;
+#else
+# ifdef HAVE_DRAND48
+	sprintf(start_up, 
+		"using drand48() as random number generator, seed %lu\n", seed);
+	srand48(seed);
+	printlog("using drand48() as random number generator\n");
+	my_rng.r_unif = drand48;
+	my_rng.r_normal = my_normal;
+	return;
+# endif
 #endif
-
 	if (seed > 65536) {
 		a = seed << 16;
 		a = a >> 16;
@@ -182,17 +192,6 @@ static void init_random(void) {
 	my_rng.r_normal = my_normal;
 	printlog("using Marsaglia's random number generator\n");
 	return; 
-
-#ifdef USE_DRAND48 /* effectively outcommented */
-	sprintf(start_up, 
-		"using drand48() as random number generator, seed %lu\n", seed);
-	srand48(seed);
-	printlog("using drand48() as random number generator\n");
-	my_rng.r_unif = drand48;
-	my_rng.r_normal = my_normal;
-	return;
-#endif
-
 }
 
 /*
@@ -225,7 +224,6 @@ double r_uniform(void) {
 	return my_rng.r_unif();
 }
 
-#ifndef USING_R
 int e_random(int argc, char *argv[]) {
 
 	int un, n, i;
@@ -251,7 +249,6 @@ int e_random(int argc, char *argv[]) {
 			printf("%g\n", r_normal());
 	return 0;
 }
-#endif
 
 /*
  * [pqr]_normal: functions for Normal(mean=0,var=1) distribution

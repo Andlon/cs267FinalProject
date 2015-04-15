@@ -1,0 +1,67 @@
+@SysInclude { doc }
+@Doc @Text @Begin
+
+
+lines @Break { 
+Mrs Kathryn MacKinnon
+(Editorial Assistant Computers and Geosciences)
+P.O. Box 26128
+72 Robertson Road
+Nepean
+Ontario, Canada K2H 9R0
+}
+
+@DP
+@DP
+@Right { Amsterdam, @Date }
+@DP
+@DP
+Dear Mrs MacKinnon,
+@DP
+With this letter I submit the paper ``Gstat, a program for
+geostatistical modelling, prediction and simulation'' in triplicate. The
+paper describes the program gstat, which I developed during the past six
+years. Gstat has been used extensively in ongoing research, as well as
+in computer classes for MSc students at the department of Physical
+Geography at Utrecht University. It has been available as a binary
+executable as part of the GIS PCRaster
+("http://www.frw.ruu.nl/pcraster.html"), and since a few months it has
+been announced on the AI-GEOSTATS mailing list, which has so far led to
+more than hundred downloads.
+
+@DP
+In the authors opinion, gstat fills a major gap in the free or low-cost
+software currently available. With this gap we refer to (i) a program
+for modelling variograms that has graphical display @I and that is
+portable across platforms, (ii) the application of the multivariable
+linear model with generalized covariances (``universal cokriging''),
+(iii) tight coupling with existing GIS databases (read also the abstract
+and discussion).
+
+@DP
+Development of gstat is still continuing, and the latest stable version
+is always placed on the gstat homepage, "http://www.frw.uva.nl/gstat/" .
+
+@DP
+I hope that this paper will qualify for publication in Computers and
+Geosciences. I am aware that this paper exceeds the size limits posed in
+the ``Notes for Contributors'', but I sincerely hope that both the
+effort of writing gstat (and this paper) and the potential value of the
+program for the world of geoscientists (especially for those with little
+funding) justify the publication of it in full size. This paper is the
+first announcement of the program to a wide audience.
+
+@DP
+Best regards,
+
+@DP @DP @DP
+lines @Break { Edzer J. Pebesma
+email: "pebesma@meteoor.frw.uva.nl"
+phone: +31 20 5257398 (work) or +31 30 2885130 (home)
+fax: +31 20 5257431
+University of Amsterdam,
+Landscape and Environmental Research Group
+Nieuwe Prinsengracht 130, 1018 VZ Amsterdam
+The Netherlands
+}
+@End @Text

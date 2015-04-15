@@ -1,0 +1,48 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MputLegend - write a legend</title>
+</header>
+<body>
+<h1>NAME</h1>
+MputLegend - write a legend
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int MputLegend
+(
+	MAP *m,
+	CSF_LEGEND *l,
+	size_t nrEntries
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+Map handle
+<dt>
+CSF_LEGEND *l<dd>
+read-write, array with name and entries, the entries
+are sorted before writing to the file.
+Strings are padded with zeros.
+<dt>
+size_t nrEntries<dd>
+number of array elements. That is name plus real legend entries
+</dl>
+<h1>DESCRIPTION</h1>
+MputLegend writes a (version 2) legend to a map replacing
+the old one if existent.
+See  csfattr.h for the legend structure.
+<h1>RETURNS</h1>
+0 in case of an error,
+nonzero otherwise
+<h1>MERRNO</h1>
+NOACCESS
+WRITE_ERROR
+<h1>SEE ALSO</h1>
+<a href=MgetNrLegendEntries.html>MgetNrLegendEntries</a>
+,
+<a href=MgetLegend.html>MgetLegend</a>
+
+
+</body>

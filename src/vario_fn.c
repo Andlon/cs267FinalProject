@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,7 +28,6 @@
  * vario_fn.c: contains elementary variogram model functions
  */
 #include <stdio.h> /* req'd by userio.h */
-#include <float.h>
 #include <math.h>
 
 #include "defs.h" /* config.h may define USING_R */
@@ -39,7 +37,6 @@
 #endif
 
 #include "userio.h"
-#include "utils.h"
 #include "vario_fn.h"
 static double bessi1(double x);
 static double bessk1(double x);
@@ -136,12 +133,6 @@ double fn_exponential(double h, double *r) {
 	return 1.0 - exp(-h/(*r)); 
 }
 
-double fn_exclass(double h, double *r) {
-	if (h == 0.0)
-		return 0.0;
-	return 1.0 - exp(-pow(h/r[0],r[1])); 
-}
-
 double da_fn_exponential(double h, double *r) {
 	double hr;
 	hr = -h/(*r);
@@ -216,17 +207,6 @@ double fn_spline(double h, double *r) {
 	return h * h * log(h); 
 }
 
-double fn_legendre(double h, double *r) {
-	/* *r is range; h is angular lag */
-	double r2, ang;
-	if (h == 0.0)
-		return 0.0;
-	r2 = r[0] * r[0];
-	ang = h / (PI * 6378.137);
-	/* printf("dist: %g, ang: %g\n", h, ang); */
-	return 2.0 - (1.0 - r2)/(1 - 2.0 * r[0] * cos(ang) + r2);
-}
-
 double fn_intercept(double h, double *r) {
 	return 1.0;
 }
@@ -250,51 +230,6 @@ double fn_matern(double h, double *p) {
 			pow(hr, kappa) * bessel_k(hr, kappa, 1.0);
 	/* ans was for correlation; */
     return 1.0 - ans;
-}
-
-/* 
- * Ste: M. Stein's representation of the Matern model
- *
- * According to Hannes Kazianka, in R this would be
-h=distance matrix
-delta=c(RANGE,KAPPA)
-maternmodel<-function(h,delta){
-	matern<-besselK(2*delta[2]^(1/2)*h/delta[1],delta[2])
-	ifelse(matern==0,0,ifelse(!is.finite(matern),1,
-	1/(2^(delta[2] -
-	1)*gamma(delta[2]))*(2*delta[2]^(1/2)*h/delta[1])^delta[2]*matern))
-}
-delta<-c(RANGE,KAPPA)
-h=Distance Matrix
-
-maternmodel<-function(h,delta){
-	matern<-besselK(2*delta[2]^(1/2)*h/delta[1],delta[2])
-	multipl<-1/(2^(delta[2] - 1)*gamma(delta[2]))*(2*delta[2]^(1/2)*h/delta[1])^delta[2]
-	ifelse(matern==0 | !is.finite(multipl),0,ifelse(!is.finite(matern),1,
-	multipl*matern))
-}
-
-Now 0*Inf is impossible.
-
-Hannes
-*/
-double fn_matern2(double h, double *p) {
-
-	double *delta, bes, mult;
-	if (h == 0.0)
-		return 0.0;
-	delta = p;
-	h = h / delta[0];
-	bes = bessel_k(2.0 * sqrt(delta[1]) * h, delta[1], 1.0);
-	if (!isfinite(bes))
-		return 0.0;
-	if (bes == 0.0)
-		return 1.0;
-	mult = pow(2.0, 1.0 - delta[1]) / gammafn(delta[1]) * 
-		pow((2.0 * sqrt(delta[1]) * h), delta[1]);
-	if (!isfinite(mult))
-		return 1.0;
-	return 1.0 - bes * mult;
 }
 #endif
 

@@ -1,0 +1,90 @@
+The gstat source code (the files in the directory ``src'', as well as
+the scripts and makefiles in the root base directory and example command
+files in the cmd directory), are subject to the GNU General Public
+Licence (GPL), see the file ``COPYING''
+
+Send bugs, patches, comments or suggestions on gstat to
+E.J.Pebesma@frw.uva.nl (after feb. '98: E.Pebesma@frw.ruu.nl)
+
+##########################################################################
+Copyright notices of libraries and programs, used by gstat:
+1. CSF raster map library
+2. Meschach matrix library
+3. gd 1.2 gif library
+4. gnuplot
+
+1. CSF raster map library: Copyright (C) 1991-1995  C.W. Wesseling
+   (Contact: pcraster@frw.ruu.nl or wesseling@frw.ruu.nl)
+
+2. Meschach matrix library:
+/**************************************************************************
+**
+** Copyright (C) 1993 David E. Steward & Zbigniew Leyk, all rights reserved.
+**
+**			     Meschach Library
+** 
+** This Meschach Library is provided "as is" without any express 
+** or implied warranty of any kind with respect to this software. 
+** In particular the authors shall not be liable for any direct, 
+** indirect, special, incidental or consequential damages arising 
+** in any way from use of the software.
+** 
+** Everyone is granted permission to copy, modify and redistribute this
+** Meschach Library, provided:
+**  1.  All copies contain this copyright notice.
+**  2.  All modified copies shall carry a notice stating who
+**      made the last modification and the date of such modification.
+**  3.  No charge is made for this software or works derived from it.  
+**      This clause shall not be construed as constraining other software
+**      distributed on the same medium as this software, nor is a
+**      distribution fee considered a charge.
+**
+***************************************************************************/
+
+3. gd 1.2 gif library
+---------------------
+gd 1.2 is copyright 1994, 1995, Quest Protein Database Center,
+Cold Spring Harbor Labs. Permission granted to copy and distribute
+this work provided that this notice remains intact. Credit
+for the library must be given to the Quest Protein Database Center,
+Cold Spring Harbor Labs, in all derived works. This does not
+affect your ownership of the derived work itself, and the intent
+is to assure proper credit for Quest, not to interfere with your
+use of gd. If you have questions, ask. ("Derived works"
+includes all programs that utilize the library. Credit must
+be given in user-visible documentation.) 
+
+gd 1.2 was written by Thomas Boutell and is currently
+distributed by boutell.com, Inc.
+[ look at http://www.boutell.com/gd/ ]
+
+4. gnuplot:
+/*[
+ * Copyright 1986 - 1993, 1998   Thomas Williams, Colin Kelley
+ *
+ * Permission to use, copy, and distribute this software and its
+ * documentation for any purpose with or without fee is hereby granted,
+ * provided that the above copyright notice appear in all copies and
+ * that both that copyright notice and this permission notice appear
+ * in supporting documentation.
+ *
+ * Permission to modify the software is granted, but not the right to
+ * distribute the complete modified source code.  Modifications are to
+ * be distributed as patches to the released version.  Permission to
+ * distribute binaries produced by compiling modified sources is granted,
+ * provided you
+ *   1. distribute the corresponding source modifications from the
+ *    released version in the form of a patch file along with the binaries,
+ *   2. add special version identification to distinguish your version
+ *    in addition to the base release version number,
+ *   3. provide your name and address as the primary contact for the
+ *    support of your modified version, and
+ *   4. retain our contact information in regard to use of the base
+ *    software.
+ * Permission to distribute the released version of the source code along
+ * with corresponding source modifications in the form of a patch file is
+ * granted with same provisions 2 through 4 for binary distributions.
+ *
+ * This software is provided "as is" without express or implied warranty
+ * to the extent permitted by applicable law.
+]*/

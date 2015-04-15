@@ -3,7 +3,7 @@
     Gstat, a program for geostatistical modelling, prediction and simulation
     1992, 2003, by Edzer J. Pebesma
 
-    Authors: Edzer J. Pebesma (E.Pebesma@geo.uu.nl)
+    Authors: Edzer J. Pebesma (E.Pebesma@geog.uu.nl)
              Steve Joyce  (steve.joyce@resgeom.slu.se)
              Konstantin Malakhanov (malakhanov@iwwl.rwth-aachen.de)
              
@@ -21,7 +21,7 @@
     not removed.
     --------------------------------------------------------------------
 
-    Edzer J. Pebesma (e.pebesma@geo.uu.nl)
+    Edzer J. Pebesma (e.pebesma@geog.uu.nl)
     Department of physical geography, Utrecht University
     P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
@@ -89,8 +89,8 @@
 #define DELTA_AB(_p,_a,_b,_r) (_p).x = (_a).x + (_r) * ((_b).x - (_a).x);\
 (_p).y = (_a).y + (_r) * ((_b).y - (_a).y);
 
-static char InPoly(PLOT_POINT q, POLYGON *Poly);
-static int CDECL dist_cmp(const DPOINT **ap, const DPOINT **bp);
+static char InPoly( PLOT_POINT q, POLYGON *Poly);
+static int dist_cmp(const DPOINT **ap, const DPOINT **bp);
 unsigned char line_of_sight(const PLOT_POINT data, const PLOT_POINT target,
                             const POLYGON *p_obj);
 static unsigned int segment_cross_check(PLOT_POINT p1, PLOT_POINT p2, PLOT_POINT p3, PLOT_POINT p4, double *r, double *s);
@@ -98,11 +98,11 @@ static unsigned int segment_parallel_check(PLOT_POINT a, PLOT_POINT b, PLOT_POIN
 static int segment_between_check(PLOT_POINT a, PLOT_POINT b, PLOT_POINT c);
 static unsigned int check_open_edges(const PLOT_POINT data, const int target_side,
                                      const PLOT_POINT target, const POLYGON *p_obj);
+static void setup_poly_minmax(POLYGON *pl);
 static void print_poly_log(POLYGON *edge);
 
 static const char *fname = NULL;
 /*------------------------------ POLYGONS ------------------------------*/
-#ifndef USING_R
 POLYGON *read_polygons(const char *filename, int *n_polys, double **iso_values) {
 	FILE *f = NULL;
 	int i = 0, j,n, line_size = 0, d, np, iww_nl=-1;
@@ -201,7 +201,6 @@ POLYGON *read_polygons(const char *filename, int *n_polys, double **iso_values) 
 	efree(line);
 	return pol;
 }
-#endif
 
 void report_edges(void) {
     int i, j, n, *ip;
@@ -247,7 +246,6 @@ static void print_poly_log(POLYGON *edge) {
     return;
 }
 
-#ifndef USING_R
 POLYGON read_n_points(FILE *f, int np) {
 	static char *line = NULL;
 	static int line_size;
@@ -291,7 +289,6 @@ POLYGON read_n_points(FILE *f, int np) {
     
 	return pl;
 }
-#endif
 
 int point_in_polygon(PLOT_POINT point, POLYGON *pl)
 {
@@ -299,7 +296,7 @@ int point_in_polygon(PLOT_POINT point, POLYGON *pl)
         (point.y < pl->mbr.min.y) || (point.y > pl->mbr.max.y))
         return 0;
     else
-        return InPoly(point, pl) != 'o';
+        return InPoly(point,pl) != 'o';
     
 }
 
@@ -330,7 +327,7 @@ not removed.
 InPoly returns a char in {i,o,v,e}.  See above for definitions.
 */
 
-static char InPoly(PLOT_POINT q, POLYGON *Poly)
+static char InPoly( PLOT_POINT q, POLYGON *Poly)
 {
     int n = Poly->lines;
     PLOT_POINT *P=Poly->p;
@@ -395,7 +392,6 @@ static char InPoly(PLOT_POINT q, POLYGON *Poly)
 
 
 
-#ifndef USING_R
 /*------------------------------ EDGES ------------------------------*/
 void read_edges(void) 
 {
@@ -425,7 +421,6 @@ void read_edges(void)
 /*     set_n_edges(n_edges_total); */
     
 }
-#endif
 
 void check_edges(DATA *d, const DPOINT *where) {
 #define BAD FLT_MAX    
@@ -534,7 +529,7 @@ void check_edges(DATA *d, const DPOINT *where) {
 		return;
     /* otherwise sort d->sel by dist2 (u.dist2 is smaller then BAD, so it comes out first:*/
     qsort(d->sel, (size_t) d->n_sel, sizeof(DPOINT *),
-          (int CDECL (*)(const void *,const void *)) dist_cmp);
+          (int (*)(const void *,const void *)) dist_cmp);
     /* and set d->n_sel to the number of GOOD ones */
     d->n_sel -= culled;
     return;
@@ -767,7 +762,7 @@ static int segment_between_check(PLOT_POINT a, PLOT_POINT b, PLOT_POINT c) {
 
 */
 
-static int CDECL dist_cmp(const DPOINT **pa, const DPOINT **pb) {
+static int dist_cmp(const DPOINT **pa, const DPOINT **pb) {
 /* ANSI qsort() conformant dist_cmp */
 
 	if ( (*pa)->u.dist2 < (*pb)->u.dist2 )
@@ -787,7 +782,7 @@ static unsigned int check_open_edges(const PLOT_POINT data, const int target_sid
 }
 
 
-void setup_poly_minmax(POLYGON *pl) {
+static void setup_poly_minmax(POLYGON *pl) {
     int i, n=pl->lines;
     double minx,maxx,miny,maxy;
     

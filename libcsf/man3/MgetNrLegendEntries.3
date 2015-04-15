@@ -1,0 +1,27 @@
+.lf 1 MgetNrLegendEntries.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MgetNrLegendEntries" 3 "13 August 1999" "c2man legend.c"
+.SH "NAME"
+MgetNrLegendEntries \- get the number of legend entries
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t MgetNrLegendEntries(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map pointer
+.SH "DESCRIPTION"
+MgetNrLegendEntries tries to find a version 2 or version 1
+legend. The return number can be used to allocate the appropriate
+array for legend.
+.SH "RETURNS"
+the number of entries in a legend plus 1 (for the name of the legend)
+or 0 if there is no legend
+.SH "SEE ALSO"
+MgetLegend(3),
+MputLegend(3)

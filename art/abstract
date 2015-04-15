@@ -1,0 +1,24 @@
+@PP
+Gstat is a computer program for variogram modelling, and geostatistical
+prediction and simulation. It provides a generic implementation of the
+multivariable linear model with trends modelled as a linear function of
+coordinate polynomials or of user-defined base functions, and
+independent or dependent, geostatistically modelled, residuals.
+Simulation in gstat comprises conditional or unconditional (multi-)
+Gaussian sequential simulation of point values or block averages, or
+(multi-) indicator sequential simulation.  Besides many of the common
+options found in other geostatistical software packages, gstat offers
+the unique combination of (i) an interactive user interface for
+modelling variograms and generalized covariances (residual variograms),
+that uses the device-independent plotting program gnuplot for graphical
+display, (ii) support for several ascii and binary data and map file
+formats for input and output, (iii) a concise, intuitive and flexible
+command language, (iv) user customisation of program defaults (v) no
+built-in limits, and (vi) free, portable @S ansi-c source code. This
+paper describes the class of problems gstat can solve, and addresses
+aspects of efficiency and implementation, managing geostatistical
+projects, and relevant technical details.
+
+@DP
+@S Keywords: geostatistics, variogram modelling, kriging, conditional
+simulation, cokriging, universal kriging, generalized least squares, GIS

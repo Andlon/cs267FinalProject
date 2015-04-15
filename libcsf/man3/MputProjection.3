@@ -1,0 +1,99 @@
+.lf 1 MputProjection.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MputProjection" 3 "13 August 1999" "c2man gputproj.c"
+.SH "NAME"
+MputProjection \- change projection type of map
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+CSF_PT MputProjection
+.br
+(
+.br
+	MAP *map,
+.br
+	CSF_PT p
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "CSF_PT p"
+projection type, all nonzero values are mapped to
+1 (PT_YDECT2B)
+.sp
+Possible values for a \fBCSF_PT\fR are as follows:
+.IP
+* these two can be returned by or passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_YINCT2B\fR
+Y increase from top to bottom
+.TP \n(TLu
+\fBPT_YDECT2B\fR
+Y decrease from top to bottom
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.SH "DESCRIPTION"
+MputProjection type changes the projection type of a map.
+In version 2, projections are simplified. We only discern between
+a projection with y increasing (PT_YINCT2B=0) and decreasing (PT_YDECT2B=1)
+from top to bottom.
+All old constants that denote a projection with y decreasing are nonzero.
+And the old constant that denote a projection with y decreasing (PT_XY) is 0.
+.SH "RETURNS"
+the new projection (PT_YINCT2B or PT_YDECT2B) or MV_UINT2 if an
+error occurred.
+.sp
+Possible values for a \fBCSF_PT\fR are as follows:
+.IP
+* these two can be returned by or passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_YINCT2B\fR
+Y increase from top to bottom
+.TP \n(TLu
+\fBPT_YDECT2B\fR
+Y decrease from top to bottom
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'PT_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBPT_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD
+.SH "MERRNO"
+NOACCESS

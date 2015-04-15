@@ -1,7 +1,4 @@
-/* 
-   config.h is generated BUT THIS ONE IS KEPT and HAND EDITTED
-   for Borland C on win32
- */
+/* config.hin.  Generated automatically from configure.in by autoheader.  */
 #ifndef CONFIG_H
 # define CONFIG_H
 
@@ -33,8 +30,7 @@
 /* KDJ */
 #define HAVE_STRTOL 1
 /* KDJ */
-#undef  HAVE_POPEN
-
+#define HAVE_POPEN 1
 #undef HAVE_GETTIMEOFDAY
 #undef HAVE_DRAND48
 /* KDJ */
@@ -85,6 +81,6 @@
 
 /* define if target is libgstat.a */
 /* KDJ */
-#undef LIBGSTAT
+#define LIBGSTAT 1
 
 #endif

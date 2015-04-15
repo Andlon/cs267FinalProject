@@ -1,0 +1,91 @@
+.lf 1 Mopen.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "Mopen" 3 "13 August 1999" "c2man mopen.c"
+.SH "NAME"
+Mopen \- open an existing CSF file
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+MAP *Mopen
+.br
+(
+.br
+	const char *fileName,
+.br
+	enum MOPEN_PERM mode
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const char *fileName"
+file name
+.TP
+.B "enum MOPEN_PERM mode"
+file permission
+.sp
+Possible values for an \fBenum MOPEN_PERM\fR are as follows:
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'M_READ_WRITE'u+0.2i
+.ft R
+.TP \n(TLu
+\fBM_READ\fR
+open read only
+.TP \n(TLu
+\fBM_WRITE\fR
+open write only
+.TP \n(TLu
+\fBM_READ_WRITE\fR
+open for both reading and writing
+.RE
+.PD
+.SH "DESCRIPTION"
+Mopen opens a CSF file. It allocates space for
+the MAP runtime-structure, reads the header file
+and performs test to determine if it is a CSF file.
+The MinMaxStatus is set to MM_KEEPTRACK if the min/max
+header fields are not MV or MM_WRONGVALUE if one of them
+contains a MV.
+.SH "RETURNS"
+a pointer the MAP runtime structure if the file is
+successfully opened as a CSF file, NULL if not.
+.SH "MERRNO"
+NOCORE BADACCESMODE OPENFAILED NOT_CSF BAD_VERSION
+.SH "EXAMPLE"
+.lf 1 examples/testcsf.tr
+.DS
+ #include <stdio.h>
+ #include "csf.h"
+ 
+ /* test if files are CSF files
+  * writing error messages to
+  * stdout  
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+   MAP *map;
+   int i;
+ 
+   for(i=1; i < argc; i++)
+     if ((map = Mopen(argv[1], M_READ)) == NULL)
+     {
+         printf("%s %s\\n", argv[i], MstrError());
+         ResetMerrno();
+     }
+     else
+     {
+         printf("%s is a CSF file\\n",argv[i]);
+         Mclose(map);
+     }
+ 
+   exit(0);
+ }
+ 
+.DE
+.lf 60 Mopen.3

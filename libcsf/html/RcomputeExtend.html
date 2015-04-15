@@ -1,0 +1,82 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RcomputeExtend - compute (xUL,yUL) and nrRows, nrCols from some coordinates</title>
+</header>
+<body>
+<h1>NAME</h1>
+RcomputeExtend - compute (xUL,yUL) and nrRows, nrCols from some coordinates
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void RcomputeExtend
+(
+	REAL8 *xUL,
+	REAL8 *yUL,
+	size_t *nrRows,
+	size_t *nrCols,
+	double x_1,
+	double y_1,
+	double x_2,
+	double y_2,
+	CSF_PT projection,
+	REAL8 cellSize,
+	double rounding
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+REAL8 *xUL<dd>
+write-only, resulting xUL
+<dt>
+REAL8 *yUL<dd>
+write-only, resulting yUL
+<dt>
+size_t *nrRows<dd>
+write-only, resulting nrRows
+<dt>
+size_t *nrCols<dd>
+write-only, resulting nrCols
+<dt>
+double x_1<dd>
+first x-coordinate
+<dt>
+double y_1<dd>
+first y-coordinate
+<dt>
+double x_2<dd>
+second x-coordinate
+<dt>
+double y_2<dd>
+second y-coordinate
+<dt>
+CSF_PT projection<dd>
+required projection
+<p>
+Possible values for a <pre>CSF_PT</pre>
+ are as follows:
+	* these two can be returned by or passed to a csf2 function 
+<ul><li>PT_YINCT2B - Y increase from top to bottom.<p>
+<li>PT_YDECT2B - Y decrease from top to bottom.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>PT_UNDEFINED - Just some value different from the rest.<p>
+</ul><dt>
+REAL8 cellSize<dd>
+required cellsize, &gt; 0
+<dt>
+double rounding<dd>
+assure that (xUL/rounding), (yUL/rouding)
+(xLL/rounding) and (yLL/rounding) will
+will all be an integers values &gt; 0
+</dl>
+<h1>DESCRIPTION</h1>
+RcomputeExtend computes parameters to create a raster maps
+from minimum and maximum x and y coordinates, projection information,
+cellsize and units. The resulting parameters are computed that the
+smallest raster map can be created that will include the two
+coordinates given, assuming a default angle of 0.
+Which coordinates are the maximum or minimum are
+determined by the function itself.
+<p> <!PATCH FOR C2MAN 2.41 done in inclhtml!>
+
+</body>

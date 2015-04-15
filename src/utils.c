@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,15 +27,17 @@
 /*
  * utils.c: error checking functions for file, memory and string handling
  */
+#include "defs.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <errno.h>
 #include <time.h>
 #include <ctype.h> /* tolower(), isspace() */
 #include <math.h> /* floor() */
 #include <string.h> /* strlen(), memcmp() */
 
-#include "defs.h"
 #ifdef HAVE_STAT_H
 # include <sys/types.h> 
 # include <sys/stat.h>
@@ -58,15 +59,6 @@
 #include "utils.h"
 #include "glvars.h"
 #include "debug.h"
-
-#ifdef HAVE_LIBGIS
-# include <grass/gis.h>
-# include <grass/gisdefs.h>
-#endif 
-
-#ifdef USING_R
-# define NO_STD_IN_OUT
-#endif
 
 static void convert_null_to_space(char *cp, const char *name, const FILE *f);
 
@@ -142,9 +134,9 @@ void *erealloc(void *p, size_t size) {
 		pr_warning("erealloc(): size 0 requested");
 		return NULL;
 	}
-	if (p == NULL)
+	if (p == NULL) {
 		p = (void *) malloc(size);
-	else
+	} else
 		p = (void *) realloc(p, size);
 	if (p == NULL) {
 		if (DEBUG_DUMP)
@@ -171,6 +163,9 @@ void edfree(void *p, char *file, int line) {
 				" Line: ", line);
 	else /* little point in calling free(NULL) */
 		free(p);
+	/* if (errno)
+		perror(strerror(errno));
+	*/
 }
 
 void *edmalloc(size_t size, char *file, int line) {
@@ -189,6 +184,10 @@ void *edmalloc(size_t size, char *file, int line) {
 				" LINE: ", line, " SIZE : ", size);
 		ErrMsg(ER_MEMORY, "");
 	}
+	/*
+	if (errno)
+		perror(strerror(errno));
+	*/
 	return p;
 }
 
@@ -204,6 +203,10 @@ void *edcalloc(size_t nobj, size_t size, char *file, int line) {
 				" LINE: ", line, " SIZE : ", size);
 		ErrMsg(ER_MEMORY, "");
 	}
+	/*
+	if (errno)
+		perror(strerror(errno));
+	*/
 	return p;
 }
 
@@ -220,6 +223,10 @@ void *edrealloc(void *p, size_t size, char *file, int line) {
 				" LINE: ", line, " SIZE : ", size);
 		ErrMsg(ER_MEMORY, "");
 	}
+	/*
+	if (errno)
+		perror(strerror(errno));
+	*/
 	return p;
 }
 
@@ -394,7 +401,6 @@ int file_exists(const char *name) {
 		return 0;
 }
 
-#ifndef USING_R
 char *get_line(char **s, int *size, FILE *stream) {
 /* 
  * read line in *s, return number of chars read;
@@ -471,7 +477,6 @@ char *string_prompt(const char *prompt) {
 	} while (line);
 	return buf;
 }
-#endif
 
 char *string_file(const char *fname) {
 /*
@@ -811,7 +816,6 @@ const char *save_string(const char *msg) {
 		s = (char *) emalloc(MAX_SIZE * sizeof(char));
 		strncpy(s, msg, MAX_SIZE-5);
 		s[MAX_SIZE-5] = '\0';
-
 		strcat(s, "...");
 		return s;
 	}
@@ -847,7 +851,7 @@ void save_strcat(STRING_BUFFER *dest, const char *src) {
 	dest->str = strcat(dest->str, src);
 }
 
-int CDECL double_index_cmp(const Double_index *a, const Double_index *b) {
+int double_index_cmp(const Double_index *a, const Double_index *b) {
 /* ANSI-qsort() conformant Double_index comparison function: sort on field d */
 	if (a->d < b->d)
 		return -1;
@@ -858,36 +862,20 @@ int CDECL double_index_cmp(const Double_index *a, const Double_index *b) {
 
 int grass(void) {
 	static int gisinit = 0;
-	int env, lock;
-	char *str, *home /* , *gisrc */ ;
 
 	if (gisinit == 1) /* been here before... */
 		return gisinit;
 
-	env = ((getenv("LOCATION") || 
-		getenv("LOCATION_NAME"))&& getenv("GISDBASE") && getenv("MAPSET") ||
-		getenv("GISRC"));
-	if ((home = getenv("HOME")) == NULL)
-		home = "";
-	str = (char *) emalloc(strlen(home) + 20);
-	str[0] = '\0';
-	strcat(str, home);
-	strcat(str, "/.gislock5");
-	lock = file_exists(str);
-	if (env || lock) {
+	if ((getenv("LOCATION") || getenv("LOCATION_NAME"))&& 
+					getenv("GISDBASE") && getenv("MAPSET")) {
 #ifdef HAVE_LIBGIS
 		if (gisinit == 0) {
 			G_gisinit("gstat");
-			/*
-			gisrc = G__get_gisrc_file();
-			printf("gisrc: [%s]\n", gisrc ? gisrc : "NULL");
-			*/
 			gisinit = 1;
 		}
 #else
 		pr_warning("this version of gstat was not compiled with grass support");
 #endif
 	}
-	efree(str);
 	return gisinit;
 }

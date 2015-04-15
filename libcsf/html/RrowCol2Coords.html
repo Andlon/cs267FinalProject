@@ -1,0 +1,56 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RrowCol2Coords - compute true world co-ordinate from row, column index</title>
+</header>
+<body>
+<h1>NAME</h1>
+RrowCol2Coords - compute true world co-ordinate from row, column index
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int RrowCol2Coords
+(
+	const MAP *m,
+	double row,
+	double col,
+	double *x,
+	double *y
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m<dd>
+map handle
+<dt>
+double row<dd>
+Row number (relates to y position).
+<dt>
+double col<dd>
+Column number (relates to x position).
+<dt>
+double *x<dd>
+write-only. x co-ordinate
+<dt>
+double *y<dd>
+write-only. y co-ordinate
+</dl>
+<h1>DESCRIPTION</h1>
+RrowCol2Coords computes the true world co-ordinate from a
+row, column index. The row,column co-ordinate can be fractions.
+For example (row,col) = (0.5,0.5) computes the (x,y) co-ordinate of
+the centre of the upper left pixel. Secondly, the row and column co-ordinate
+don't have to be on the map. They are just relative to upper left position.
+For example (row,col) = (-0.5,0.5) computes the (x,y) co-ordinate of
+the centre of the pixel that is right above upper left pixel.
+<h1>RETURNS</h1>
+0  if the co-ordinate is outside the map.
+1 if inside.
+-1 in case of an error.
+<h1>MERRNO</h1>
+ILL_CELLSIZE
+<h1>SEE ALSO</h1>
+<a href=RgetCoords.html>RgetCoords</a>
+
+
+</body>

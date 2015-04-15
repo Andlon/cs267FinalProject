@@ -1,0 +1,37 @@
+.lf 1 RputYUL.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputYUL" 3 "13 August 1999" "c2man puty0.c"
+.SH "NAME"
+RputYUL \- change the y value of upper left co-ordinate
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+REAL8 RputYUL
+.br
+(
+.br
+	MAP *map,
+.br
+	REAL8 yUL
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "REAL8 yUL"
+new y value of upper left co-ordinate
+.SH "DESCRIPTION"
+RputYUL changes the y value of upper left co-ordinate.
+Whether this is the largest or smallest y value depends on the
+projection (See MgetProjection()).
+.SH "RETURNS"
+the new y value of upper left co-ordinate or 0
+case of an error.
+.SH "MERRNO"
+NOACCESS

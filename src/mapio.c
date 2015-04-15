@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -60,15 +59,6 @@ TODO:
 		    # ix = loc - (iz-1)nx.ny-(iy-1)nx
 */
 
-/* 
- * if (gl_rowwise != 0), no complete map is not kept in memory.
- * take care that the complete map should be blanked (RputAllMV())
- * before writing takes place, when applying this method to other
- * formats (e.g. GDAL), as map_set_row() is only applied to WRITE_ONLY
- * maps for rows that contain non-missing valued cells!
- * SECOND: WRITE_ONLY maps should be open in read-write (r+) state!!
- * */
-
 #include <stdio.h>
 #include <math.h>				/* floor() */
 #include <float.h>				/* FLT_MAX */
@@ -91,7 +81,7 @@ TODO:
 # include "glvars.h"
 #else							/* standalone version: */
 # include "defaults.h"
-int debug_level = 1, gl_secure = 0, gl_rowwise = 1;
+int debug_level = 1, gl_secure = 0;
 double gl_zero = DEF_zero;
 char *gl_mv_string = "NA";
 #endif
@@ -129,8 +119,6 @@ static GRIDMAP *write_T2(GRIDMAP * m);
 static GRIDMAP *read_csf(GRIDMAP * m);
 static GRIDMAP *write_csf(GRIDMAP * m);
 static GRIDMAP *dup_csf(GRIDMAP * m, GRIDMAP * dup);
-void CsfReadRow(GRIDMAP *m, float *buf, unsigned int row);
-void CsfWriteRow(GRIDMAP *m, float *buf, unsigned int row);
 #endif
 
 #ifdef HAVE_LIBNETCDF
@@ -139,14 +127,6 @@ static GRIDMAP *write_gmt(GRIDMAP * m);
 static int cdf_read_grd_info(GRIDMAP * m, double *x_max, double *y_min,
 							 double *z_scale_factor, double *z_add_offset,
 							 int *node_offset);
-#endif
-
-#ifdef HAVE_LIBGDAL
-#include "gdal.h"
-#include "cpl_error.h"
-#include "cpl_string.h"
-static GRIDMAP *read_gdal(GRIDMAP * m);
-static GRIDMAP *write_gdal(GRIDMAP * m);
 #endif
 
 #ifdef HAVE_LIBGIS
@@ -174,8 +154,6 @@ static void swap_floats(unsigned char *b, unsigned int n);
 static void swap_multiformat(unsigned char *b, unsigned int m,
 							 unsigned int n);
 static unsigned int sizeof_ct(CellType ct);
-static void alloc_mv_grid(GRIDMAP * m);
-static void map_set_row(GRIDMAP *m, unsigned int row);
 
 static float default_misval_idrisi = 0.0;
 
@@ -193,7 +171,6 @@ static float default_misval_idrisi = 0.0;
 #define BINARY_NATIVE      1
 #define BINARY_NON_NATIVE  2
 #define DEFAULT_MISVAL -9999.0
-#define SURFER_MISVAL 1.70141E+38
 
 static char *line_buf = NULL;
 static int line_size = 0;
@@ -206,12 +183,11 @@ static char *er_projection = NULL;
  * allocates memory and initializes all fields for a GRIDMAP structure
  * returns: pointer to GRIDMAP structure
  */
-GRIDMAP *new_map(MAP_READ_STATUS status)
+GRIDMAP *new_map(void)
 {
 	GRIDMAP *map;
 
 	map = (GRIDMAP *) emalloc(sizeof(GRIDMAP));
-	map->status = status;
 	map->type = MT_UNKNOWN;
 	map->history = NULL;
 	map->description = NULL;
@@ -221,100 +197,31 @@ GRIDMAP *new_map(MAP_READ_STATUS status)
 	map->base_size = 0;
 	map->grid = NULL;
 	map->base = NULL;
-	map->first_time_row = NULL;
+	map->is_write = 0;
 	map->is_binary = 0;
 	map->celltype = CT_UNKNOWN;
 	map->misval = DEFAULT_MISVAL;	/* only for arcgrid */
 	map->cellmin = map->cellmax = FLT_MAX;
 	map->CSF_MAP = NULL;
-#ifdef HAVE_LIBGDAL
-	map->GeoTransform = (double *) emalloc(6 * sizeof(double));
-#endif
 	map->write = write_error;
-	map->read_row = map->write_row = NULL;
-	map->current_row = 0;
 	return map;
-}
-
-static void map_set_row(GRIDMAP *m, unsigned int new_row)
-{
-	int start = 0, i;
-
-	if (m->status == READ_ONLY && m->read_row == NULL)
-		return;
-	if (m->status == WRITE_ONLY && m->write_row == NULL)
-		return;
-
-	if (m->grid == NULL) {
-		m->grid = (float **) emalloc(m->rows * sizeof(float *));
-		m->first_time_row = (unsigned int *) emalloc(m->rows * 
-					sizeof(unsigned int));
-		m->current_row = 0;
-		m->grid[0] = (float *) emalloc(m->cols * sizeof(float));
-		memset(m->grid[0], 0xFF, m->cols * sizeof(float));
-		for (i = 1; i < m->rows; i++) {
-			m->grid[i] = NULL;
-			m->first_time_row[i] = 1;
-		}
-		start = 1;
-	}
-
-	assert(m->grid[m->current_row] != NULL);
-	assert(new_row >= 0 && new_row < m->rows);
-
-	switch (m->status) {
-		case READ_ONLY:
-			if (m->current_row != new_row || start)
-				m->read_row(m, m->grid[m->current_row], new_row);
-			break;
-		case WRITE_ONLY:
-			if (new_row != m->current_row) { /* flush old row to disk: */
-				m->write_row(m, m->grid[m->current_row], m->current_row);
-				if (m->first_time_row[new_row]) {
-					memset(m->grid[m->current_row], 0xFF, 
-							m->cols * sizeof(float));
-					m->first_time_row[new_row] = 0;
-				} else { /* been here before: re-read the written content: */
-					m->read_row(m, m->grid[m->current_row], new_row);
-					/* adjust this pointer to [new_row] a few lines down: */
-				}
-			}
-			break;
-		default:
-			ErrMsg(ER_IMPOSVAL, "unknown switch");
-			break;
-	}
-	/* now adjust buffer pointer; */
-	if (new_row != m->current_row) { 
-		m->grid[new_row] = m->grid[m->current_row];
-		m->grid[m->current_row] = NULL;
-		m->current_row = new_row;
-	}
-	assert(m->grid[m->current_row] != NULL);
 }
 
 /*
  * read in a grid map and fill all necessary fields;
- * at least m->filename should be filled before returns: 
- * a pointer to a GRIDMAP read, NULL in case the map is not
+ * at least m->filename and m->is_write should be filled before
+ * returns: a pointer to a GRIDMAP read, NULL in case the map is not
  * one of the formats supported.
  */
-#ifndef USING_R
 GRIDMAP *map_read(GRIDMAP * m)
 {
 
 	assert(m);
 	assert(m->filename);
-	assert(m->status == READ_ONLY);
+	assert(!m->is_write);
 
 #ifdef HAVE_LIBGIS /* try grass: */
 	if (read_grass(m))
-		return m;
-	DUMP("no\n")
-#endif
-
-#ifdef HAVE_LIBGDAL /* try gdal: */
-	if (read_gdal(m))
 		return m;
 	DUMP("no\n")
 #endif
@@ -346,7 +253,7 @@ GRIDMAP *map_read(GRIDMAP * m)
 		return m;
 	DUMP("no\n")
 
-	/* try ARCGRID */
+		/* try ARCGRID */
 	if (read_arcgrid(m))
 		return m;
 	DUMP("no\n");
@@ -372,26 +279,24 @@ GRIDMAP *map_read(GRIDMAP * m)
 	/* no success: */
 	return NULL;
 }
-#endif
 
 static GRIDMAP *write_error(GRIDMAP * m)
 {
-	pr_warning("%s: writing this map format is not supported", m->filename);
+	pr_warning("%s: map format was not supplied", m->filename);
 	assert(0);
 	return NULL;
 }
 
-static void alloc_mv_grid(GRIDMAP * m)
+void alloc_mv_grid(GRIDMAP * m)
 {
 	unsigned int i;
 
+	m->grid = (float **) emalloc(m->rows * sizeof(float *));
 	m->base_size = m->rows * m->cols;
 	m->base = (float *) emalloc(m->base_size * sizeof(float));
-	memset(m->base, 0xFF, m->base_size * sizeof(float));
-
-	m->grid = (float **) emalloc(m->rows * sizeof(float *));
-	for (i = 0; i < m->rows; i++) /* set up handles: */
+	for (i = 0; i < m->rows; i++)
 		m->grid[i] = &(m->base[i * m->cols]);
+	memset(m->base, 0xFF, m->base_size * sizeof(float));
 }
 
 /*
@@ -455,10 +360,6 @@ int map_xy2rowcol(GRIDMAP * m /* pointer to map */ ,
 			return 1;
 		*row = (unsigned int) floor((m->y_ul - y) / m->cellsizey);
 		*col = (unsigned int) floor((x - m->x_ul) / m->cellsizex);
-		if (*row == m->rows) /* on the bottom edge */
-			*row = *row - 1;
-		if (*col == m->cols) /* on the right edge */
-			*col = *col - 1;
 	}
 	return 0;
 }
@@ -471,9 +372,9 @@ int map_cell_is_mv(GRIDMAP * m /* pointer to map */ ,
 				   unsigned int row /* row number */ ,
 				   unsigned int col /* column number */ )
 {
+
 	assert(m);
 	assert(row < m->rows && col < m->cols);
-	map_set_row(m, row);
 
 	return is_mv_float(&(m->grid[row][col]));
 }
@@ -489,7 +390,6 @@ float map_get_cell(GRIDMAP * m /* pointer to GRIDMAP */ ,
 {
 	assert(m);
 	assert(row < m->rows && col < m->cols);
-	map_set_row(m, row);
 	assert(!is_mv_float(&(m->grid[row][col])));
 
 	return m->grid[row][col];
@@ -501,19 +401,13 @@ float map_get_cell(GRIDMAP * m /* pointer to GRIDMAP */ ,
  * returns: 0
  */
 int map_put_cell(GRIDMAP * m,	/* pointer to GRIDMAP structure */
-		 unsigned int row,	/* row number */
-		 unsigned int col,	/* column number */
-		 float value /* cell value to write */ )
+				 unsigned int row,	/* row number */
+				 unsigned int col,	/* column number */
+				 float value /* cell value to write */ )
 {
 	assert(m);
 	assert(row < m->rows && col < m->cols);
 
-	map_set_row(m, row);
-
-	if (m->grid == NULL)
-		alloc_mv_grid(m);
-	/* assert(m->grid); */
-	assert(m->grid[row]);
 	m->grid[row][col] = value;
 	if (m->cellmin == FLT_MAX)
 		m->cellmin = m->cellmax = value;
@@ -530,49 +424,20 @@ int map_put_cell(GRIDMAP * m,	/* pointer to GRIDMAP structure */
  *
  * returns: the duplicate map
  */
-GRIDMAP *map_dup(const char *fname, GRIDMAP *m)
+GRIDMAP *map_dup(const char *fname, GRIDMAP * m)
 {
 	GRIDMAP *dup = NULL;
-#ifdef HAVE_LIBGDAL
-	char **papszOptions = NULL, *drv = NULL;
-#endif
 
 	assert(m);
 	assert(fname);
 
-	dup = new_map(WRITE_ONLY);
-	*dup = *m;					/* copy all fields; incl status */
-#ifdef HAVE_LIBGDAL
-	/*
-	if (strcmp(GDALGetDriverShortName(m->hDriver), "PCRaster") == 0) {
-		papszOptions = CSLSetNameValue( papszOptions, "PCRASTER_VALUESCALE", "VS_SCALAR" );
-		papszOptions = CSLSetNameValue( papszOptions, "PCRASTER_CELLREPRESENTATION", "CR_REAL4" );
-	}
-	*/
-	CPLPushErrorHandler(CPLQuietErrorHandler);
-	dup->hDataset = GDALCreateCopy(m->hDriver, fname, m->hDataset, FALSE, papszOptions, NULL, NULL);
-	if (dup->hDataset == NULL) {
-		CPLPopErrorHandler();
-		CPLErrorReset();
-		pr_warning("GDAL cannot CreateCopy this format; using asciigrid for %s", fname);
-		dup->is_binary = 0;
-		dup->write = write_arcgrid;
-	} else 
-		CPLPopErrorHandler();
-	/* if (GDALGetRasterAccess(dup->hDataset) != GA_Update)
-		printf("NO ACCESS 0\n");
-	*/
-
-#endif
+	dup = new_map();
+	*dup = *m;					/* copy all fields */
 	dup->cellmin = dup->cellmax = FLT_MAX;	/* re-initialize */
 	dup->CSF_MAP = NULL;		/* copying would only cause trouble! */
+	alloc_mv_grid(dup);
 	dup->filename = string_dup(fname);
-	dup->status = WRITE_ONLY;
-	dup->current_row = 0;
-	if (dup->write_row == NULL) /* do the whole block in memory */
-		alloc_mv_grid(dup);
-	else
-		dup->grid = NULL;
+	dup->is_write = 1;
 #ifdef HAVE_LIBCSF
 	if (dup->type == MT_CSF && (dup = dup_csf(m, dup)) == NULL)
 		ErrMsg(ER_WRITE, fname);
@@ -605,7 +470,6 @@ void map_free(GRIDMAP * m /* pointer to GRIDMAP structure */ )
 	efree(m);
 }
 
-#ifndef USING_R
 /*
  * check whether two maps have equal topologies 
  * compares cellsizes, location and dimension 
@@ -710,8 +574,8 @@ static int read_arcgrid_header(GRIDMAP * m, FILE * f)
 
 	while (ok && get_line(&line_buf, &line_size, f) != NULL &&
 		   isalpha(*line_buf)) {
-		tok1 = strtok(line_buf, " \t\n\r");	/* first word */
-		tok2 = strtok(NULL, " \t\n\r");	/* second word */
+		tok1 = strtok(line_buf, " \r");	/* first word */
+		tok2 = strtok(NULL, " \n\r");	/* second word */
 		if (tok1 == NULL || tok2 == NULL) {
 			ok = 0;
 		} else if (string_casecmp(tok1, "ncols") == 0) {
@@ -795,8 +659,7 @@ static int write_arcgrid_header(GRIDMAP * m, FILE * f)
 	fprintf(f, "YLLCORNER %12.12g\n", m->y_ul - m->cellsizey * m->rows);
 	fprintf(f, "CELLSIZE  %12.12g\n", SQUARECELLSIZE(m));
 	/* if (m->misval != DEFAULT_MISVAL) */
-	/* fprintf(f, "NODATA_VALUE %9.9g\n", m->misval); */
-	fprintf(f, "NODATA_VALUE %g\n", m->misval);
+	fprintf(f, "NODATA_VALUE %9.9g\n", m->misval);
 	if (m->is_binary)
 		fprintf(f, "BYTEORDER %s\n", cpu_is_little_endian()?
 				"LSBFIRST" : "MSBFIRST");
@@ -1040,7 +903,7 @@ static GRIDMAP *write_idrisi32(GRIDMAP *m) {
 static int read_idrisi32_header(GRIDMAP *m, const char *fname) {
 	FILE *f;
 	char *tok1 = NULL, *tok2 = NULL;
-	unsigned int check = 0, ok = 1 /* , is_real = 0 */ ;
+	unsigned int check = 0, ok = 1, is_real = 0;
     double unit_dist; /* KS added */
 	double ymin, xmax; /* EJP added, removed from GRIDMAP structure, 
 						 where KS put them in */
@@ -1069,7 +932,7 @@ static int read_idrisi32_header(GRIDMAP *m, const char *fname) {
 			if (!strstr(tok2, "integer") && !strstr(tok2, "real"))
 				ok = 0;
 			if (strstr(tok2, "real")) {
-				/* is_real = 1;  */
+				is_real = 1; 
 				is_what = IS_REAL;
              }
 		} else if (string_casecmp(tok1, "file title  :") == 0) {
@@ -1204,7 +1067,7 @@ static int read_ascii_grid(GRIDMAP * m, FILE * f, int first_line_in_buffer)
 		return 1;
 	do {
 		at_start = 1;			/* we're at a new line */
-		while (ok && (tok = strtok(at_start ? line_buf : NULL, " \t\n\r"))
+		while (ok && (tok = strtok(at_start ? line_buf : NULL, " \n\r"))
 			   != NULL) {
 			at_start = 0;
 			row = cells / m->cols;
@@ -1245,7 +1108,8 @@ static void write_ascii_grid(GRIDMAP * m, FILE * f, int as_rows)
 	for (i = 0; i < m->rows; i++) {
 		for (j = 0; j < m->cols; j++)
 			fprintf(f, fmt, (j && as_rows) ? " " : "",
-					is_mv_float(&(m->grid[i][j])) ? m->misval : m->grid[i][j]);
+					is_mv_float(&(m->grid[i][j])) ? m->misval : m->
+					grid[i][j]);
 		if (as_rows)
 			fprintf(f, "\n");
 	}
@@ -1386,17 +1250,13 @@ static GRIDMAP *read_csf(GRIDMAP * m)
 		RgetMinVal(m_tmp, &(m->cellmin));
 		RgetMaxVal(m_tmp, &(m->cellmax));
 		m->type = MT_CSF;
-
-		if (gl_rowwise) {
-			m->read_row = CsfReadRow;
-			m->write_row = CsfWriteRow;
-		} else {
-			alloc_mv_grid(m);
-			if (RgetSomeCells(m_tmp, 0, m->base_size, m->base) != m->base_size)
-				ErrMsg(ER_READ, m->filename);
-		}
-
+		alloc_mv_grid(m);
+		if (RgetSomeCells(m_tmp, 0, m->base_size, m->base) != m->base_size)
+			ErrMsg(ER_READ, m->filename);
 		m->CSF_MAP = (void *) m_tmp;
+		/* TRY ----------------------------
+		   Mclose(m->CSF_MAP);
+		 */
 		m->write = write_csf;
 		DUMP("yes\n");
 		return m;
@@ -1407,15 +1267,13 @@ static GRIDMAP *read_csf(GRIDMAP * m)
 
 static GRIDMAP *write_csf(GRIDMAP * m)
 {
+	unsigned int i;
+
 	if (m->CSF_MAP == NULL)
 		ErrMsg(ER_NULL, "write_csf()");
-	if (m->write_row != NULL && m->grid) /* flush last row: */
-		m->write_row(m, m->grid[m->current_row], m->current_row);
-	else { /* flush complete map: */
-		if (RputSomeCells((MAP *) m->CSF_MAP, 0, m->base_size, m->base) != 
-						m->base_size)
-			ErrMsg(ER_WRITE, m->filename);
-	}
+	i = RputSomeCells((MAP *) m->CSF_MAP, 0, m->base_size, m->base);
+	if (i != m->base_size)
+		ErrMsg(ER_WRITE, m->filename);
 	if (m->history)
 		MputHistory((MAP *) m->CSF_MAP, m->history);	/* full history */
 	if (m->description)
@@ -1429,45 +1287,27 @@ static GRIDMAP *write_csf(GRIDMAP * m)
 	return m;
 }
 
-void CsfReadRow(GRIDMAP *m, float *buf, unsigned int row)
-{
-	if (RgetRow(m->CSF_MAP, row, buf) != m->cols)
-		ErrMsg(ER_READ, m->filename);
-}
-
-void CsfWriteRow(GRIDMAP *m, float *buf, unsigned int row)
-{
-	if (RputRow(m->CSF_MAP, row, buf) != m->cols)
-		ErrMsg(ER_READ, m->filename);
-}
-
 static GRIDMAP *dup_csf(GRIDMAP * m, GRIDMAP * dup)
 {
 
 	if (m->CSF_MAP != NULL) {	/* use csf duplicate routines: */
-		if (dup->celltype == CT_UINT8) {
-			if ((dup->CSF_MAP = Rdup(dup->filename, (MAP *) m->CSF_MAP,
-					CR_UINT1, VS_NOMINAL)) == NULL) {
-				ErrMsg(ER_WRITE, dup->filename);
-				return NULL;
-			}
-		} else {
-			if ((dup->CSF_MAP = Rdup(dup->filename, (MAP *) m->CSF_MAP,
-					CR_REAL4, VS_SCALAR)) == NULL) {
-				ErrMsg(ER_WRITE, dup->filename);
-				return NULL;
-			}
+		if ((dup->CSF_MAP = Rdup(dup->filename, (MAP *) m->CSF_MAP,
+								 (dup->celltype ==
+								  CT_UINT8 ? CR_UINT1 : CR_REAL4),
+								 VS_SCALAR)) == NULL) {
+			Mperror(dup->filename);
+			return NULL;
 		}
-		if (dup->celltype == CT_UINT8 && RuseAs(dup->CSF_MAP, CR_REAL4)) 
-				ErrMsg(ER_IMPOSVAL, "cannot use map as REAL4");
+		if (dup->celltype == CT_UINT8
+			&& RuseAs(dup->CSF_MAP, CR_REAL4) != 0) ErrMsg(ER_IMPOSVAL,
+														   "cannot use map as REAL4");
 	} else {					/* convert, i.e. create: */
-		dup->CSF_MAP = Rcreate(dup->filename, dup->rows, dup->cols, CR_REAL4,
-				VS_SCALAR, PT_YDECT2B, dup->x_ul, dup->y_ul, 0.0,
-				dup->cellsizex);
+		dup->CSF_MAP =
+			Rcreate(dup->filename, dup->rows, dup->cols, CR_REAL4,
+					VS_SCALAR, PT_YDECT2B, dup->x_ul, dup->y_ul, 0.0,
+					dup->cellsizex);
 		set_mv_float(&(dup->misval));
 	}
-	if (gl_rowwise)
-		RputAllMV(dup->CSF_MAP);
 	return dup;
 }
 #endif
@@ -1486,18 +1326,12 @@ static GRIDMAP *read_grass(GRIDMAP * m)
 	int row, col;
 	struct Cell_head region;
 
-	DUMP(": trying grass map format... ");
-	if (! grass()) {
-		DUMP("(no grass session recognized) ");
+	if (! grass()) 
 		return NULL;
-	}
 
 	name = (char *) m->filename;
 	if ((mapset = G_find_cell2(name, "")) == NULL)
-		return NULL;
-		/*
 		G_fatal_error("%s: <%s> cellfile not found\n", G_program_name(), name);
-		*/
 
 	map_type = G_raster_map_type(name, mapset);
 	out_type = map_type;
@@ -1550,10 +1384,9 @@ static GRIDMAP *read_grass(GRIDMAP * m)
 				if (out_type == CELL_TYPE)
 					map_put_cell(m, row, col, (int) *((CELL *) ptr));
 				else if (out_type == FCELL_TYPE)
-					map_put_cell(m, row, col, (float) *((FCELL *) ptr));
-				else if (out_type == DCELL_TYPE) {
-					map_put_cell(m, row, col, (double) *((DCELL *) ptr));
-				}
+					map_put_cell(m, row, col, *((FCELL *) ptr));
+				else if (out_type == DCELL_TYPE)
+					map_put_cell(m, row, col, (double) *((FCELL *) ptr));
 			}
 		}						/* for col */
 	}							/* for row */
@@ -1561,6 +1394,7 @@ static GRIDMAP *read_grass(GRIDMAP * m)
 	m->write = write_grass;
 	m->type = MT_GRASS;
 	m->is_binary = 1;
+	m->is_write = 0;
 	m->celltype = CT_IEEE4;
 	return m;
 }
@@ -1681,148 +1515,6 @@ static GRIDMAP *write_grass(GRIDMAP * m)
 	return m;
 }
 
-#endif
-
-#ifdef HAVE_LIBGDAL
-static GRIDMAP *read_gdal(GRIDMAP *m) {
-	double adfMinMax[2];
-	int i, j, bGotMin, bGotMax;
-	GDALRasterBandH  hBand;
-
-	/* GDALAllRegister(); -- has been done in main() */
-	DUMP(m->filename);
-	DUMP(": trying one of GDAL formats... ");
-
-	CPLPushErrorHandler(CPLQuietErrorHandler);
-	/* if ((m->hDataset = GDALOpen(m->filename, GA_ReadOnly)) == NULL)
-		return NULL; */
-	if ((m->hDataset = GDALOpen(m->filename, GA_Update)) == NULL)
-		return NULL;
-	CPLErrorReset();
-	CPLPopErrorHandler();
-
-	DUMP("yes!\n");
-	m->hDriver = GDALGetDatasetDriver(m->hDataset);
-	if (DEBUG_NORMAL)
-		printlog( "GDAL driver: %s [%s]\n", 
-			GDALGetDriverShortName(m->hDriver),
-			GDALGetDriverLongName(m->hDriver));
-
-	if (GDALGetRasterCount(m->hDataset) > 1)
-		pr_warning("only band 1 in %s is used", m->filename);
-
-	if (GDALGetProjectionRef(m->hDataset) != NULL && DEBUG_NORMAL) 
-		printlog("Projection is `%s'\n", GDALGetProjectionRef(m->hDataset));
-
-	if (GDALGetGeoTransform(m->hDataset, m->GeoTransform) == CE_None) {
-		if (DEBUG_NORMAL) {
-			printlog("Origin = (%g,%g), ",
-				m->GeoTransform[0], m->GeoTransform[3]);
-			printlog("Pixel Size = (%g,%g), ",
-				m->GeoTransform[1], m->GeoTransform[5]);
-		}
-		m->x_ul = m->GeoTransform[0];
-		m->y_ul = m->GeoTransform[3];
-		m->cellsizex = fabs(m->GeoTransform[1]);
-		m->cellsizey = fabs(m->GeoTransform[5]); 
-		/* funny, but may be neg.!! */
-		/* 
-		printf("cellsize: %g x %g\n", m->cellsizex, m->cellsizey);
-		*/
-	} else
-		ErrMsg(ER_IMPOSVAL, "no GDALGetGeoTransform information");
-
-	hBand = GDALGetRasterBand(m->hDataset, 1);
-	adfMinMax[0] = GDALGetRasterMinimum(hBand, &bGotMin);
-	adfMinMax[1] = GDALGetRasterMaximum(hBand, &bGotMax);
-	if(! (bGotMin && bGotMax))
-	    GDALComputeRasterMinMax( hBand, TRUE, adfMinMax );
-
-	if (DEBUG_NORMAL)
-		printlog( "Min=%g, Max=%g\n", adfMinMax[0], adfMinMax[1] );
-	m->cellmin = adfMinMax[0];
-	m->cellmax = adfMinMax[1];
-	
-	if(GDALGetOverviewCount(hBand) > 0 && DEBUG_DUMP)
-	    printlog( "Band has %d overviews.\n", GDALGetOverviewCount(hBand));
-
-	if(GDALGetRasterColorTable( hBand ) != NULL && DEBUG_DUMP)
-	    printf("Band has a color table with %d entries.\n", 
-		     GDALGetColorEntryCount(GDALGetRasterColorTable(hBand)));
-
-	m->rows = GDALGetRasterBandYSize(hBand);
-	m->cols = GDALGetRasterBandXSize(hBand);
-	alloc_mv_grid(m);
-	m->misval = GDALGetRasterNoDataValue(hBand, NULL);
-	for (i = 0; i < m->rows; i++) {
-		if (GDALRasterIO(hBand, GF_Read, 0, i, m->cols, 1, 
-			m->grid[i], m->cols, 1, GDT_Float32, 
-			0, 0 ) == CE_Failure)
-				pr_warning("error on reading %s\n", m->filename);
-		for (j = 0; j < m->cols; j++)
-			if (m->grid[i][j] == m->misval)
-				set_mv_float(&(m->grid[i][j]));
-	}
-	m->type = MT_GDAL;
-	m->is_binary = 1; /* not necessarily */
-	m->celltype = CT_IEEE4;
-	/* 
-	GDALClose(m->hDataset);
-	*/
-	m->write = write_gdal;
-	return m;
-}
-
-static GRIDMAP *write_gdal(GRIDMAP *m) {
-	/* NOTE this function still fails on anything */
-	GDALRasterBandH  hBand;
-	int i, j;
-	unsigned char b;
-
-	/*
-	if (GDALGetRasterAccess(m->hDataset) != GA_Update)
-		printf("NO ACCESS\n");
-	*/
-	hBand = GDALGetRasterBand(m->hDataset, 1);
-	if (m->celltype != CT_UINT8) {
-		GDALSetRasterNoDataValue(hBand, m->misval);
-		for (i = 0; i < m->rows; i++) { /* one row at a time */
-			for (j = 0; j < m->cols; j++) /* { */
-				if (is_mv_float(&(m->grid[i][j])))
-					m->grid[i][j] = m->misval;
-				if (GDALRasterIO(hBand, GF_Write, 0, i, m->cols, 1, 
-					m->grid[i], m->cols, 1, GDT_Float32, 0, 0 ) == CE_Failure)
-					pr_warning("error on writing %s\n", m->filename);
-			/* 
-				if (GDALRasterIO(hBand, GF_Write, j, i, 1, 1, 
-					&(m->grid[i][j]), 1, 1, GDT_Float32, 
-					0, 0 ) == CE_Failure)
-						pr_warning("error on writing %s\n", m->filename);
-					*/
-				/* printf("value written: [%d,%d] %g\n", i, j, m->grid[i][j]); */
-			/* } */
-		}
-	} else {
-		GDALSetRasterNoDataValue(hBand, (double) 0xFF);
-		for (i = 0; i < m->rows; i++) {
-			for (j = 0; j < m->cols; j++) {
-				if (is_mv_float(&(m->grid[i][j])))
-					b = 0xFF;
-				else
-					b = (unsigned char) m->grid[i][j];
-				if (GDALRasterIO(hBand, GF_Write, j, i, 1, 1, 
-					&b, sizeof(unsigned char), 1, GDT_Byte, 
-					0, 0) == CE_Failure)
-						pr_warning("error on writing %s\n", m->filename);
-			}
-		}
-	}
-	/*
-	GDALSetRasterStatistics(hBand, m->cellmin, m->cellmax, 0.0, 0.0);
-	*/
-	GDALClose(m->hDataset);
-	return m;
-}
 #endif
 
 #ifdef HAVE_LIBNETCDF
@@ -2051,12 +1743,6 @@ static GRIDMAP *read_gmt(GRIDMAP * m)
 
 	DUMP(m->filename);
 	DUMP(": trying GMT netCDF map format... ");
-	if (cdf_read_grd_info
-		(m, &x_max, &y_min, &z_scale_factor, &z_add_offset,
-		 &node_offset) == -1)
-		return NULL;
-
-	m->type = MT_GMT;
 	if (sizeof(nclong) != sizeof(long))
 		pr_warning("please read comment in source file %s, line %d\n",
 				   __FILE__, __LINE__ + 1);
@@ -2067,6 +1753,12 @@ static GRIDMAP *read_gmt(GRIDMAP * m)
 	   if you get strange results, please try to compile with all long's
 	   changed to nclong.  */
 
+	if (cdf_read_grd_info
+		(m, &x_max, &y_min, &z_scale_factor, &z_add_offset,
+		 &node_offset) == -1)
+		return NULL;
+
+	m->type = MT_GMT;
 	if (ncopts)
 		ncopts = 0;
 	if ((cdfid = ncopen(m->filename, NC_NOWRITE)) == -1)
@@ -2705,29 +2397,21 @@ static void write_ermapper_header(GRIDMAP * m, FILE * fp)
 	fprintf(fp, "DatasetHeader End\n");
 }
 
-static GRIDMAP *read_surfer(GRIDMAP * m) {
+static GRIDMAP *read_surfer(GRIDMAP * m)
+{
 	FILE *f = NULL;
 	int i, j, size;
-	float *buf /* , zlo, zhi */ ;
+	float *buf;
 
 	DUMP(m->filename);
 	DUMP(".grd: trying Surfer DSAA format... ");
 	if (file_exists(string_cat(m->filename, ".grd"))) {
 		f = efopen(string_cat(m->filename, ".grd"), "r");
-		if (read_surfer_header(m, f)) {
-			efclose(f);
-			return NULL;
-		} else { /* use min/max in header to set missing values later on */
-			/*
-			zlo = m->cellmin;
-			zhi = m->cellmax;
-			*/
-		}
-		if (read_ascii_grid(m, f, 0)) {
+		if (read_surfer_header(m, f) || read_ascii_grid(m, f, 0)) {
 			efclose(f);
 			return NULL;
 		}
-	} else	/* filename.grd does not exist */
+	} else						/* filename.grd does not exist */
 		return NULL;
 	efclose(f);
 	/* swap row order: */
@@ -2740,15 +2424,9 @@ static GRIDMAP *read_surfer(GRIDMAP * m) {
 		memcpy(m->grid[j], buf, size);
 	}
 	m->is_binary = 0;
-	m->misval = SURFER_MISVAL;
-	for (i = 0; i < m->rows; i++)
-		for (j = 0; j < m->cols; j++)
-			if (m->grid[i][j] >= m->misval)
-				set_mv_float(&(m->grid[i][j]));
 	m->type = MT_SURFER;
 	m->write = write_surfer;
 	DUMP("yes\n");
-	efree(buf);
 	return m;
 }
 
@@ -2821,27 +2499,18 @@ static GRIDMAP *write_surfer(GRIDMAP * m)
 	f = efopen(string_cat(m->filename, ".grd"), "w");
 	fprintf(f, "DSAA\n");		/* DSAA */
 	fprintf(f, "%d %d\n", m->cols, m->rows);	/* nx ny */
-	/* xlo xhi: */
-	fprintf(f, gl_format, m->x_ul + 0.5 * m->cellsizex);
-	fprintf(f, " ");
-	fprintf(f, gl_format, m->x_ul + (m->cols - 0.5) * m->cellsizex);	
-	fprintf(f, "\n");
-	/* ylo yhi */
-	fprintf(f, gl_format, m->y_ul - (m->rows - 0.5) * m->cellsizey);
-	fprintf(f, " ");
-	fprintf(f, gl_format, m->y_ul - 0.5 * m->cellsizey);	
-	fprintf(f, "\n");
-	/* zlo zhi */
-	fprintf(f, gl_format, m->cellmin);
-	fprintf(f, " ");
-	fprintf(f, gl_format, m->cellmax);	
-	fprintf(f, "\n");
+	fprintf(f, "%g %g\n", m->x_ul + 0.5 * m->cellsizex,
+			m->x_ul + (m->cols - 0.5) * m->cellsizex);	/* xlo xhi */
+	fprintf(f, "%g %g\n",
+			m->y_ul - (m->rows - 0.5) * m->cellsizey, m->y_ul - 0.5 * m->cellsizey);	/* ylo yhi */
+	fprintf(f, "%g %g\n", m->cellmin, m->cellmax);	/* zlo zhi */
 	n = m->rows * m->cols;
 	for (i = 0; i < n; i++) {
 		row = m->rows - (i / m->cols) - 1;	/* from bottom to top */
 		col = i % m->cols;
 		if (map_cell_is_mv(m, row, col))
-			fprintf(f, "%g", m->misval);
+			fprintf(f, "%g", m->cellmin < -9999.0 ?
+					m->cellmin * 1.1 : -9999.0);
 		else
 			fprintf(f, "%g", m->grid[row][col]);
 		fprintf(f, ((i + 1) % 5 == 0) ? "\n" : " ");
@@ -2900,7 +2569,8 @@ static GRIDMAP *read_gslib(GRIDMAP * m)
 	if (siz[2] > 0.0)
 		pr_warning("z-dimension of GSLIB grid (%g) will be lost", siz[2]);
 
-	m = new_map(READ_ONLY);
+
+	m = new_map();
 	m->cols = n[0];
 	m->rows = n[1];
 	m->x_ul = min[0] - 0.5 * siz[0];
@@ -2955,7 +2625,7 @@ static GRIDMAP *write_gslib(GRIDMAP * m)
 	return m;
 }
 
-GRIDMAP *map_switch_type(GRIDMAP *in, MAPTYPE type) {
+GRIDMAP *map_switch_type(GRIDMAP * in, MAPTYPE type) {
 
 	switch (type) {
 	case MT_ARCGRID:
@@ -3014,11 +2684,6 @@ GRIDMAP *map_switch_type(GRIDMAP *in, MAPTYPE type) {
 		in->write = write_T2;
 #endif
 		break;
-	case MT_GDAL:
-#ifdef HAVE_LIBGDAL
-		in->write = write_gdal;
-#endif
-		break;
 	case MT_UNKNOWN:
 		ErrMsg(ER_IMPOSVAL, "map type unknown");
 	}
@@ -3064,7 +2729,6 @@ void map_name_nr(GRIDMAP *mask, const char *base, char *name, int nr, int max) {
 	cp[8] = '.'; /* print 8.3 point */
 	memcpy(name, base, strlen(base)); /* overprint name excluding '\0' */
 }
-#endif
 
 #ifdef MAPIO_LIB /* dummy, test main() */
 int main(int argc, char *argv[])

@@ -17,7 +17,7 @@ variogram(i200, i800): 0 Nug() + 0.0525584 Exp(300);
 variogram(i400, i800): 0 Nug() + 0.102852 Exp(300);
 
 method: is;
-mask: 'mask_map.tif';
+mask: 'mask_map';
 # apply order corrections for cumulative indicators:
 set order = 4;
 

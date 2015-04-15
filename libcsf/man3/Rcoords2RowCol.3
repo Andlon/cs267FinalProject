@@ -1,0 +1,61 @@
+.lf 1 Rcoords2RowCol.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "Rcoords2RowCol" 3 "13 August 1999" "c2man rrowcol.c"
+.SH "NAME"
+Rcoords2RowCol \- compute (fractional) row, column index from true world co-ordinate.
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int Rcoords2RowCol
+.br
+(
+.br
+	const MAP *m,
+.br
+	double x,
+.br
+	double y,
+.br
+	double *row,
+.br
+	double *col
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *m"
+map handle
+.TP
+.B "double x"
+x of true co-ordinate
+.TP
+.B "double y"
+y of true co-ordinate
+.TP
+.B "double *row"
+write-only. Row index (y-pos). floor(row) is row number,
+if (row >= 0) then fmod(row, 1) is in-pixel displacement from pixel-top,
+if (row <0) then fmod(row, 1) is in-pixel displacement from pixel-bottom.
+.TP
+.B "double *col"
+write-only. Column index (x-pos). floor(col) is column number,
+if (col >= 0) then fmod(col, 1) is in-pixel displacement from pixel-left,
+if (col <0) then fmod(col, 1) is in-pixel displacement from pixel-right.
+.SH "DESCRIPTION"
+Rcoord2RowCol computes row, column index from true world co-ordinate.
+The row and column co-ordinate are returned as fractions (See parameters
+section).
+The x,y co-ordinate
+don't have to be on the map. They are just relative to upper left position.
+.SH "RETURNS"
+0 if the co-ordinate is outside the map,
+1 if inside,
+-1 in case of an error
+.SH "MERRNO"
+ILL_CELLSIZE
+.SH "SEE ALSO"
+RgetRowCol(3)

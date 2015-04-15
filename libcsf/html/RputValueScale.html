@@ -1,0 +1,73 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RputValueScale - put new value scale</title>
+</header>
+<body>
+<h1>NAME</h1>
+RputValueScale - put new value scale
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+CSF_VS RputValueScale
+(
+	MAP *map,
+	CSF_VS valueScale
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *map<dd>
+map handle
+<dt>
+CSF_VS valueScale<dd>
+new value scale
+<p>
+Possible values for a <pre>CSF_VS</pre>
+ are as follows:
+	* version 1 datatypes, 
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>VS_NOTDETERMINED - Version 1.<p>
+<li>VS_CLASSIFIED - Version 1.<p>
+<li>VS_CONTINUOUS - Version 1.<p>
+</ul>	* version 2 datatypes
+these two can be returned by or passed to a csf2 function
+<ul><li>VS_BOOLEAN - Boolean, always UINT1, values: 0,1 or MV_UINT1.<p>
+<li>VS_NOMINAL - Nominal, UINT1 or INT4.<p>
+<li>VS_ORDINAL - Ordinal, UINT1 or INT4.<p>
+<li>VS_SCALAR - Scalar, REAL4 or (maybe) REAL8.<p>
+<li>VS_DIRECTION - Directional REAL4 or (maybe) REAL8, -1 means no direction.<p>
+<li>VS_LDD - Local drain direction, always UINT1, values: 1-9 or MV_UINT1.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>VS_UNDEFINED - Just some value different from the rest.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+RputValueScale changes the value scale
+of the map.
+<h1>RETURNS</h1>
+new value scale or VS_UNDEFINED in case of an error.
+<p>
+Possible values for a <pre>CSF_VS</pre>
+ are as follows:
+	* version 1 datatypes, 
+these can be returned by BUT NOT passed to a csf2 function
+<ul><li>VS_NOTDETERMINED - Version 1.<p>
+<li>VS_CLASSIFIED - Version 1.<p>
+<li>VS_CONTINUOUS - Version 1.<p>
+</ul>	* version 2 datatypes
+these two can be returned by or passed to a csf2 function
+<ul><li>VS_BOOLEAN - Boolean, always UINT1, values: 0,1 or MV_UINT1.<p>
+<li>VS_NOMINAL - Nominal, UINT1 or INT4.<p>
+<li>VS_ORDINAL - Ordinal, UINT1 or INT4.<p>
+<li>VS_SCALAR - Scalar, REAL4 or (maybe) REAL8.<p>
+<li>VS_DIRECTION - Directional REAL4 or (maybe) REAL8, -1 means no direction.<p>
+<li>VS_LDD - Local drain direction, always UINT1, values: 1-9 or MV_UINT1.<p>
+</ul>	* this one CANNOT be returned by NOR passed to a csf2 function 
+<ul><li>VS_UNDEFINED - Just some value different from the rest.<p>
+</ul><h1>NOTE</h1>
+Note that there is no check if the cell representation
+is complaint.
+<h1>MERRNO</h1>
+NOACCESS
+
+</body>

@@ -1,0 +1,35 @@
+.lf 1 RputXUL.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputXUL" 3 "13 August 1999" "c2man putx0.c"
+.SH "NAME"
+RputXUL \- change the x value of upper left co-ordinate
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+REAL8 RputXUL
+.br
+(
+.br
+	MAP *map,
+.br
+	REAL8 xUL
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "REAL8 xUL"
+new x value of top left co-ordinate
+.SH "DESCRIPTION"
+RputXUL changes the x value of upper left co-ordinate.
+.SH "RETURNS"
+the new x value of upper left co-ordinate or 0
+case of an error.
+.SH "MERRNO"
+NOACCESS

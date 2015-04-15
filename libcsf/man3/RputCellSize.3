@@ -1,0 +1,39 @@
+.lf 1 RputCellSize.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputCellSize" 3 "13 August 1999" "c2man cellsize.c"
+.SH "NAME"
+RputCellSize \- put cell size
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+REAL8 RputCellSize
+.br
+(
+.br
+	MAP *map,
+.br
+	REAL8 cellSize
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "REAL8 cellSize"
+new cell size
+.SH "DESCRIPTION"
+put cell size
+.SH "RETURNS"
+the new cell size or -1
+in case of an error.
+.SH "MERRNO"
+ILLHANDLE
+NOACCESS
+ILL_CELLSIZE
+.SH "SEE ALSO"
+RgetCellSize(3)

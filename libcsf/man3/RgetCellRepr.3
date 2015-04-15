@@ -1,0 +1,89 @@
+.lf 1 RgetCellRepr.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RgetCellRepr" 3 "13 August 1999" "c2man gcellrep.c"
+.SH "NAME"
+RgetCellRepr \- get cell representation
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+CSF_CR RgetCellRepr(const MAP *map);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *map"
+map handle
+.SH "DESCRIPTION"
+RgetCellRepr returns the in-file cell representation.
+.SH "RETURNS"
+the cell representation
+.sp
+Possible values for a \fBCSF_CR\fR are as follows:
+.IP
+* preferred version 2 cell representations
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_UINT1\fR
+boolean, ldd and small nominal and small ordinal
+.TP \n(TLu
+\fBCR_INT4\fR
+large nominal and large ordinal
+.TP \n(TLu
+\fBCR_REAL4\fR
+single scalar and single directional
+.RE
+.PD
+.IP
+* other version 2 cell representations
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_REAL8\fR
+double scalar or directional, and also the only type that
+can hold all
+cell representation without loss of precision
+.RE
+.PD
+.IP
+* version 1 cell representations
+these can be returned by BUT NOT passed to a csf2 function
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_INT1\fR
+.
+.TP \n(TLu
+\fBCR_INT2\fR
+.
+.TP \n(TLu
+\fBCR_UINT2\fR
+.
+.TP \n(TLu
+\fBCR_UINT4\fR
+.
+.RE
+.PD
+.IP
+* this one CANNOT be returned by NOR passed to a csf2 function 
+.RS 0.75in
+.PD 0
+.ft B
+.nr TL \w'CR_UNDEFINED'u+0.2i
+.ft R
+.TP \n(TLu
+\fBCR_UNDEFINED\fR
+just some value different from the rest
+.RE
+.PD

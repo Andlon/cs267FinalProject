@@ -1,0 +1,64 @@
+@Section 
+ @Title { Introduction }
+ @Tag { introduction }
+@Begin
+
+@DP
+This paper introduces gstat, a computer program for variogram modelling,
+kriging interpolation and conditional or unconditional simulation of
+uni- or multivariable geostatistical data (Cressie, 1991) in one, two or
+three dimensions. The reason for writing gstat is that when the writing
+started (1991) there were no reasonably priced computer programs that
+were suitable for large geostatistical projects. Currently such programs
+can be derived from the source code of software packages such as GSLIB
+(Deutsch and Journel, 1992) or GeoEAS (Englund and Sparks, 1988). Compared
+to these other software packages, gstat is in many respects more flexible
+and offers in some respects more functionality.
+
+@PP
+For the specification of model settings, input and output, gstat uses a
+command file language that is concise, flexible, easy to read and
+intuitive. The command file gives a complete and readable summary of the
+modelling, interpolation or simulation performed: from which files the
+input was obtained, to which files the output was written, and all model
+settings.
+
+@PP
+Being the crucial part of most geostatistical studies, variogram
+modelling should be done interactively (Deutsch and Journel, 1992).
+Gstat provides a portable interactive user interface that uses the
+device-independent plotting program gnuplot for graphical display and
+plotting of the sample variogram and variogram model.
+
+@PP
+To link geostatistical computation with map processing in a geographical
+information system (GIS), several grid map formats are supported by
+gstat (including ArcInfo, Idrisi and PCRaster), enabling a @I{tight
+coupling} between geostatistical models and the GIS production
+environment (Wesseling et al., 1996).
+
+@PP
+Gstat is free software, copyrighted under the GNU General Public
+Licence. Gstat is written in @S ansi-c and is therefore easily compiled
+on virtually every computer platform. So far, it has been ported to AIX,
+HP-UX, Linux, DEC-Alpha, SunOS and MS-DOS.
+
+@PP
+This paper does not address problems such as @I which geostatistical
+models or methods should be used or @I why certain geostatistical
+modelling decisions are prefered. It only demonstrates the @I range of
+problems that can be solved using gstat. In doing so, for a complete
+understanding some familiarity with geostatistics, regression, matrix
+algebra and GIS is assumed. The complete functionality of gstat is
+documented in a 55-page user's manual (Pebesma, 1997).
+
+@PP
+This paper starts with a section on mathematical notation, methods, and
+theory and practice of prediction, modelling and simulation. Next, it
+explains @I what can be done with gstat, followed by a section on @I how
+it is done with gstat, about the program design and the command file
+syntax.  After that, sections follow on implementation and efficiency
+aspects, and on managing geostatistical projects with gstat. Finally, a
+section on technical issues is concluded by a discussion.
+
+@End @Section

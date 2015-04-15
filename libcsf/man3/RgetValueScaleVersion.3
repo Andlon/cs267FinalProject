@@ -1,0 +1,23 @@
+.lf 1 RgetValueScaleVersion.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RgetValueScaleVersion" 3 "13 August 1999" "c2man vsvers.c"
+.SH "NAME"
+RgetValueScaleVersion \- get version nr of value scale
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int RgetValueScaleVersion(const MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *m"
+map handle
+.SH "DESCRIPTION"
+get version nr of value scale
+.SH "RETURNS"
+0 for illegal value scale,
+1 version 1 value scale,
+2 version 2 value scale

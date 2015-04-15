@@ -24,7 +24,7 @@
 ***************************************************************************/
 
 
-static	char	rcsid[] = "$Id: copy.c,v 1.1.1.1 2003-06-23 18:31:34 cees Exp $";
+static	char	rcsid[] = "$Id: copy.c,v 1.2 1994/01/13 05:37:14 des Exp $";
 #include	<stdio.h>
 #include	"matrix.h"
 
@@ -174,7 +174,7 @@ VEC	*mv_move(MAT *in,int i0,int j0,int m0,int n0,VEC *out,int i1)
 	-- out is resized if necessary */
 MAT	*vm_move(VEC *in,int i0,MAT *out,int i1,int j1,int m1,int n1)
 {
-    int		i;
+    int		dim0, i;
 
     if ( ! in )
 	error(E_NULL,"vm_move");
@@ -187,6 +187,7 @@ MAT	*vm_move(VEC *in,int i0,MAT *out,int i1,int j1,int m1,int n1)
     else
 	out = m_resize(out,max(i1+m1,out->m),max(j1+n1,out->n));
 
+    dim0 = m1*n1;
     for ( i = 0; i < m1; i++ )
 	MEM_COPY(&(in->ve[i0+i*n1]),&(out->me[i1+i][j1]),n1*sizeof(Real));
 

@@ -1,0 +1,54 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>MdelAttribute - delete attribute from map</title>
+</header>
+<body>
+<h1>NAME</h1>
+MdelAttribute - delete attribute from map
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+CSF_ATTR_ID MdelAttribute
+(
+	MAP *m,
+	CSF_ATTR_ID id
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+MAP *m<dd>
+map handle
+<dt>
+CSF_ATTR_ID id<dd>
+identification of attribute
+<p>
+Possible values for a <pre>CSF_ATTR_ID</pre>
+ are as follows:
+<ul><li>ATTR_ID_LEGEND_V1 - Version 1 legend.<p>
+<li>ATTR_ID_HISTORY - History fields.<p>
+<li>ATTR_ID_COLOUR_PAL - Colour palette.<p>
+<li>ATTR_ID_GREY_PAL - Grey palette.<p>
+<li>ATTR_ID_DESCRIPTION - Description.<p>
+<li>ATTR_ID_LEGEND_V2 - Version 2 legend.<p>
+</ul></dl>
+<h1>DESCRIPTION</h1>
+MdelAttribute deletes an attribute
+from a map, if the attribute is available.
+<h1>RETURNS</h1>
+the id argument if the attribute is succesfully deleted,
+or 0 in case of error or if the attribute is not found.
+<p>
+Possible values for a <pre>CSF_ATTR_ID</pre>
+ are as follows:
+<ul><li>ATTR_ID_LEGEND_V1 - Version 1 legend.<p>
+<li>ATTR_ID_HISTORY - History fields.<p>
+<li>ATTR_ID_COLOUR_PAL - Colour palette.<p>
+<li>ATTR_ID_GREY_PAL - Grey palette.<p>
+<li>ATTR_ID_DESCRIPTION - Description.<p>
+<li>ATTR_ID_LEGEND_V2 - Version 2 legend.<p>
+</ul><h1>MERRNO</h1>
+NOACCESS
+WRITE_ERROR
+
+</body>

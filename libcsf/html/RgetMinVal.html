@@ -1,0 +1,83 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>RgetMinVal - get minimum cell value</title>
+</header>
+<body>
+<h1>NAME</h1>
+RgetMinVal - get minimum cell value
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+int RgetMinVal
+(
+	const MAP *map,
+	void *minVal
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *map<dd>
+map handle
+<dt>
+void *minVal<dd>
+write-only. Minimum value or missing value
+</dl>
+<h1>DESCRIPTION</h1>
+RgetMinVal returns the value stored in
+the header as the minimum value.
+If the minMaxStatus is MM_WRONGVALUE
+then a missing value is returned.
+<h1>RETURNS</h1>
+0 if argument minVal is returned with a missing
+value, nonzero if not.
+<h1>EXAMPLE</h1>
+<tt><pre>
+#include &lt;stdio.h&gt;
+#include &quot;csf.h&quot;
+
+/* write some features of
+ * a map to stdout
+ * use REAL8 (biggest type),
+ * works for all maps.
+ */
+
+void main(int argc, char *argv[] )
+{
+
+  REAL8 min,max;
+  MAP *map;                      
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  map = Mopen(argv[1], M_READ);
+  if (map == NULL)  
+  {  
+     Mperror(argv[1]);
+     exit(1);
+  }
+
+  RuseAs(map, CR_REAL8); 
+
+  /* min/max value */
+  printf(&quot;min/max (header): &quot;);
+  if (RgetMinVal(map,&amp;min))
+      printf(&quot;%g &quot;,min);
+  else
+      printf(&quot;MV &quot;);
+  if (RgetMaxVal(map,&amp;max))
+      printf(&quot;%g \n&quot;,max);
+  else
+      printf(&quot;MV \n&quot;);
+
+  Mclose(map);
+
+  exit(0);
+}
+</pre></tt>
+
+</body>

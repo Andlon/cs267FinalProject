@@ -1,0 +1,43 @@
+About the dos distribution of gstat
+===================================
+copying      terms on copying gstat binary and sources
+gstat.exe    binary executable, requires dpmi (cwsdpmi, MS-Windows' Dos Box)
+gnuplot.exe  binary executable, requises dpmi
+cwsdpmi.exe  free dpmi provider, suitable for gstat and gnuplot
+emu387.dxe   387 emulator (only for 386 without coprocessor -- see below)
+man/gnuplot.gih  gnuplot help file (this file should be in current working
+             directory or in the file pointed to by the environment
+             variable GNUHELP ; for help start gnuplot and type help).
+cmd/*        example command files and data
+
+currently, source and binary (dos, linux, ...?) distributions are found
+through http://www.frw.uva.nl/~pebesma/gstat/
+
+gstat and gnuplot were compiled using djgpp v2, a dos port of the gcc
+compiler -- see http://www.delorie.com/djgpp
+
+If your computer does not have a coprocessor (e.g. 386SX), then the
+floating point emulator emu387.dxe must be present. It may be necessary
+to set the following two environment variables:
+
+    set 387=N
+    set emu387=c:/gstat/emu387.dxe
+
+(the latter should point to the location of the file emu387.dxe; note the
+ forward slashes)
+------------------------------------------------------------------------------
+gstat.exe uses the pdcurses library (in the djgpp v2 distribution),
+  the meschach matrix library (at netlib sites), and the csf library (at
+  http://www.frw.ruu.nl/pcraster)
+gnuplot.exe uses the grx20 library (also in the djgpp v2 distribution)
+  and the gd1.2 gif library, by Thomas Boutell and the Quest Center at
+  Cold Spring Harbor Labs
+
+
+CWSDPMI is Copyright (C) 1995,1996  Charles W Sandmann (sandmann@clio.rice.edu)
+                                    1206 Braelinn, Sugarland, TX 77479
+
+Users have the right to receive the source code and/or binary updates
+for CWSDPMI (and the rest of the djgpp system), either from
+http://www.delorie.com/djgpp or simtel mirrors (e.g.
+ftp://ftp.coast.net/SimTel/vendors/djgpp/v2)

@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2000 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -92,40 +91,17 @@ static void generate_grid(DATA *d, double samplespacing, int neighbourhood) {
 	return;
 }
 
-/*
-	n:m:B:b:S:s:V:v:x:y:"
-	-V s variogram model to print (GIF, on stdout!)\n\ 
-*/
-
-#define OSSFIM_HELPSTRING "\
-gstat/ossfim options:\n\
-	-n # number of nearest neighbours\n\
-	-s $ minimum sample spacing\n\
-	-S $ maximum sample spacing\n\
-	-x # number of sample spacings to evaluate\n\
-	-b $ minimum block size\n\
-	-B $ maximum block size\n\
-	-y # number of block sizes to evaluate\n\
-	-v s variogram model\n\
-	-m s 'map' name (PNG file written to)\n\
-	-h   print this help\n\
-[ # is a number, $ a floating point value, s a string ]\n"
-
 int ossfim(int argc, char *argv[]) {
 	int c, n = 25, dx = 9, dy = 9, i, j, plot_vgm = 0;
 	double b = 1, B = 10, s = 1, S = 10, blocksize, samplespacing, est[2],
 		**table;
 	DATA **d = NULL;
 	DPOINT *block = NULL, where;
-	char *vgm_str = "1 Exp(10)", *map_name = NULL;
+	char *vgm_str = "1Exp(10)", *map_name = NULL;
 	VARIOGRAM *vgm;
 
-	while ((c = getopt(argc, argv, "n:m:B:b:S:s:V:v:x:y:h")) != EOF) {
+	while ((c = getopt(argc, argv, "n:m:B:b:S:s:V:v:x:y:")) != EOF) {
 		switch (c) {
-			case 'h':
-				printf("%s", OSSFIM_HELPSTRING);
-				exit(0);
-				break;
 			case 'n':
 				if (read_int(optarg, &n) || n <= 0)
 					ErrMsg(ER_ARGOPT, "n");
@@ -234,12 +210,13 @@ void ossfim2map(double **table, const char *name, double s, double S,
 	extern int nice_legend;
 	double bs;
 	
-	m = new_map(WRITE_ONLY);
+	m = new_map();
 	m->filename = name;
 	m->rows = dy + 1;
 	m->cols = dx + 1;
 	m->cellsizex = m->cellsizey = 1.0;
 	m->x_ul = m->y_ul = 1.0;
+	alloc_mv_grid(m);
 	for (i = 0; i <= dx; i++) /* row */
 		for (j = 0; j <= dy; j++) /* col */
 			map_put_cell(m, dy - j, i, table[i][j]); /* flips */

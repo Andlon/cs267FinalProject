@@ -1,0 +1,18 @@
+Complexity of simuting random fields, using the sequential simulation
+algorithm.
+
+N data
+n neighbourhood size
+q simulation locations
+p simulations 
+
+kriging: O(n^2)
+neigbourhood: N log N (qsort), N (blocks), < N (grid)
+
+first simulation: kriging + neighbourhood 
+
+subsequent simulation: updating O(n)
+
+multiple simulation O(n^2) + p * O(n)
+
+if p >> n : multiple simulation -> O(p)

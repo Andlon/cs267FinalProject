@@ -39,10 +39,7 @@
 #include  "sparse.h"
 #endif
 
-#include	"../src/s.h" /* EJP */
-#include	"../src/config.h" /* EJP */
-
-static char rcsid[] = "$Id: memstat.c,v 1.1.1.1 2003-06-23 18:31:43 cees Exp $";
+static char rcsid[] = "$Id: memstat.c,v 1.1 1994/01/13 05:32:44 des Exp $";
 
 /* global variable */
 
@@ -88,7 +85,6 @@ void **ptr;
 }
 
 
-#ifndef USING_R
 /* look for a place in mem_stat_var */
 static int mem_lookup(var)
 void **var;
@@ -276,7 +272,6 @@ int mark,list;
 
 /* only for diagnostic purposes */
 
-#ifndef USING_R
 void mem_stat_dump(fp,list)
 FILE *fp;
 int list;
@@ -306,7 +301,6 @@ int list;
    
    fprintf(fp,"\n");
 }
-#endif
 
 
 /* query function about the current mark */
@@ -385,5 +379,4 @@ int mem_stat_reg_vars(va_alist) va_dcl
 }
 
 
-#endif
 #endif

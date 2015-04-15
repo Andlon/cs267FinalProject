@@ -1,0 +1,7 @@
+all:
+	CC="gcc -mno-cygwin -DCYGWIN -DWIN32 -DCYGWIN_ERRNOBUG" ./configure
+	(cd src; mv getopt.h getopt.h_; touch getopt.h) # conflicting definition
+	@echo src/makefile: REMOVE -lm 
+	@echo src/makefile: change -lncurses into -lpdcurses
+	@echo copy pdcurses into ./lib and ./include
+	@echo and then run make

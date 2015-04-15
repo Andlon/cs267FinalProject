@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -41,8 +40,6 @@
 #include "userio.h"
 #include "debug.h"
 #include "vario.h"
-#include "sem.h"
-#include "fit.h"
 #include "glvars.h"
 #include "lm.h"
 #include "gls.h"
@@ -54,11 +51,7 @@
 #include "getest.h"
 
 static void est_quantile_div(DATA *data, double *est, int div);
-static void est_skew_kurt(DATA *data, double *est);
 static double inverse_dist(DATA *data, DPOINT *where, double idPow);
-static void save_variogram_parameters(VARIOGRAM *v);
-static void reset_variogram_parameters(VARIOGRAM *v);
-static double *vgm_pars = NULL;
 
 static void calc_poly(DPOINT *where, double *est);
 
@@ -71,12 +64,9 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
  * USES: several estimation routines.
  */
 	DPOINT *block = NULL;
-	VARIOGRAM *v;
 	int i, j, n_vars, n_sel, *is_pt;
-#ifndef USING_R
 	static GRIDMAP **m = NULL;
 	unsigned int row = 0, col = 0;
-#endif
 	double *X_ori = NULL, *local_sim;
 	enum GLS_WHAT gls_mode = GLS_BLUP;
 	const double *sim = NULL; /* return value of cond_sim() */
@@ -115,20 +105,12 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 			printlog("stratum: %d\n", where->u.stratum);
 	}
 	switch (method) {
-		case DIV: /* BREAKTHROUGH */
-		case MED: 
+		case MED : 
 			if (get_mode() == STRATIFY)
-				est_quantile_div(data[where->u.stratum], est, method == DIV);
+				est_quantile_div(data[where->u.stratum], est, 0);
 			else
 				for (i = 0; i < n_vars; i++)
-					est_quantile_div(data[i], &(est[2*i]), method == DIV);
-			break;
-		case SKEW: 
-			if (get_mode() == STRATIFY)
-				est_skew_kurt(data[where->u.stratum], est);
-			else
-				for (i = 0; i < n_vars; i++)
-					est_skew_kurt(data[i], &(est[2*i]));
+					est_quantile_div(data[i], &(est[2*i]), 0);
 			break;
 		case IDW: 
 			if (gl_idp < 0.0)
@@ -177,8 +159,7 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 						X_ori = where->X; /* remember... */
 						for (i = 0; i < where->u.stratum; i++)
 							where->X += data[i]->n_X; 
-						if (data[where->u.stratum]->n_sel > 0)
-							pred_lm(&data[where->u.stratum], 1, where, est);
+						pred_lm(&data[where->u.stratum], 1, where, est);
 						where->X = X_ori; /* and put back */
 						break;
 					case MULTIVARIABLE:
@@ -187,10 +168,8 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 					case SIMPLE:
 						X_ori = where->X; /* remember... */
 						for (i = 0; i < n_vars; i++) {
-							if (data[i]->n_sel > 0) {
-								pred_lm(&data[i], 1, where, &(est[2*i]));
-								where->X += data[i]->n_X;
-							}
+							pred_lm(&data[i], 1, where, &(est[2*i]));
+							where->X += data[i]->n_X;
 						}
 						where->X = X_ori; /* and put back */
 						break;
@@ -340,7 +319,6 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 				set_mv_double(&(est[i])); 
 			/* print_sim(); */
 			break;
-#ifndef USING_R
 		case MAPVALUE: 
 			if (get_n_masks() == 0)
 				ErrMsg(ER_VARNOTSET, "define at least one mask");
@@ -349,8 +327,9 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 					pr_warning("define more (dummy) points(..) to get all masks");
 				m = (GRIDMAP **) emalloc(get_n_masks() * sizeof(GRIDMAP *));
 				for (i = 0; i < get_n_masks(); i++) {
-					m[i] = new_map(READ_ONLY);
+					m[i] = new_map();
 					m[i]->filename = string_dup(get_mask_name(i));
+					m[i]->is_write = 0;
 					if (map_read(m[i]) == NULL)
 						ErrMsg(ER_READ, get_mask_name(i));
 				}
@@ -361,7 +340,6 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 						est[i] = map_get_cell(m[i], row, col);
 				}
 			break;
-#endif
 		case NRS: 
 			if (get_mode() != STRATIFY) {
 				for (i = 0; i < n_vars; i++) {
@@ -401,39 +379,12 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 				}
 			}
 			break;
-		case LSEM:
-			push_gstat_progress_handler(no_progress);
-			v = get_vgm(LTI(0,0));
-			assert(v);
-			v->id1 = v->id2 = v->id = 0;
-			v->ev->evt = SEMIVARIOGRAM;
-			if (data[0]->is_residual == 0)
-				data[0]->is_residual = 1; /* !! */
-			v->ev->recalc = 1;
-			calc_variogram(v, NULL);
-			if (gl_fit) { 
-				v->ev->refit = 1;
-				v->ev->fit = gl_fit;
-				save_variogram_parameters(v);
-				fit_variogram(v);
-				/* write back locally fitted variogram model parameters: */
-				for (i = j = 0; i < MIN(get_n_vars(), v->n_models); i++) {
-					est[2 * i + 0] = v->part[i].sill;
-					est[2 * i + 1] = v->part[i].range[0];
-					j += 2;
-				}
-				if (j < get_n_vars())
-					est[j] = 1.0 * v->fit_is_singular;
-				reset_variogram_parameters(v);
-				update_variogram(v); /* not sure if this is needed */
-			} else {
-				/* write back locally estimated sample variogram values: */
-				for (i = 0; i < MIN(get_n_vars(), v->ev->n_est); i++) {
-					est[2 * i + 0] = v->ev->gamma[i];
-					est[2 * i + 1] = 1.0 * v->ev->nh[i];
-				}
-			}
-			pop_gstat_progress_handler();
+		case DIV : 
+			if (get_mode() == STRATIFY)
+				est_quantile_div(data[where->u.stratum], est, 1);
+			else
+				for (i = 0; i < n_vars; i++)
+					est_quantile_div(data[i], &(est[2*i]), 1);
 			break;
 		case NSP:  /* FALLTRHOUGH: */
 		default: 
@@ -447,30 +398,24 @@ void get_est(DATA **data, METHOD method, DPOINT *where, double *est) {
 static void est_quantile_div(DATA *data, double *est, int div) {
 	static double *list = NULL;
 	static int i, size = 0;
-	double mod = -9999.0;
-	int n, run, longest_run = 0;
+	int n;
 
 	if (data->n_sel > size) 
 		list = (double *) erealloc(list, (size = data->n_sel) * sizeof(double));
 	for (i = 0; i < data->n_sel; i++)
 		list[i] = data->sel[i]->attr;
 	qsort(list, (size_t) data->n_sel, sizeof(double),
-		(int CDECL (*)(const void *, const void *)) d_cmp);
-	if (div) { /* get diversity and modus in sel: */
+		(int (*)(const void *, const void *)) d_cmp);
+	if (div) { /* get diversity and range in sel: */
 		n = data->n_sel;
-		for (i = 0; i < data->n_sel - 2; i += run) {
-			run = 1;
-			while (i + run < data->n_sel && list[i] == list[i + run]) {
-				run++;
+		for (i = 0; i < data->n_sel - 1; i++)
+			if (list[i] == list[i+1])
 				n--;
-			}
-			if (run > longest_run) {
-				longest_run = run;
-				mod = list[i];
-			}
-		}
 		est[0] = 1.0 * n;
-		est[1] = mod;
+		if (data->n_sel > 0)
+			est[1] = list[data->n_sel - 1] - list[0];
+		else
+			set_mv_double(est+1);
 	} else {
 		if (data->n_sel < 2)
 			return;
@@ -484,28 +429,6 @@ static void est_quantile_div(DATA *data, double *est, int div) {
 	return;
 }
 
-static void est_skew_kurt(DATA *data, double *est) {
-	static double *list = NULL;
-	double mean, std, skewness = 0.0, kurtosis = 0.0, d;
-	static int i, size = 0;
-
-	if (data->n_sel <= 1) /* need at least 2 for variance */ 
-		return;
-	if (data->n_sel > size) 
-		list = (double *) erealloc(list, (size = data->n_sel) * sizeof(double));
-	for (i = 0; i < data->n_sel; i++)
-		list[i] = data->sel[i]->attr;
-	mean = sample_mean(list, data->n_sel);
-	std = sample_std(list, mean, data->n_sel);
-	for (i = 0; i < data->n_sel; i++) {
-			d = (data->sel[i]->attr - mean)/std;
-			skewness += pow(d, 3.0);
-			kurtosis += pow(d, 4.0);
-	}
-	est[0] = skewness/data->n_sel;
-	est[1] = kurtosis/data->n_sel;
-}
-
 static double inverse_dist(DATA *data, DPOINT *where, double idPow) {
 	int i, j;
 	double sumweights, sumvals, value, weight, dist2;
@@ -513,8 +436,6 @@ static double inverse_dist(DATA *data, DPOINT *where, double idPow) {
 
 	if (data->n_sel <= 0)
 		ErrMsg(ER_IMPOSVAL, "zero neighbourhood in inverse_dist()");
-	if (data->n_sel == 1)
-		return data->sel[0]->attr;
 	blockd = block_discr(blockd, get_block_p(), where);
 	for (i = 0, value = 0.0; i < blockd->n_list; i++) {
 		for (j = 0, sumweights = sumvals = 0.0; j < data->n_sel; j++) {
@@ -542,9 +463,9 @@ static void calc_poly(DPOINT *where, double *est) {
 	int j, k;
 	
 
-	int n = get_n_edges();
-    POLYGON **edges = get_edges();
-    int *n_edges_polys = get_n_edges_polys();
+	int n=get_n_edges();
+    POLYGON **edges=get_edges();
+    int *n_edges_polys=get_n_edges_polys();
 
     pt.x = where->x;
     pt.y = where->y;
@@ -558,26 +479,4 @@ static void calc_poly(DPOINT *where, double *est) {
 			}
 		}
 	}
-}
-
-void save_variogram_parameters(VARIOGRAM *v) {
-	int i;
-	if (vgm_pars == NULL)
-		vgm_pars = (double *) emalloc(3 * v->n_models * sizeof(double));
-	for (i = 0; i < v->n_models; i++) {
-		vgm_pars[3 * i + 0] = v->part[i].sill;
-		vgm_pars[3 * i + 1] = v->part[i].range[0];
-		vgm_pars[3 * i + 2] = v->part[i].range[1];
-	}
-
-}
-
-void reset_variogram_parameters(VARIOGRAM *v) {
-	int i;
-	for (i = 0; i < v->n_models; i++) {
-		v->part[i].sill = vgm_pars[3 * i + 0];
-		v->part[i].range[0] = vgm_pars[3 * i + 1];
-		v->part[i].range[1] = vgm_pars[3 * i + 2];
-	}
-	v->fit_is_singular = 0;
 }

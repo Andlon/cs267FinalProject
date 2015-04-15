@@ -1,0 +1,164 @@
+@DP @DP
+@B{References}
+@DP
+outdent @Break { 
+Aho, A.V., Sethi, R., and Ullman, J.D. (1986) @I{Compilers: Principles,
+Techniques and Tools,} Addison-Wesley, 796 pp.
+
+@LP
+Armstrong, M. (1984) Problems with universal kriging. @I{Mathematical
+Geology} @B{16}(3) 101-108.
+
+@LP
+Burrough, P.A. (1986) @I{Principles of Geographical Information Systems
+for Land Resources Assessment,} Clarendon Press, Oxford, 193 pp.
+
+@LP
+Carr, J.R., Palmer, J.A. (1993) Revisiting the Accurate Calculation of
+Block-Sample Covariances Using Gauss Quadrature. @I{Mathematical Geology}
+@B{25}(5), 507-524.
+
+@LP
+Christensen, R. (1987) @I{Plain Answers to Complex Questions: the Theory
+of Linear Models,} Springer-Verlag, New York, 465 pp.
+
+@LP
+Christensen, R. (1991) @I{Linear Models for Multivariate, Time Series
+and Spatial Data,} Springer-Verlag, New York, 317 pp.
+
+@LP
+Christensen, R. (1993) Quadratic covariance estimation and equivalence
+of prediction. @I{Mathematical Geology} @B{25}(5), 541-558.
+
+@LP
+Cressie, N. (1985) Fitting variogram models by weighted least squares.
+@I{Mathematical Geology} @B{17}(3), 239-252.
+
+@LP
+Cressie, N. (1991) @I{Statistics for Spatial Data,} Wiley, New York, 900
+pp.
+
+@LP
+Deutsch, C.V., Journel, A.G. (1992) @I{GSLIB Geostatistical Software
+Library and User's Guide,} Oxford University Press, New York, 340 pp..
+
+@LP
+Draper, N.R., Smith, H. (1981) @I{Applied Regression Analysis,} Wiley,
+New York, 709 pp.
+
+@LP
+Englund, E., Sparks, A. (1988) @I{Geo-EAS (Geostatistical Environmental
+Assessment Software) User's guide,} US-EPA, "EPA/600/4-88/033", 240 pp.
+
+@LP
+Froidevaux, R. (1990) @I{Geostatistical Toolbox Primer, version 1.30,}
+FSS International, Troinex, Switzerland, 68 pp.
+
+@LP
+Golub, G., Van Loan, C. (1990) @I{Matrix Computations,} The John Hopkins
+University Press, Baltimore, 1990, 664 pp.
+
+@LP
+Gom{@Char eacute}z-Hern{@Char aacute}ndez, J.J., Journel, A.G. (1993)
+Joint sequential simulation of multiGaussian fieds, @I{Geostatistics
+Troia '92,} ed. A. Soares, Kluwer, Dordrecht, 567 pp.
+
+@LP
+Gotway, C.A. (1994) The Use of Conditional Simulation in Nuclear-Waste-Site
+Performance Assessment. @I Technometrics @B{36}(2), 129-141.
+
+@LP
+Isaaks, E., Strivastava, R.M. (1989) @I{An introduction to Applied
+Geostatistics,} Oxford University Press, New York, 561 pp.
+
+@LP
+Johnson, M.E. (1987) @I{Multivariate statistical simulation,} Wiley, New
+York, 240 pp.
+
+@LP
+Journel, A.G., Huijbregts, Ch.J. (1978) @I{Mining Geostatistics,}
+Academic Press, London, 600 pp.
+
+@LP
+Journel, A.G. (1989) @I{Fundamentals of Geostatistics in Five Lessons},
+Short Course in Geology vol. 8. Washington DC, American Geophysical
+Union, 40 pp.
+
+@LP
+Kingston, J.H. (1993) The design and implementation of the Lout document
+formatting language. @I{Software---Practice and Experience} @B{23},
+1001-1041.
+
+@LP
+Kitanidis, P.K. (1983) Statistical estimation of polynomial generalized
+covariance functions and  hydrologic applications. @I{Water Resourses
+Research} @B{19}, 909-921.
+
+@LP
+Kitanidis, P.K. (1993) Generalized covariance functions in estimation.
+@I{Mathematical Geology} @B{23}(5), 741-758.
+
+@LP
+Levine, Mason J.T., and Brown, D. (1992) @I{"Lex & Yacc",} 2nd ed.
+O'Reilly and Associates, 366 pp.
+
+@LP
+Mardia, K.V., Marshall, R.J. (1984) Maximum likelyhood estimation of
+models for residual covariance in spatial regression. @I{Biometrika} 
+@B{71}(1), 135-146.
+
+@LP
+Myers, D.E. (1982) Matrix Formulation of Co-kriging. @I{Mathematical
+Geology} @B{14}(3), 249-257.
+
+@LP
+Myers, D.E. (1989) Vector Conditional Simulation, @I{Geostatistics,} ed.
+M. Armstrong, D. Reidel, Dordrecht, p. 283-293.
+
+@LP
+Myers, D.E. (1991) Pseudo-Cross Variograms, Positive-Definiteness, and
+Cokriging. @I{Mathematical Geology} @B{23}(8), 805-816.
+
+@LP
+Panatier, Y. (1996) @I{Variowin, Software for Spatial Data Analysis in
+2D,} Springer, New York, 91 pp.
+
+@LP
+Pebesma, E.J. (1996) Mapping Groundwater Quality in the Netherlands.
+Ph.D. Dissertation, Utrecht University, 128 pp. (Available from
+"http://www.frw.uva.nl/~pebesma/thesis").
+
+@LP
+Pebesma, E.J. (1997) Gstat user's manual. Program manual, 55 pp.
+(Available from "http://www.frw.uva.nl/~pebesma/gstat/")
+
+@LP
+Safai-Naraghi, K., Marcotte, D. (1997) Bootstrapping variograms.
+@I{Geostatistics Wollongong '96,} ed. E.Y. Baafi and N.A.  Schofield,
+Kluwer, Dordrecht, pp. 188-199.
+
+@LP
+Stein, M.L. (1987) Large Sample Properties of Simulations Using Latin
+Hypercube Sampling. @I Technometrics @B{29}(2), 143-151.
+
+@LP
+Stewart, D.E., Leyk, Z. (1994) @I{Meschach: Matrix Computations in C,}
+Proceedings of the Centre for Mathematics and its Applications,
+Australian National University 32, 240 pp. (source code available from
+netlib).
+
+@LP
+Ver Hoef, J.M., Cressie, N. (1993) Multivariable Spatial Prediction.
+@I{Mathematical Geology} @B{25}(3), 219-240.
+
+@LP
+Wesseling, C.G., Karssenberg, D.J., Burrough, P.A. and Van Deursen,
+W.P.A. (1996) Integrating dynamic environmental models in GIS: The
+development of a Dynamic Modelling language. @I{Transactions in GIS}
+@B{1}(1), 40-48.
+
+@LP
+Zhang, X.F., Van Eijkeren, J.C.H., and Heemink, A.W. (1995) On the
+weighted least squares method for fitting a semivariogram model.
+@I{Computers "&" Geosciences} @B{21}(4), 605-608.
+}

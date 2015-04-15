@@ -29,7 +29,6 @@ libdir = @libdir@
 mandir = @mandir@/man1
 
 VERSION = @version@
-TARGET = "@target@"
 
 PATCHLEVEL = @patchlevel@
 
@@ -46,8 +45,8 @@ CC     =    @CC@
 # modify/add *Your Favourite Compiler Option* to CFLAGS:
 CFLAGS =    @DEBUG_FLAG@
 DEFS =      @DEFS@
-CPPFLAGS =  @CPPFLAGS@ -I../include @INCLUDES@
-LDFLAGS =   @LDFLAGS@ -L../lib 
+CPPFLAGS =  -I../include @CPPFLAGS@ @INCLUDES@
+LDFLAGS =   -L../lib @LDFLAGS@
 
 #  -lmeschach to link to meschach matrix library (required)
 #  -lcurses to link to curses
@@ -81,7 +80,6 @@ OBJS = \
 	direct.$(O) \
 	fig.$(O) \
 	fit.$(O) \
-	gcdist.$(O) \
 	getest.$(O) \
 	gls.$(O) \
 	glvars.$(O) \
@@ -213,6 +211,7 @@ HEADERS = \
 	gls.h \
 	glvars.h \
 	lm.h \
+	lm_type.h \
 	map2fig.h \
 	map2gd.h \
 	mapio.h \
@@ -270,10 +269,7 @@ static:
 	$(CC) -static -o $(STATIC) $(OBJS) $(LIBOBJS) $(LDFLAGS) $(LIBS)
 	strip $(STATIC)
 	
-$(OBJS):	config.h version.h
-
-version.h:	makefile
-	make version
+$(OBJS):	config.h
 
 parse.h:	parse.y
 	$(YACC) -p gstat_yy -d parse.y
@@ -336,7 +332,6 @@ palet:	palet.c
 version:
 	echo '/* automatically generated from makefile: make version */' > version.h
 	echo "#define VERSION    \"$(VERSION) (`date '+%d %B %Y'`)\"" >> version.h
-	echo "#define TARGET     \"$(TARGET)\"" >> version.h
 	echo "#define LASTMOD    \"`date`\"" >> version.h
 
 update_cr:; sh Update.cr 25 block.c data.c direct.c fit.c \
@@ -360,35 +355,34 @@ data.o: read.h glvars.h polygon.h random.h defaults.h lm.h gls.h nsearch.h
 direct.o: defs.h config.h userio.h data.h utils.h debug.h defaults.h glvars.h
 direct.o: direct.h
 fig.o: defs.h config.h userio.h utils.h palet.h mapio.h glvars.h data.h fig.h
-fit.o: ../include/matrix2.h ../include/matrix.h ../include/machine.h
-fit.o: ../include/err.h ../include/meminfo.h defs.h config.h defaults.h
-fit.o: userio.h data.h utils.h read.h debug.h vario.h sem.h plot.h glvars.h
-fit.o: reml.h lm.h fit.h
+fit.o: defs.h config.h defaults.h userio.h data.h utils.h read.h debug.h
+fit.o: vario.h sem.h plot.h glvars.h reml.h lm_type.h lm.h fit.h
 getest.o: defs.h config.h data.h utils.h mapio.h userio.h debug.h vario.h
-getest.o: sem.h fit.h glvars.h lm.h gls.h sim.h msim.h stat.h block.h
-getest.o: polygon.h getest.h
-gls.o: config.h ../include/matrix2.h ../include/matrix.h ../include/machine.h
-gls.o: ../include/err.h ../include/meminfo.h defs.h data.h utils.h select.h
-gls.o: lm.h vario.h vario_io.h glvars.h userio.h plot.h debug.h gls.h
+getest.o: glvars.h lm.h gls.h sim.h msim.h stat.h block.h polygon.h getest.h
+gls.o: config.h defs.h data.h utils.h select.h lm.h vario.h vario_io.h
+gls.o: glvars.h userio.h plot.h debug.h gls.h
 glvars.o: defs.h config.h userio.h debug.h data.h utils.h vario.h lex.h
-glvars.o: random.h predict.h defaults.h writecmd.h glvars.h gls.h block.h
-glvars.o: polygon.h
-gstat.o: defs.h config.h userio.h debug.h data.h utils.h vario.h glvars.h
-gstat.o: xvalid.h read.h lex.h sem_main.h sem.h reml.h fit.h plot.h stat.h
-gstat.o: random.h ui.h predict.h mapio.h maputils.h polygon.h map2fig.h
-gstat.o: map2gd.h palet.h sample.h ossfim.h version.h
+glvars.o: random.h predict.h defaults.h writecmd.h glvars.h gls.h polygon.h
+gstat.o: defs.h config.h ../include/csf.h ../include/csftypes.h
+gstat.o: ../include/csfattr.h userio.h debug.h data.h utils.h vario.h
+gstat.o: glvars.h xvalid.h read.h lex.h sem_main.h sem.h reml.h fit.h plot.h
+gstat.o: stat.h random.h ui.h predict.h mapio.h maputils.h polygon.h
+gstat.o: map2fig.h map2gd.h palet.h sample.h ossfim.h version.h
 lex.o: defs.h config.h userio.h utils.h read.h parse.h lex.h
-lm.o: defs.h config.h ../include/matrix2.h ../include/matrix.h
-lm.o: ../include/machine.h ../include/err.h ../include/meminfo.h userio.h
-lm.o: data.h utils.h debug.h select.h glvars.h lm.h
+lm.o: defs.h config.h userio.h data.h utils.h debug.h select.h glvars.h
+lm.o: lm_type.h lm.h
 map2fig.o: defs.h config.h userio.h utils.h palet.h mapio.h data.h read.h
 map2fig.o: fig.h map2fig.h
 map2gd.o: defs.h config.h utils.h mapio.h userio.h palet.h read.h map2gd.h
-mapio.o: defs.h config.h glvars.h utils.h debug.h read.h userio.h mapio.h
-maputils.o: defs.h config.h glvars.h utils.h debug.h read.h userio.h mapio.h
-maputils.o: stat.h maputils.h
+map2gd.o: ../include/csf.h ../include/csftypes.h ../include/csfattr.h
+mapio.o: defs.h config.h ../include/csf.h ../include/csftypes.h
+mapio.o: ../include/csfattr.h glvars.h utils.h debug.h read.h userio.h
+mapio.o: mapio.h
+maputils.o: defs.h config.h ../include/csf.h ../include/csftypes.h
+maputils.o: ../include/csfattr.h glvars.h utils.h debug.h read.h userio.h
+maputils.o: mapio.h stat.h maputils.h
 msim.o: defs.h config.h debug.h random.h data.h utils.h vario.h glvars.h
-msim.o: predict.h userio.h mapio.h lm.h gls.h sim.h msim.h
+msim.o: predict.h userio.h mapio.h gls.h sim.h msim.h
 nsearch.o: defs.h config.h userio.h debug.h data.h utils.h glvars.h mapio.h
 nsearch.o: predict.h nsearch.h pqueue.h
 ossfim.o: defs.h config.h userio.h debug.h data.h vario.h utils.h glvars.h
@@ -407,33 +401,30 @@ predict.o: report.h glvars.h random.h version.h getest.h msim.h sim.h
 predict.o: select.h predict.h
 random.o: defs.h config.h utils.h debug.h userio.h random.h
 read.o: defs.h config.h utils.h userio.h glvars.h read.h
-reml.o: ../include/matrix2.h ../include/matrix.h ../include/machine.h
-reml.o: ../include/err.h ../include/meminfo.h defs.h config.h userio.h
-reml.o: debug.h data.h utils.h vario.h glvars.h select.h lm.h reml.h
+reml.o: defs.h config.h userio.h debug.h data.h utils.h vario.h glvars.h
+reml.o: select.h lm.h reml.h
 report.o: defs.h config.h userio.h data.h utils.h debug.h glvars.h stat.h
 report.o: predict.h report.h
 sample.o: defs.h config.h random.h utils.h userio.h mapio.h
 select.o: defs.h config.h userio.h data.h utils.h debug.h vario.h defaults.h
-select.o: glvars.h nsearch.h select.h polygon.h 
+select.o: glvars.h nsearch.h select.h polygon.h
 sem.o: defs.h config.h read.h mapio.h userio.h data.h utils.h debug.h vario.h
 sem.o: glvars.h select.h gls.h lm.h defaults.h direct.h version.h sem.h
 sem_main.o: defs.h config.h userio.h debug.h read.h lex.h data.h utils.h
 sem_main.o: vario.h glvars.h defaults.h direct.h sem.h sem_main.h
-sim.o: ../include/matrix2.h ../include/matrix.h ../include/machine.h
-sim.o: ../include/err.h ../include/meminfo.h defs.h config.h random.h debug.h
-sim.o: glvars.h userio.h data.h gls.h utils.h lm.h sim.h
+sim.o: defs.h config.h random.h debug.h glvars.h userio.h data.h gls.h
+sim.o: utils.h lm.h sim.h
 stat.o: defs.h config.h userio.h data.h utils.h debug.h lex.h read.h glvars.h
 stat.o: stat.h
 ui.o: defs.h config.h userio.h debug.h data.h vario.h glvars.h read.h sem.h
 ui.o: fit.h plot.h defaults.h direct.h version.h gls.h writecmd.h xvalid.h
 ui.o: predict.h lex.h ui.h utils.h ui_help.h
-userio.o: defs.h config.h ../include/err.h ../include/machine.h debug.h
-userio.o: utils.h version.h userio.h
-utils.o: defs.h config.h userio.h utils.h glvars.h debug.h
-vario.o: defs.h config.h ../include/matrix2.h ../include/matrix.h
-vario.o: ../include/machine.h ../include/err.h ../include/meminfo.h userio.h
-vario.o: data.h utils.h debug.h vario.h vario_fn.h glvars.h lex.h read.h lm.h
-vario_fn.o: defs.h config.h userio.h vario_fn.h
+userio.o: defs.h config.h debug.h utils.h version.h userio.h
+utils.o: defs.h config.h userio.h ../include/csftypes.h utils.h glvars.h
+utils.o: debug.h
+vario.o: defs.h config.h userio.h data.h utils.h debug.h vario.h vario_fn.h
+vario.o: glvars.h lex.h read.h lm.h
+vario_fn.o: userio.h vario_fn.h
 vario_io.o: userio.h debug.h data.h glvars.h vario.h block.h vario_io.h
 writecmd.o: defs.h config.h debug.h version.h data.h utils.h vario.h
 writecmd.o: defaults.h glvars.h random.h userio.h writecmd.h

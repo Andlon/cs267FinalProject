@@ -1,11 +1,10 @@
 /*
     Gstat, a program for geostatistical modelling, prediction and simulation
-    Copyright 1992, 2011 (C) Edzer Pebesma
+    Copyright 1992, 2003 (C) Edzer J. Pebesma
 
-    Edzer Pebesma, edzer.pebesma@uni-muenster.de
-	Institute for Geoinformatics (ifgi), University of Münster 
-	Weseler Straße 253, 48151 Münster, Germany. Phone: +49 251 
-	8333081, Fax: +49 251 8339763  http://ifgi.uni-muenster.de 
+    Edzer J. Pebesma, e.pebesma@geog.uu.nl
+    Department of physical geography, Utrecht University
+    P.O. Box 80.115, 3508 TC Utrecht, The Netherlands
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,13 +33,9 @@
 #include <stdlib.h> /* qsort() */
 #include <string.h> /* memmove() */
 #include <math.h>   /* sqrt(), ... */
+#include <assert.h>
 
 #include "defs.h"
-
-#ifdef USING_R
-# include <R.h>
-#endif
-
 #include "debug.h"
 #include "random.h"
 #include "data.h"
@@ -50,7 +45,6 @@
 #include "predict.h" /* n_pred_locs */
 #include "userio.h"
 #include "mapio.h"
-#include "lm.h"
 #include "gls.h"
 #include "sim.h"
 #include "msim.h"
@@ -208,14 +202,10 @@ static DPOINT *which_point(DATA *d, DPOINT *where) {
 	int i;
 	double dzero2;
 
-#define WPWARNING "if you are simulating with a Gaussian variogram model without nugget\n\
-then try to add a small nugget variance to avoid the following error message"
-
 	dzero2 = gl_zero * gl_zero;
 	for (i = 0; i < d->n_sel; i++)
 		if (fabs(d->pp_norm2(d->sel[i], where)) <= dzero2)
 			return d->sel[i];
-	pr_warning(WPWARNING);
 	ErrMsg(ER_NULL, "which_point(): point not found");
 	return where; /* never reached */
 }
@@ -282,7 +272,6 @@ static void restore_data_list(DATA **data, int sim, int n_vars) {
 	}
 }
 
-#ifndef USING_R
 void save_simulations_to_ascii(const char *fname) {
 	DATA **d, *dv;
 	FILE *f;
@@ -466,7 +455,6 @@ void save_simulations_to_maps(GRIDMAP *mask) {
 	efree(what);
 	free_simulations();
 }
-#endif
 
 void free_simulations(void) {
 	int i, j;
@@ -502,7 +490,6 @@ void free_simulations(void) {
 	}
 }
 
-#ifndef USING_R
 void lhs(DATA **d, int n_vars, int stratify) {
 /*
  * lhs(): Latin hypercube sampling of multi-Gaussian random fields
@@ -543,20 +530,20 @@ void lhs(DATA **d, int n_vars, int stratify) {
 	if (gl_nsim <= 15)
 		pr_warning("small sample size (%d) may cause disturbed joint distributions", gl_nsim);
  	if (get_method() != GSI)
- 		pr_warning("lhs(): will produce nonsense if not used for Gaussian simulation");
+ 		pr_warning("lhs(): will produce nonsense if not used for gaussian simulation");
 	if (gl_marginal_names) {
 		lhsmean = (GRIDMAP **) emalloc((gl_n_marginals / 2) * sizeof(GRIDMAP *));
 		lhsvar = (GRIDMAP **) emalloc((gl_n_marginals / 2) * sizeof(GRIDMAP *));
 		for (i = 0; i < gl_n_marginals / 2; i++) {
 			fname = string_dup(gl_marginal_names[i * 2]);
-			lhsmean[i] = new_map(READ_ONLY);
+			lhsmean[i] = new_map();
 			lhsmean[i]->filename = fname;
 			if ((lhsmean[i] = map_read(lhsmean[i])) == NULL)
 				ErrMsg(ER_READ, fname);
 			if (DEBUG_COV)
 				printlog("mean: %s, ", fname);
 			fname = string_dup(gl_marginal_names[i * 2 + 1]);
-			lhsvar[i] = new_map(READ_ONLY);
+			lhsvar[i] = new_map();
 			lhsvar[i]->filename = fname;
 			if ((lhsvar[i] = map_read(lhsvar[i])) == NULL)
 				ErrMsg(ER_READ, fname);
@@ -649,7 +636,6 @@ void lhs(DATA **d, int n_vars, int stratify) {
 
 	return;
 }
-#endif
 
 static void lhs_one(Double_index *list, unsigned int dim, 
 		double mean, double var) {
@@ -663,7 +649,7 @@ static void lhs_one(Double_index *list, unsigned int dim,
  	}
 
 	qsort((void *) list, (size_t) dim, sizeof(Double_index),
-		(int CDECL (*)(const void *, const void *)) double_index_cmp);
+		(int (*)(const void *, const void *)) double_index_cmp);
 /* 
  * Get ranks -- after sorting row_Y on the ->d field,
  * row_Y[0].index,...,row_Y[gl_nsim-1].index contains the original
@@ -706,18 +692,17 @@ void setup_beta(DATA **d, int n_vars, int n_sim) {
 		for (j = 0; j < n_sim; j++)
 			beta[i][j] = (double *) emalloc(d[i]->n_X * sizeof(double));
 	}
+	printlog("drawing %d %s realisation%s of beta...\n", n_sim,
+			gl_mvbeta ? "multivariate" : "univariate",
+			n_sim > 1 ? "s" : "");
 	for (i = 0; i < n_vars; i++) {
 		if (d[i]->beta == NULL) /* push bogus values */
 			for (j = 0; j < d[i]->n_X; j++)
-				d[i]->beta = push_d_vector(-9999.9, d[i]->beta);
+				d[i]->beta = push_to_vector(-9999.9, d[i]->beta);
 		sum_n_X += d[i]->n_X;
 	}
-	printlog("drawing %d %s%s realisation%s of beta...\n", n_sim,
-		n_vars > 1 ? (gl_sim_beta == 0 ? "multivariate " : "univariate ") : "",
-		gl_sim_beta == 2 ? "OLS" : "GLS",
-		n_sim > 1 ? "s" : "");
 	is_pt = (int *) emalloc(sum_n_X * sizeof(int));
-	if (gl_sim_beta == 0) {
+	if (gl_mvbeta) {
 		est = make_gls_mv(d, n_vars);
 		for (j = 0; j < n_sim; j++) {
 			sim = cond_sim(est, sum_n_X, GSI, is_pt, 0); /* length sum_n_X */
@@ -736,10 +721,7 @@ void setup_beta(DATA **d, int n_vars, int n_sim) {
 		efree(est);
 	} else {
 		for (i = 0; i < n_vars; i++) {
-			if (gl_sim_beta == 1)
-				est = make_gls(d[i], 0);
-			else /* gl_sim_beta == 2 */
-				est = make_ols(d[i]);
+			est = make_gls(d[i], 0);
 			for (j = 0; j < n_sim; j++) {
 				sim = cond_sim(est, d[i]->n_X, GSI, is_pt, 0);
 				for (k = 0; k < d[i]->n_X; k++)
@@ -776,8 +758,9 @@ void set_beta(DATA **d, int sim, int n_vars, METHOD method) {
  	return;
 }
 
-#ifndef SIM_DOUBLE
+#ifdef SIM_DOUBLE
+# error get_msim will not work with SIM_DOUBLE defined
+#endif
 float ***get_msim(void) {
 	return msim;
 }
-#endif

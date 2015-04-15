@@ -7,25 +7,7 @@
 #ifndef DEFS_H
 #define DEFS_H /* avoid multiple inclusion */
 
-#ifndef NDEBUG
-# define NDEBUG /* turns off assert()ions */
-#endif 
-
 #include "config.h"
-
-#ifdef USING_R
-/* # include <R.h> */
-# define exit(n) Rf_error("exiting with code %d", n)
-# define printf Rprintf
-#else
-# define Rprintf printf
-#endif
-
-#ifdef SPLUS6WIN32
-# define CDECL __cdecl
-#else
-# define CDECL /* empty */
-#endif
 
 #ifdef DMALLOC
 #define efree free
@@ -41,10 +23,10 @@
 #endif
 
 #define GSTAT_NAME      "gstat"
-#define GSTAT_CR        "Copyright (C) 1992, 2010 Edzer Pebesma and others"
-#define GSTAT_EMAIL     "edzer.pebesma@uni-muenster.de"
-#define GSTAT_INFO      "geostatitics@52north.org (subscription required)"
-#define GSTAT_ANNOUNCE  "gstat-announce@geo.uu.nl"
+#define GSTAT_CR        "Copyright (C) 1992, 2003 Edzer J. Pebesma"
+#define GSTAT_EMAIL     "e.pebesma@geog.uu.nl"
+#define GSTAT_INFO      "gstat-info@geog.uu.nl"
+#define GSTAT_ANNOUNCE  "gstat-announce@geog.uu.nl"
 #define GSTAT_HOME      "http://www.gstat.org/"
 #define USAGE           "usage: gstat [options] [file [file ...]]"
 
@@ -61,8 +43,6 @@
 # elif defined (_MSC_VER) /* some Microsoft C version, might work? */
 #  define GSTAT_OS "Win32/msc"
 #  define SEGMENTED
-# elif defined (__MINGW32__)
-#  define GSTAT_OS "Win32/MinGW"
 # elif defined (BORLANDC)
 #  define GSTAT_OS "Win32/bcc"
 # elif defined (WIN32) /* NT/98/9x/? */
@@ -82,7 +62,7 @@
 # elif defined (GSTAT_UNIX)
 #  define GSTAT_OS "unix"
 # else
-#  define GSTAT_OS "unknown" /* not important */
+#  error fill in unknown platform
 # endif
 #endif /* ifndef GSTAT_OS */
 
@@ -107,7 +87,7 @@
  * (for glvars.c:) something, not bigger than 127 
  * because of user interface (crazy though)
  */
-#define ERROR_BUFFER_SIZE 1280
+#define ERROR_BUFFER_SIZE 1024
 
 #define NOWARRANTY \
 "  Because the program is licensed free of charge, there is no warranty\n\
@@ -130,7 +110,7 @@ you or third parties or a failure of the program to operate with any other\n\
 programs), even if such holder or other party has been advised of the\n\
 possibility of such damages.\n"
 
-#define COPYRIGHT "Copyright 1992-2006 (C) Edzer J. Pebesma\n\
+#define COPYRIGHT "Copyright 1992-1999 (C) Edzer J. Pebesma\n\
 \n\
 This program is free software; you can redistribute it and/or modify\n\
 it under the terms of the GNU General Public License as published by\n\

@@ -1,0 +1,83 @@
+<!WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+<!DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+<header>
+<title>SetMV - set a memory location to a missing value</title>
+</header>
+<body>
+<h1>NAME</h1>
+SetMV - set a memory location to a missing value
+<h1>SYNOPSIS</h1>
+<pre>#include &quot;csf.h&quot;
+
+void SetMV
+(
+	const MAP *m,
+	void *c
+);
+</pre>
+<h1>PARAMETERS</h1>
+<dl><dt>
+const MAP *m<dd>
+map handle
+<dt>
+void *c<dd>
+write-only. location set to missing value
+</dl>
+<h1>DESCRIPTION</h1>
+SetMV sets a memory location to a missing value
+(using the application cell representation).
+SetMV is quite slow but handy as in the example
+below. In general one should use assignment for
+integers (e.g. v = MV_UINT1) or the macro's
+SET_MV_REAL4 and SET_MV_REAL8
+<h1>EXAMPLE</h1>
+<tt><pre>
+
+#include &lt;stdlib.h&gt;
+#include &quot;csf.h&quot;
+
+/* set border to MV
+ * with minimal checking
+ */
+
+void main(int argc, char *argv[] )
+{
+  MAP *map;                      
+  void *mv;
+  size_t i,nrRows,nrCols;
+
+  if (argc != 2)
+  {
+   fprintf(stderr,&quot;%s: no file specified\n&quot;,argv[0]);
+   exit(1);
+  }
+
+  map = Mopen(argv[1], M_READ_WRITE);
+  RuseAs(map, CR_REAL8); 
+
+  mv = Rmalloc(map, 1);
+  SetMV(map, mv);
+
+  nrRows = RgetNrRows(map);
+  nrCols = RgetNrCols(map);
+
+  for(i=0; i &lt; RgetNrCols(map); i++) { 
+   RputCell(map, 0       , i, mv);
+   RputCell(map, nrRows-1, i, mv);
+  }
+  for(i=0; i &lt; RgetNrRows(map); i++) { 
+   RputCell(map, i, 0       , mv);
+   RputCell(map, i, nrCols-1, mv);
+  }
+
+  free(mv);
+  Mclose(map);
+
+  exit(0);
+}
+</pre></tt>
+<h1>SEE ALSO</h1>
+<a href=SetMVcellRepr.html>SetMVcellRepr</a>
+
+
+</body>

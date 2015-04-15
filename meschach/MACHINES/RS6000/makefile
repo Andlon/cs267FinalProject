@@ -4,7 +4,7 @@
 #
 # Copyright (C) David Stewart & Zbigniew Leyk 1993
 #
-# $Id: makefile,v 1.1.1.1 2003-06-23 18:32:10 cees Exp $
+# $Id: $
 #
 
 srcdir = .

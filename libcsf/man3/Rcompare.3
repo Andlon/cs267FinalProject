@@ -1,0 +1,43 @@
+.lf 1 Rcompare.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "Rcompare" 3 "13 August 1999" "c2man rcomp.c"
+.SH "NAME"
+Rcompare \- compare 2 maps for their location attributes
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int Rcompare
+.br
+(
+.br
+	const MAP *m1,
+.br
+	const MAP *m2
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *m1"
+map handle 1
+.TP
+.B "const MAP *m2"
+map handle 2
+.SH "DESCRIPTION"
+Rcompare compares 2 maps for all location attributes:
+
+projection,
+
+xUL, yUL, angle,
+
+cell size and
+
+number of rows and columns
+.SH "RETURNS"
+0 if one of these attributes differ or in case of an error, 1
+if they are all equal.
+.SH "MERRNO"
+NOT_RASTER

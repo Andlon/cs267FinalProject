@@ -1,0 +1,34 @@
+.lf 1 MgetDescriptionSize.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MgetDescriptionSize" 3 "13 August 1999" "c2man moreattr.c"
+.SH "NAME"
+MgetDescriptionSize \- get the size of the description attribute
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t MgetDescriptionSize(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map to get it from
+.SH "DESCRIPTION"
+get the size of the description attribute
+.SH "RETURNS"
+the size of description buffer INCLUDING the termimating `\0`,
+or 0 if not available or in case of error
+.SH "SEE ALSO"
+MgetHistorySize(3),
+MgetNrColourPaletteEntries(3),
+MgetNrGreyPaletteEntries(3),
+MgetDescription(3),
+MgetHistory(3),
+MgetColourPalette(3),
+MgetGreyPalette(3),
+MputDescription(3),
+MputHistory(3),
+MputColourPalette(3),
+MputGreyPalette(3)

@@ -1,0 +1,90 @@
+.lf 1 RputMinVal.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RputMinVal" 3 "13 August 1999" "c2man pminval.c"
+.SH "NAME"
+RputMinVal \- set new minimum cell value
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+void RputMinVal
+.br
+(
+.br
+	MAP *map,
+.br
+	const void *minVal
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *map"
+map handle
+.TP
+.B "const void *minVal"
+New minimum value
+.SH "DESCRIPTION"
+RputMinVal set a new value stored in
+the header as the minimum value.
+minMaxStatus is set to MM_DONTKEEPTRACK
+.SH "NOTE"
+Note that the header minimum set must be equal or
+smaller than the minimum value in the map.
+.SH "EXAMPLE"
+.lf 1 examples/set_min.tr
+.DS
+ #include <stdio.h>
+ #include "csf.h"
+ 
+ /* set header min/max of a scalar map
+  * to 0 and 1, since it's a membership
+  * function
+  */
+ 
+ void main(int argc, char *argv[] )
+ {
+   MAP *map;
+   REAL8 min,max;
+ 
+   if (argc != 2)
+   {
+    fprintf(stderr,"%s: no file specified\\n",argv[0]);
+    exit(1);
+   }
+ 
+   if ((map = Mopen(argv[1], M_READ_WRITE)) == NULL)
+     {
+         Mperror(argv[1]);
+         exit(1);
+     }
+   
+   if ( (! RvalueScaleIs(map, VS_SCALAR))
+        || RuseAs(map, CR_REAL8) )
+   {
+    fprintf(stderr,"%s is not a scalar map\\n", argv[1]);
+    exit(1);
+   }
+   
+   if ( RgetMinVal(map, &min) &&
+        RgetMaxVal(map, &max) &&
+        min >= 0 && max <= 1)
+   {
+    min = 0; max = 1;
+    RputMinVal(map,&min);
+    RputMaxVal(map,&max);
+   }
+   else {
+    fprintf(stderr,
+            "%s: min/max not set or not in [0, 1]\\n",
+            argv[1]);
+    exit(1);
+   }
+   Mclose(map);
+   exit(0);
+ }
+ 
+.DE
+.lf 37 RputMinVal.3

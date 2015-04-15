@@ -1,0 +1,59 @@
+.lf 1 RrowCol2Coords.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "RrowCol2Coords" 3 "13 August 1999" "c2man rcoords.c"
+.SH "NAME"
+RrowCol2Coords \- compute true world co-ordinate from row, column index
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int RrowCol2Coords
+.br
+(
+.br
+	const MAP *m,
+.br
+	double row,
+.br
+	double col,
+.br
+	double *x,
+.br
+	double *y
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *m"
+map handle
+.TP
+.B "double row"
+Row number (relates to y position).
+.TP
+.B "double col"
+Column number (relates to x position).
+.TP
+.B "double *x"
+write-only. x co-ordinate
+.TP
+.B "double *y"
+write-only. y co-ordinate
+.SH "DESCRIPTION"
+RrowCol2Coords computes the true world co-ordinate from a
+row, column index. The row,column co-ordinate can be fractions.
+For example (row,col) = (0.5,0.5) computes the (x,y) co-ordinate of
+the centre of the upper left pixel. Secondly, the row and column co-ordinate
+don't have to be on the map. They are just relative to upper left position.
+For example (row,col) = (-0.5,0.5) computes the (x,y) co-ordinate of
+the centre of the pixel that is right above upper left pixel.
+.SH "RETURNS"
+0  if the co-ordinate is outside the map.
+1 if inside.
+-1 in case of an error.
+.SH "MERRNO"
+ILL_CELLSIZE
+.SH "SEE ALSO"
+RgetCoords(3)

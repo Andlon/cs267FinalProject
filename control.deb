@@ -1,0 +1,12 @@
+Package: gstat
+Version: 2.3.3
+Section: math
+Priority: optional
+Architecture: i386
+Depends: libc6 (>= 2.1.2), libgd1g (>= 1.7.3-0.1),
+ netcdfg3 (>=3.4-7), libncurses5, libgsl0 (>= 0.5-2)
+Suggests: gnuplot (>= 3.7.1)
+Installed-Size: 21240
+Maintainer: Edzer J. Pebesma <e.pebesma@geog.uu.nl> 
+Description: gstat is a program for geostatistical modelling, prediction,
+  and simulation.

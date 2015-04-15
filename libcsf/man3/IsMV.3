@@ -1,0 +1,34 @@
+.lf 1 IsMV.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "IsMV" 3 "13 August 1999" "c2man ismv.c"
+.SH "NAME"
+IsMV \- test if a value is missing value
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int IsMV
+.br
+(
+.br
+	const MAP *map,
+.br
+	const void *cellValue
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "const MAP *map"
+map handle
+.TP
+.B "const void *cellValue"
+value to be tested
+.SH "DESCRIPTION"
+test if a value is missing value
+.SH "RETURNS"
+0 if not, nonzero if it is a missing value
+.SH "SEE ALSO"
+IsMVcellRepr(3)

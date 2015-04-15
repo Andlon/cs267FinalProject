@@ -1,0 +1,3 @@
+predictions(distance):       'dist_ck.pr';
+variances(distance):         'dist_ck.var'; 
+covariances(distance, zinc): 'zinc_dist.cov';

@@ -1,0 +1,54 @@
+.lf 1 MputGreyPalette.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MputGreyPalette" 3 "13 August 1999" "c2man moreattr.c"
+.SH "NAME"
+MputGreyPalette \- put the grey palette
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+int MputGreyPalette
+.br
+(
+.br
+	MAP *m,
+.br
+	UINT2 *pal,
+.br
+	size_t nrTupels
+.br
+);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map to get it from
+.TP
+.B "UINT2 *pal"
+the new grey palette
+.TP
+.B "size_t nrTupels"
+the number of UINT2 words tupels of pal
+.SH "DESCRIPTION"
+MputColourPalette writes the pal argument that is filled
+with a number of grey tupels
+of the grey palette. Each tupel is one UINT2
+words describing the intensity: low, 0 is black, high is white.
+An existing grey palette is overwritten.
+.SH "RETURNS"
+0 if not available or in case of error,
+nonzero otherwise
+.SH "SEE ALSO"
+MgetHistorySize(3),
+MgetDescriptionSize(3),
+MgetNrColourPaletteEntries(3),
+MgetNrGreyPaletteEntries(3),
+MgetDescription(3),
+MgetHistory(3),
+MgetColourPalette(3),
+MgetGreyPalette(3),
+MputDescription(3),
+MputHistory(3),
+MputColourPalette(3)

@@ -1,0 +1,36 @@
+.lf 1 MgetNrGreyPaletteEntries.3
+.\" WARNING! THIS FILE WAS GENERATED AUTOMATICALLY BY c2man!
+.\" DO NOT EDIT! CHANGES MADE TO THIS FILE WILL BE LOST!
+.TH "MgetNrGreyPaletteEntries" 3 "13 August 1999" "c2man moreattr.c"
+.SH "NAME"
+MgetNrGreyPaletteEntries \- get the number of grey palette entries
+.SH "SYNOPSIS"
+.ft B
+#include "csf.h"
+.br
+.sp
+size_t MgetNrGreyPaletteEntries(MAP *m);
+.ft R
+.SH "PARAMETERS"
+.TP
+.B "MAP *m"
+the map to get it from
+.SH "DESCRIPTION"
+MgetNrGreyPaletteEntries returns the number of grey tupels
+of the grey palette. Each tupel is one UINT2
+words describing the intensity: low, 0 is black, high is white.
+.SH "RETURNS"
+the number of grey tupels,
+or 0 if not available or in case of error
+.SH "SEE ALSO"
+MgetHistorySize(3),
+MgetDescriptionSize(3),
+MgetNrColourPaletteEntries(3),
+MgetDescription(3),
+MgetHistory(3),
+MgetColourPalette(3),
+MgetGreyPalette(3),
+MputDescription(3),
+MputHistory(3),
+MputColourPalette(3),
+MputGreyPalette(3)
