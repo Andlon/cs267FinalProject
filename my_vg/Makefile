@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=
+CFLAGS= -g -O3
 DEPS = main.cpp
 OBJ = main.o
  
