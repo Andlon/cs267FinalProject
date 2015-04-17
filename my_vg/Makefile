@@ -1,4 +1,4 @@
-CC=gcc
+CC=g++
 CFLAGS=
 DEPS = main.cpp
 OBJ = main.o
