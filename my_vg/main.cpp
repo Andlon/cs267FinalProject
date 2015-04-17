@@ -5,9 +5,18 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
-#include "points.h"
 
 using namespace std;
+
+struct point {
+  double value;
+  double x,y;
+} ;
+
+struct ptPair {
+  point *pt1, *pt2;
+  double dist;
+} ;
 
 int get_num_pairs(char* file);
 void read_data(char*, point* data);
@@ -68,7 +77,8 @@ int main(int argc, char* argv[])
         avgDists[i] /= numPairs[i];
     }
     //5. Print output
-    char *outFile = "output.txt";
+    char *outFile = new char(strlen("output.txt") + 1);
+    strcpy(outFile, "output.txt");
     print_gamma(gamma, numPairs, avgDists, numBins, outFile);
 
     delete[] data;
