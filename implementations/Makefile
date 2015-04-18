@@ -3,11 +3,12 @@ BIN := bin
 INCLUDE := include
 
 # Include modules here
-include mpi-naive/module.mk
+include src/mpi-naive/module.mk
 
 all: $(TARGETS)
 
 .PHONY: clean
 clean:
-	rm -f $(BIN)/$(TARGETS)
-	rm -R $(OBJ)
+	rm -f $(TARGETS)
+	rm -fR $(OBJ)
+	rmdir --ignore-fail-on-non-empty $(BIN)
