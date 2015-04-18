@@ -2,12 +2,24 @@
 
 #include <vector>
 #include <string>
+#include <cmath>
 
 struct data_point {
     double x;
     double y;
     double value;
 };
+
+/**
+ * @brief distance Computes the distance between two data points.
+ * @param p1
+ * @param p2
+ * @return The distance between the two points.
+ */
+inline double distance (const data_point &p1, const data_point &p2)
+{
+    return sqrt(pow((p1.x - p2.x), 2) + pow(p1.y - p2.y, 2));
+}
 
 /**
  * @brief read_file_data Reads points in <value> <x> <y> format from the specified file.
