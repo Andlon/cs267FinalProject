@@ -2,6 +2,9 @@ OBJ := obj
 BIN := bin
 INCLUDE := include
 
+LFLAGS := 
+CXXFLAGS := -O3 -std=c++11
+
 # Include modules here
 include src/mpi-naive/module.mk
 
