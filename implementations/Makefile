@@ -3,8 +3,8 @@ BIN := bin
 INCLUDE := include
 
 LFLAGS = 
-CXXFLAGS = -O3 -std=c++11
-DEBUG_CXXFLAGS = -g -std=c++11 -O0
+CXXFLAGS = -O3 -std=c++1y
+DEBUG_CXXFLAGS = -g -std=c++1y -O0
 DEBUG_LFLAGS = 
 
 # Include modules here
