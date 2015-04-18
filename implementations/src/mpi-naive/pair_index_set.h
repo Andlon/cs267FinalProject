@@ -52,7 +52,11 @@ inline index_pair pair_index_set::map_to_pair(index_type k) const
     // we're dealing with enormous numbers the cast to double might lose
     // integer precision and we might end up with the wrong i.
     // Further testing required.
-    index_type i = static_cast<index_type>( ceil(_n - sqrt(_n2 - 2 * k)) );
-    index_type j = k - ((2 * _n - i) * (i - 1) / 2) + i;
+
+    double a = round(_n) + 0.5;
+    double b = round(_n2 - _n) + (9.0 / 4.0) - round(2 * k);
+
+    index_type i = floor(a - sqrt(b));
+    index_type j = k + i + (i - 1) * i / 2 - _n * (i - 1);
     return std::make_pair(i, j);
 }
