@@ -1,3 +1,6 @@
+# Qt Creator files
+*.creator.user
+
 # Compiled Object files
 *.slo
 *.lo
