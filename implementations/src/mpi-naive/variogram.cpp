@@ -92,13 +92,11 @@ variogram_data empirical_variogram(const std::vector<data_point> &data_points, s
     // in a single loop, as opposed to a nested loop over data points
     pair_index_set index_set(data_points.size());
 
-    // Note that we add a very tiny number, a fraction of the difference between the maximum and minimum
-    // distance, to the interval calculation to avoid points at the max boundary to be placed
-    // in a non-existent bin.
+    // Note that we perturb the size of the interval slightly to make sure that
+    // the maximum distance falls within a valid interval. In this case we use some
+    // arbitrary factor of machine epsilon.
     distance_range range = compute_distance_range(data_points, index_set, 1, index_set.count());
-    const double difference = range.max - range.min;
-    const double eps = 1e-12 * difference;
-    const double interval = (range.max - range.min + eps) / num_bins;
+    const double interval = (range.max - range.min) / num_bins + 10.0 * std::numeric_limits<double>::epsilon();
 
     auto compute_bin = [interval, range] (double distance) -> size_t {
         return floor((distance - range.min) / interval);
