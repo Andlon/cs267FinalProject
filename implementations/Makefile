@@ -2,8 +2,11 @@ OBJ := obj
 BIN := bin
 INCLUDE := include
 
+# Set default MPI compiler
+MPICXX = mpic++
+
 LFLAGS = 
-CXXFLAGS = -O3 -std=c++1y
+CXXFLAGS = -O3 -std=c++1y -Wno-literal-suffix
 DEBUG_CXXFLAGS = -g -std=c++1y -O0
 DEBUG_LFLAGS = 
 
