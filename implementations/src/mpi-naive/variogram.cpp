@@ -43,7 +43,7 @@ struct distance_range
 };
 
 /**
- * @brief compute_distance_range Computes the maximum and minimum distanes in the subset of
+ * @brief compute_distance_range Computes the maximum and minimum distances in the subset of
  * the given data set defined by the indices in the closed interval [a, b], which is a subset
  * of the supplied index set.
  * @param data_points
@@ -78,9 +78,23 @@ double compute_gamma_contribution(const data_point &p1, const data_point &p2)
     return pow(p2.value - p1.value, 2);
 }
 
-} // End anonymous namespace
-
-variogram_data empirical_variogram(const std::vector<data_point> &data_points, size_t num_bins)
+/**
+ * @brief compute_partial_variogram Computes a partial empirical variogram over the
+ * indices [a, b] from the supplied index set. This means that we
+ * @param data_points The data points in the data set.
+ * @param index_set The index set from which to iterate over.
+ * @param a Index of first interaction, inclusive.
+ * @param b Index of last interaction, inclusive.
+ * @param range The distance range information for the particle data.
+ * @param num_bins Number of bins to use when placing interactions in bins based on distance.
+ * @return Variogram data for the specified interval of interactions.
+ */
+variogram_data compute_partial_variogram(const std::vector<data_point> & data_points,
+                                         const pair_index_set & index_set,
+                                         index_type a,
+                                         index_type b,
+                                         distance_range range,
+                                         size_t num_bins)
 {
     variogram_data data;
     data.gamma = std::vector<double>(num_bins, 0);
@@ -88,22 +102,16 @@ variogram_data empirical_variogram(const std::vector<data_point> &data_points, s
     data.num_pairs = std::vector<size_t>(num_bins, 0u);
     data.num_bins = num_bins;
 
-    // The index set lets us easily iterate over interactions
-    // in a single loop, as opposed to a nested loop over data points
-    pair_index_set index_set(data_points.size());
-
     // Note that we perturb the size of the interval slightly to make sure that
     // the maximum distance falls within a valid interval. In this case we use some
     // arbitrary factor of machine epsilon.
-    distance_range range = compute_distance_range(data_points, index_set, 1, index_set.count());
     const double interval = (range.max - range.min) / num_bins + 10.0 * std::numeric_limits<double>::epsilon();
-
     auto compute_bin = [interval, range] (double distance) -> size_t {
         return floor((distance - range.min) / interval);
     };
 
     // Loop over all interaction pairs
-    for_each_pair(data_points, index_set, 1, index_set.count(),
+    for_each_pair(data_points, index_set, a, b,
                   [&data, &compute_bin] (const auto &p1, const auto &p2)
     {
         double dist = distance(p1, p2);
@@ -124,4 +132,18 @@ variogram_data empirical_variogram(const std::vector<data_point> &data_points, s
     }
 
     return data;
+}
+
+} // End anonymous namespace
+
+variogram_data empirical_variogram(const std::vector<data_point> &data_points, size_t num_bins)
+{
+    // The index set lets us easily iterate over interactions
+    // in a single loop, as opposed to a nested loop over data points
+    pair_index_set index_set(data_points.size());
+    distance_range range = compute_distance_range(data_points, index_set, 1, index_set.count());
+
+    // In this case, we compute the entire variogram by computing a partial variogram over
+    // the entire index set
+    return compute_partial_variogram(data_points, index_set, 1, index_set.count(), range, num_bins);
 }
