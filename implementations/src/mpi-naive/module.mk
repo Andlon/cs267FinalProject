@@ -10,11 +10,11 @@ HEADERS := $(DIR)/pair_index_set.h $(DIR)/data.h $(DIR)/variogram.h
 # Compile object files
 $(OBJDIR)/%.o:: $(DIR)/%.cpp $(HEADERS)
 	mkdir -p $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -c -I$(INCLUDE) $< -o $@
+	$(MPICXX) $(CXXFLAGS) -c -I$(INCLUDE) $< -o $@
 
 # Compile targets
 $(MODULE): $(OBJDIR)/main.o $(OBJDIR)/data.o $(OBJDIR)/variogram.o
 	mkdir -p $(BIN)
-	$(CXX) $^ -o $@	$(LFLAGS)
+	$(MPICXX) $^ -o $@	$(LFLAGS)
 
 TARGETS += $(MODULE)

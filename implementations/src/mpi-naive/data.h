@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <mpi.h>
 
 struct data_point {
     double x;

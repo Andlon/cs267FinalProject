@@ -4,6 +4,8 @@
 #include <limits>
 #include <cassert>
 #include <iostream>
+#include <algorithm>
+#include <mpi.h>
 
 // Anonymous namespace to hold functions that should not be exported,
 // i.e. functions that are local to this file only.
@@ -40,6 +42,9 @@ struct distance_range
 
     distance_range(double min, double max)
         :   min(min), max(max) {}
+
+    distance_range()
+        :   min(0.0), max(0.0) {}
 };
 
 /**
@@ -80,14 +85,17 @@ double compute_gamma_contribution(const data_point &p1, const data_point &p2)
 
 /**
  * @brief compute_partial_variogram Computes a partial empirical variogram over the
- * indices [a, b] from the supplied index set. This means that we
+ * indices [a, b] from the supplied index set.
+ *
+ * Note that returned data is not averaged.
+ *
  * @param data_points The data points in the data set.
  * @param index_set The index set from which to iterate over.
  * @param a Index of first interaction, inclusive.
  * @param b Index of last interaction, inclusive.
  * @param range The distance range information for the particle data.
  * @param num_bins Number of bins to use when placing interactions in bins based on distance.
- * @return Variogram data for the specified interval of interactions.
+ * @return Variogram data for the specified interval of interactions, without averaging.
  */
 variogram_data compute_partial_variogram(const std::vector<data_point> & data_points,
                                          const pair_index_set & index_set,
@@ -96,11 +104,9 @@ variogram_data compute_partial_variogram(const std::vector<data_point> & data_po
                                          distance_range range,
                                          size_t num_bins)
 {
-    variogram_data data;
-    data.gamma = std::vector<double>(num_bins, 0);
-    data.distance_averages = std::vector<double>(num_bins, 0);
-    data.num_pairs = std::vector<size_t>(num_bins, 0u);
-    data.num_bins = num_bins;
+    variogram_data data(num_bins);
+    data.min_distance = range.min;
+    data.max_distance = range.max;
 
     // Note that we perturb the size of the interval slightly to make sure that
     // the maximum distance falls within a valid interval. In this case we use some
@@ -125,13 +131,15 @@ variogram_data compute_partial_variogram(const std::vector<data_point> & data_po
         data.distance_averages[bin] += dist;
     });
 
-    // Average out numbers
-    for (size_t i = 0; i < num_bins; ++i) {
+    return data;
+}
+
+void average_data(variogram_data & data)
+{
+    for (size_t i = 0; i < data.num_bins; ++i) {
         data.gamma[i] /= (2 * data.num_pairs[i]);
         data.distance_averages[i] /= data.num_pairs[i];
     }
-
-    return data;
 }
 
 } // End anonymous namespace
@@ -145,5 +153,76 @@ variogram_data empirical_variogram(const std::vector<data_point> &data_points, s
 
     // In this case, we compute the entire variogram by computing a partial variogram over
     // the entire index set
-    return compute_partial_variogram(data_points, index_set, 1, index_set.count(), range, num_bins);
+    variogram_data data = compute_partial_variogram(data_points, index_set, 1, index_set.count(), range, num_bins);
+    average_data(data);
+    return data;
+}
+
+
+variogram_data empirical_variogram_parallel(const std::vector<data_point> &data_points, size_t num_bins, int root)
+{
+    int rank;
+    int num_procs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+
+    pair_index_set index_set(data_points.size());
+
+    index_type num_interactions = index_set.count();
+    index_type interactions_per_proc = (num_interactions + num_procs - 1) / num_procs;
+
+    // Define local interval of interactions to work on
+    index_type a = rank * interactions_per_proc + 1;
+    index_type b = std::min(a + interactions_per_proc - 1, num_interactions);
+
+    // Compute local distance range
+    distance_range local_range = compute_distance_range(data_points, index_set, a, b);
+
+    // Share and retrieve global ranges
+    distance_range global_range;
+    MPI_Allreduce(&local_range.min, &global_range.min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_range.max, &global_range.max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+
+    variogram_data local_variogram = compute_partial_variogram(data_points, index_set, a, b, global_range, num_bins);
+
+    variogram_data global_variogram(num_bins);
+    global_variogram.max_distance = global_range.max;
+    global_variogram.min_distance = global_range.min;
+
+    MPI_Reduce(local_variogram.distance_averages.data(), global_variogram.distance_averages.data(),
+               num_bins, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
+    MPI_Reduce(local_variogram.gamma.data(), global_variogram.gamma.data(),
+               num_bins, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
+    MPI_Reduce(local_variogram.num_pairs.data(), global_variogram.num_pairs.data(),
+               num_bins, MPI_UINT64_T, MPI_SUM, root, MPI_COMM_WORLD);
+
+    average_data(global_variogram);
+
+    // Quick sanity check to verify that the number of pairs are what we expect.
+    if (rank == root) {
+        u_int64_t num_pairs = std::accumulate(global_variogram.num_pairs.cbegin(), global_variogram.num_pairs.cend(), 0.0);
+        if (num_pairs != index_set.count()) {
+            std::cerr << "WARNING: Number of pairs is not equal to size of index set!\t"
+                      << num_pairs << " != " << index_set.count() << std::endl;
+        }
+        assert(num_pairs == index_set.count());
+    }
+
+    return global_variogram;
+}
+
+
+variogram_data::variogram_data()
+    : num_bins(0), max_distance(0.0), min_distance(0.0)
+{
+
+}
+
+variogram_data::variogram_data(size_t num_bins)
+    : num_bins(num_bins), max_distance(0.0), min_distance(0.0)
+{
+    this->gamma = std::vector<double>(num_bins, 0);
+    this->distance_averages = std::vector<double>(num_bins, 0);
+    this->num_pairs = std::vector<size_t>(num_bins, 0u);
+    this->num_bins = num_bins;
 }
