@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
     const size_t NUM_BINS = 15;
 
     const std::string input_path = argv[1];
-    const std::vector<data_point> data_points = read_file_data(input_path);
+    const std::vector<data_point> data_points = read_file_data_parallel(input_path);
 
     const variogram_data data = empirical_variogram_parallel(data_points, NUM_BINS);
 

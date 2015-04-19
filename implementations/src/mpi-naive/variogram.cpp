@@ -171,7 +171,7 @@ variogram_data empirical_variogram_parallel(const std::vector<data_point> &data_
     index_type num_interactions = index_set.count();
     index_type interactions_per_proc = (num_interactions + num_procs - 1) / num_procs;
 
-    // Define local interval of interactions to work on
+    // Define local interval [a, b] of interactions to work on
     index_type a = rank * interactions_per_proc + 1;
     index_type b = std::min(a + interactions_per_proc - 1, num_interactions);
 
