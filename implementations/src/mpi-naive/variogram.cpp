@@ -1,5 +1,5 @@
 #include "variogram.h"
-#include "pair_index_set.h"
+#include <pair_index_set.h>
 
 #include <limits>
 #include <cassert>
