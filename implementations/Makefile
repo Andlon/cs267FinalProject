@@ -3,7 +3,7 @@ BIN := bin
 INCLUDE := -Iinclude -Isrc/include
 
 # Set default MPI compiler
-MPICXX = mpic++
+MPICXX = CC
 
 LFLAGS = 
 CXXFLAGS = -O3 -std=c++1y -Wno-literal-suffix
