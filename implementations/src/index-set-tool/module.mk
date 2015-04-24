@@ -1,22 +1,23 @@
 # Get relative directory of this module.mk
 DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-MODULE := $(BIN)/mpi-naive
+MODULE := $(BIN)/index-set-tool
 OBJDIR := $(OBJ)/$(DIR)
 
 # For now just add all headers as dependency of every object.
 # Not optimal, but not a problem for such a small project.
-LOCAL_HEADERS := $(DIR)/data.h $(DIR)/variogram.h
+LOCAL_HEADERS :=
 
 # Compile object files
 $(OBJDIR)/%.o:: $(DIR)/%.cpp $(LOCAL_HEADERS) $(HEADERS)
 	mkdir -p `dirname $@`
-	$(MPICXX) $(CXXFLAGS) -c $(INCLUDE) $< -o $@
+	$(CXX) $(CXXFLAGS) -c $(INCLUDE) $< -o $@
 
 # Compile targets
-$(MODULE): $(OBJDIR)/main.o $(OBJDIR)/data.o $(OBJDIR)/variogram.o
+$(MODULE): $(OBJDIR)/main.o
 	mkdir -p $(BIN)
-	$(MPICXX) $^ -o $@ $(LFLAGS)
+	$(CXX) $^ -o $@	$(LFLAGS)
 
-mpi-naive: $(MODULE)
+# Add custom target
+index-set-tool: $(MODULE)
 
 TARGETS += $(MODULE)
