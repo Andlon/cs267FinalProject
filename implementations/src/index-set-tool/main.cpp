@@ -13,7 +13,7 @@ unsigned int count_digits_base10(u_int64_t max_number)
 
 void explain_usage()
 {
-    std::cout << "Given a number of points and the number of processors, prints triplets (k, i, j)"
+    std::cout << "Given a number of points and the number of processors, prints triplets (k, i, j) "
                  "which relate an indices k in an index set { 1, ..., K} to unique pairs (i, j)."
               << std::endl
               << "Usage: " << std::endl
@@ -77,11 +77,11 @@ void print_pairs(size_t point_count)
 
 int main(int argc, char ** argv)
 {
-    if (argc == 1)
+    if (argc != 2)
     {
         explain_usage();
     }
-    else if (argc == 2)
+    else
     {
         size_t point_count = strtoul(argv[1], 0, 0);
 
