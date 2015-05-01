@@ -32,7 +32,7 @@ inline double distance (const data_point &p1, const data_point &p2)
  * @param points The data set from which to print points.
  * @param print_indices Toggles whether or not to print indices for the points
  */
-void print_points(std::ostream & out, const std::vector<data_point> & points, bool print_indices = false);
+void print_points(std::ostream & out, const std::vector<data_point> & points, bool print_indices = false, size_t start_index = 0);
 
 /**
  * @brief read_file_data Reads points in <value> <x> <y> format from the specified file.
