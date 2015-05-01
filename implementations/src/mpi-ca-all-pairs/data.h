@@ -53,6 +53,7 @@ std::vector<data_point> read_file_data_parallel(const std::string &path, int roo
 
 struct parallel_read_result
 {
+    parallel_read_result();
     parallel_read_result(size_t point_count, size_t node_count);
 
     // Holds the data points local to this node
@@ -82,6 +83,6 @@ struct parallel_read_result
  * @param communicator The communicator to split the file across.
  * @return A parallel_read_result struct that contains the aforementioned information.
  */
-parallel_read_result read_file_chunk_parallel(const std::string & path, MPI_Comm communicator = MPI_COMM_WORLD);
+parallel_read_result read_file_chunk_parallel(const std::string & path, int chunk_count, int chunk_index);
 
 

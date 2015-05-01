@@ -13,7 +13,7 @@ DEBUG_LFLAGS =
 
 # Add our own headers common to multiple modules here.
 # Ensures that the modules are rebuilt when we change these headers
-HEADERS = src/include/pair_index_set.h 
+HEADERS = src/include/pair_index_set.h src/include/mpi_util.h 
 
 # Need to put 'all' target before includes so that it becomes the default target.
 # Moreover, it depends on main-build, which uses a later definition of $(TARGETS).

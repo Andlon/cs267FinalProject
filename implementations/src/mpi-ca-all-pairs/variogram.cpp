@@ -1,15 +1,34 @@
 #include "variogram.h"
 #include <pair_index_set.h>
+#include <mpi_util.h>
 
 #include <limits>
 #include <cassert>
 #include <iostream>
 #include <algorithm>
 #include <mpi.h>
+#include <functional>
+#include "team.h"
 
 // Anonymous namespace to hold functions that should not be exported,
 // i.e. functions that are local to this file only.
 namespace {
+
+/**
+ * @brief determine_team_leader_ranks
+ * @param P The number of active processors
+ * @param c The replication factor
+ * @return
+ */
+std::vector<int> determine_team_leader_ranks(int P, int c)
+{
+    int leader_count = P / c;
+    std::vector<int> ranks(leader_count);
+    std::iota(ranks.begin(), ranks.end(), 0);
+    std::transform(ranks.begin(), ranks.end(), ranks.begin(),
+                   [c] (auto i) { return i * c; });
+    return ranks;
+}
 
 /**
  * Calls function f for every pair k of data points in data_points,
@@ -158,60 +177,6 @@ variogram_data empirical_variogram(const std::vector<data_point> &data_points, s
     return data;
 }
 
-
-variogram_data empirical_variogram_parallel(const std::vector<data_point> &data_points, size_t num_bins, int root)
-{
-    int rank;
-    int num_procs;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-
-    pair_index_set index_set(data_points.size());
-
-    index_type num_interactions = index_set.count();
-    index_type interactions_per_proc = (num_interactions + num_procs - 1) / num_procs;
-
-    // Define local interval [a, b] of interactions to work on
-    index_type a = rank * interactions_per_proc + 1;
-    index_type b = std::min(a + interactions_per_proc - 1, num_interactions);
-
-    // Compute local distance range
-    distance_range local_range = compute_distance_range(data_points, index_set, a, b);
-
-    // Share and retrieve global ranges
-    distance_range global_range;
-    MPI_Allreduce(&local_range.min, &global_range.min, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-    MPI_Allreduce(&local_range.max, &global_range.max, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-
-    variogram_data local_variogram = compute_partial_variogram(data_points, index_set, a, b, global_range, num_bins);
-
-    variogram_data global_variogram(num_bins);
-    global_variogram.max_distance = global_range.max;
-    global_variogram.min_distance = global_range.min;
-
-    MPI_Reduce(local_variogram.distance_averages.data(), global_variogram.distance_averages.data(),
-               num_bins, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
-    MPI_Reduce(local_variogram.gamma.data(), global_variogram.gamma.data(),
-               num_bins, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
-    MPI_Reduce(local_variogram.num_pairs.data(), global_variogram.num_pairs.data(),
-               num_bins, MPI_UINT64_T, MPI_SUM, root, MPI_COMM_WORLD);
-
-    average_data(global_variogram);
-
-    // Quick sanity check to verify that the number of pairs are what we expect.
-    if (rank == root) {
-        u_int64_t num_pairs = std::accumulate(global_variogram.num_pairs.cbegin(), global_variogram.num_pairs.cend(), 0.0);
-        if (num_pairs != index_set.count()) {
-            std::cerr << "WARNING: Number of pairs is not equal to size of index set!\t"
-                      << num_pairs << " != " << index_set.count() << std::endl;
-        }
-        assert(num_pairs == index_set.count());
-    }
-
-    return global_variogram;
-}
-
-
 variogram_data::variogram_data()
     : num_bins(0), max_distance(0.0), min_distance(0.0)
 {
@@ -225,4 +190,58 @@ variogram_data::variogram_data(size_t num_bins)
     this->distance_averages = std::vector<double>(num_bins, 0);
     this->num_pairs = std::vector<size_t>(num_bins, 0u);
     this->num_bins = num_bins;
+}
+
+variogram_data empirical_variogram_parallel(const std::string &input_file, parallel_options options, size_t num_bins)
+{
+    // The variable names here are consistent with the terminology used in
+    // Driscoll et al. "A Communication-Optimal N-Body Algorithm for Direct Interactions"
+    int P = options.active_processor_count();
+    int c = options.replication_factor();
+    assert(P % c == 0);
+
+    std::vector<int> active_ranks(P);
+    std::iota(active_ranks.begin(), active_ranks.end(), 0);
+
+    // Create a group that is the active subset of the complete set of available processors,
+    // and associate a communicator with this group
+    MPI_Group global_group, active_group;
+    MPI_Comm_group(MPI_COMM_WORLD, &global_group);
+    MPI_Group_incl(global_group, active_ranks.size(), active_ranks.data(), &active_group);
+
+    MPI_Comm active_comm;
+    MPI_Comm_create(MPI_COMM_WORLD, active_group, &active_comm);
+
+    // Kick any inactive processors out
+    if (active_comm == MPI_COMM_NULL)
+        return variogram_data(num_bins);
+
+    int active_rank;
+    MPI_Comm_rank(active_comm, &active_rank);
+
+//    // Create a communicator for team leaders
+//    MPI_Group leader_group;
+//    auto team_leader_ranks = determine_team_leader_ranks(P, c);
+//    MPI_Group_incl(active_group, team_leader_ranks.size(), team_leader_ranks.data(), &leader_group);
+
+//    MPI_Comm leader_comm;
+//    MPI_Comm_create(active_comm, leader_group, &leader_comm);
+
+    // Create my team
+    int team_count = P / c;
+    int my_team_index = active_rank % (team_count);
+    team my_team(active_comm, options, my_team_index);
+
+    if (my_team.my_node_is_leader())
+    {
+        parallel_read_result read_result = read_file_chunk_parallel(input_file, team_count, my_team_index);
+        int rank, ranks;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Comm_size(MPI_COMM_WORLD, &ranks);
+        std::cout << "Processor " << rank <<  " successfully read "
+                  << read_result.data.size() << " data points from input." << std::endl;
+    }
+
+    variogram_data data(num_bins);
+    return data;
 }

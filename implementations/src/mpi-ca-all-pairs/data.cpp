@@ -159,14 +159,10 @@ MPI_Datatype create_mpi_data_point_type()
     return type;
 }
 
-parallel_read_result read_file_chunk_parallel(const std::string &path, MPI_Comm communicator)
+parallel_read_result read_file_chunk_parallel(const std::string &path, int chunk_count, int chunk_index)
 {
-    int rank, ranks;
-    MPI_Comm_rank(communicator, &rank);
-    MPI_Comm_size(communicator, &ranks);
-
     size_t point_count = estimate_data_point_count(path);
-    return read_local_points(path, point_count, ranks, rank);
+    return read_local_points(path, point_count, chunk_count, chunk_index);
 }
 
 
@@ -191,6 +187,12 @@ void print_points(std::ostream &out, const std::vector<data_point> &points, bool
     }
 }
 
+
+parallel_read_result::parallel_read_result()
+    :   distribution(0, 1)
+{
+
+}
 
 parallel_read_result::parallel_read_result(size_t point_count, size_t node_count)
     :   distribution(point_count, node_count)

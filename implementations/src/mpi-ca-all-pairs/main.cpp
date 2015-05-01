@@ -39,9 +39,19 @@ int main(int argc, char ** argv)
     const size_t NUM_BINS = 15;
 
     const std::string input_path = argv[1];
-    parallel_read_result read_result = read_file_chunk_parallel(input_path);
 
-    print_all_points(read_result, MPI_COMM_WORLD);
+    parallel_options options(ranks, 16);
+
+    if (rank == 0)
+    {
+        std::cout << "Using " << options.active_processor_count() << " of "
+                  << ranks << " processors with replication factor " << options.replication_factor()
+                  << std::endl;
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    empirical_variogram_parallel(input_path, options, NUM_BINS);
 
     MPI_Finalize();
 
