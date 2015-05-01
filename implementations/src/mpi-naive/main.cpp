@@ -14,10 +14,10 @@ void print_gamma(const std::vector<double> & values,
                  const std::string & filename)
 {
     std::ofstream ofile(filename.c_str());
-    ofile << "#from \tto  \tn_pairs \tav_dist \tsemivariogram \n";
+    //ofile << "#from \tto  \tn_pairs \tav_dist \tsemivariogram \n";
     for(int i = 0; i < num_bins; i++)
     {
-        ofile << "?" << "\t" << "?" << "\t" << counts[i] << "\t" <<
+        ofile << counts[i] << "\t" <<
                  dists[i] << "\t" << values[i] << "\n";
     }
     ofile.flush();

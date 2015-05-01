@@ -1,0 +1,64 @@
+\documentclass[11pt, oneside]{scrreprt}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for rotated page geometry
+\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+
+%SetFonts
+
+%SetFonts
+
+
+\title{CS267 Final Project Report}
+\subtitle{Parallelizing Empirical Variograms for Large Data Sets}
+\author{Andreas Borgen Longva\\
+  \texttt{longva@berkeley.edu}
+  \and
+  Heather Savoy\\
+  \texttt{frystacka@berkeley.edu}}
+\date{May 7, 2015}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+\section{Project Description}
+%What is a variogram, its application, why not yet parallel, comparison to particle simulation
+%Note on how this will actually be used in research
+%How we tested for correctness
+
+\section{Implementations}
+%Overview of different implementations and their goals 
+%Any assumptions we made for all?
+  \subsection{Serial}
+  %Brief description
+  %pseudo-code
+  %Expected performance
+  \subsection{Naive MPI}
+  %Brief description
+  %pseudo-code
+  %Expected performance
+  \subsection{Communication Optimal}
+  %Brief description
+  %pseudo-code
+  %Expected performance
+  \subsection{Computation Optimal}
+ %Brief description
+  %pseudo-code
+  %Expected performance
+\section{Results}
+  %Plot of n versus time for all implementations
+  %Effect of tuning parameters (how many copies?)
+  %Extrapolation of how long my data set would take with each?
+  %Actual result for my data set
+
+\section{Conclusion}
+%Which implementation(s) worked best? Always the case?
+%What can be learned from the results to my dataset
+%How this can be made more general (for future applications)
+%Can now fit models and make simulations (for which algorithms already exist)
+
+
+\end{document}  

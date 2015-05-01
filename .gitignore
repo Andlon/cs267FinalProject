@@ -29,3 +29,9 @@
 *.exe
 *.out
 *.app
+
+# Tex compilation files
+*.aux
+*.log
+*.synctex.gz
+*.pdf
