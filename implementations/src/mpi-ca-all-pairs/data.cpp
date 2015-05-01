@@ -50,7 +50,7 @@ size_t estimate_data_point_count(const std::string & path)
     // This might cause problems on Windows platforms, as there you have
     // an extra carriage return character (\r), but our solution
     // is UNIX-only at this point.
-    return file_size(path) / file_line_width(path);
+    return file_size(path) / (file_line_width(path) + 1);
 }
 
 /**
@@ -98,7 +98,7 @@ parallel_read_result read_local_points(const std::string & path, size_t point_co
         }
     }
 
-    assert(result.data.size() == point_count);
+    assert(result.data.size() == result.distribution.objects_in_bucket(rank));
 
     return result;
 }
@@ -170,18 +170,19 @@ parallel_read_result read_file_chunk_parallel(const std::string &path, MPI_Comm 
 }
 
 
-void print_points(std::ostream &out, const std::vector<data_point> &points, bool print_indices)
+// TODO: Fix this function. Output looks really bad.
+void print_points(std::ostream &out, const std::vector<data_point> &points, bool print_indices, size_t start_index)
 {
     auto print = [&out] (auto object)
     {
-        out << std::setw(10) << object;
+        out << std::left << std::setw(10) << object << "\t";
     };
 
     for (size_t i = 0; i < points.size(); ++i)
     {
         const data_point & point = points[i];
         if (print_indices)
-            print(i);
+            print(i + start_index);
 
         print(point.value);
         print(point.x);
