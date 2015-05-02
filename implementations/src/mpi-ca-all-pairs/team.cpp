@@ -26,9 +26,14 @@ team::team(MPI_Comm active_comm, parallel_options options, int team_index)
     MPI_Comm_create(active_comm, team_group, &_comm);
 }
 
-void team::broadcast(std::vector<data_point> &data_points)
+void team::broadcast(parallel_read_result &result, MPI_Datatype data_point_type)
 {
+    MPI_Bcast(&result.global_point_count, 1, MPI_UINT64_T, 0, _comm);
 
+    u_int64_t data_size = result.data.size();
+    MPI_Bcast(&data_size, 1, MPI_UINT64_T, 0, _comm);
+    result.data.resize(data_size);
+    MPI_Bcast(result.data.data(), data_size, data_point_type, 0, _comm);
 }
 
 int team::my_rank() const

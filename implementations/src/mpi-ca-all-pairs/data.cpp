@@ -60,16 +60,16 @@ size_t estimate_data_point_count(const std::string & path)
  * @param point_count The number of points in the file.
  * @param ranks The number of ranks the file should be distributed over.
  * @param rank The rank of the local processor.
- * @return A parallel_read_result containing the result.
+ * @return The points that were read.
  */
-parallel_read_result read_local_points(const std::string & path, size_t point_count, int ranks, int rank) {
-    parallel_read_result result(point_count, ranks);
-    result.data.reserve(point_count);
+std::vector<data_point> read_local_points(const std::string & path, size_t point_count, int ranks, int rank) {
+    std::vector<data_point> data;
+    data.reserve(point_count);
+
+    uniform_distribution distribution(point_count, ranks);
 
     // Define local interval [a, b) of point indices to work on
-    interval<size_t> interval = result.distribution.interval_for_bucket(rank);
-    result.start = interval.a();
-    result.end = interval.b();
+    interval<size_t> interval = distribution.interval_for_bucket(rank);
 
     // Add 1 to account for newline. See comment in estimate_data_point_count()
     size_t line_width = file_line_width(path) + 1;
@@ -83,24 +83,24 @@ parallel_read_result read_local_points(const std::string & path, size_t point_co
 
     file.seekg(startpos);
     std::string line;
-    for (size_t i = result.start; i < result.end; ++i)
+    for (size_t i = interval.a(); i < interval.b(); ++i)
     {
         bool success = std::getline(file, line);
         if (success)
         {
             data_point point = read_point(line);
-            result.data.push_back(point);
+            data.push_back(point);
         } else {
             std::stringstream error_stream;
             error_stream << "Failed to read point " << i << " from the interval ["
-                         << result.start << ", " << result.end << ")";
+                         << interval.a() << ", " << interval.b() << ")";
             throw new std::ios_base::failure(error_stream.str());
         }
     }
 
-    assert(result.data.size() == result.distribution.objects_in_bucket(rank));
+    assert(data.size() == distribution.objects_in_bucket(rank));
 
-    return result;
+    return data;
 }
 
 }
@@ -162,7 +162,11 @@ MPI_Datatype create_mpi_data_point_type()
 parallel_read_result read_file_chunk_parallel(const std::string &path, int chunk_count, int chunk_index)
 {
     size_t point_count = estimate_data_point_count(path);
-    return read_local_points(path, point_count, chunk_count, chunk_index);
+
+    parallel_read_result result;
+    result.data = std::move(read_local_points(path, point_count, chunk_count, chunk_index));
+    result.global_point_count = point_count;
+    return result;
 }
 
 
@@ -185,17 +189,4 @@ void print_points(std::ostream &out, const std::vector<data_point> &points, bool
         print(point.y);
         out << std::endl;
     }
-}
-
-
-parallel_read_result::parallel_read_result()
-    :   distribution(0, 1)
-{
-
-}
-
-parallel_read_result::parallel_read_result(size_t point_count, size_t node_count)
-    :   distribution(point_count, node_count)
-{
-
 }
