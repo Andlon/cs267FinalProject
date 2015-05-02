@@ -66,7 +66,7 @@ inline size_t uniform_distribution::objects_in_bucket(size_t bucket) const
     if (bucket >= bucket_count())
         throw new std::logic_error("bucket must not be larger than or equal to bucket_count");
 
-    return std::min(_objects_per_bucket, object_count() - (bucket - 1) * _objects_per_bucket);
+    return std::min(_objects_per_bucket, object_count() - bucket * _objects_per_bucket);
 }
 
 inline interval<size_t> uniform_distribution::interval_for_bucket(size_t bucket) const
