@@ -6,6 +6,7 @@
 #include <mpi.h>
 #include <ostream>
 #include "uniform_distribution.h"
+#include <rect.h>
 
 struct data_point {
     double x;
@@ -25,6 +26,8 @@ inline double distance (const data_point &p1, const data_point &p2)
 {
     return sqrt(pow((p1.x - p2.x), 2) + pow(p1.y - p2.y, 2));
 }
+
+custom::rect<double> bounding_rectangle(const std::vector<data_point> & data_points);
 
 /**
  * @brief print_points Prints the given data points to the given output stream.
@@ -53,11 +56,16 @@ std::vector<data_point> read_file_data_parallel(const std::string &path, int roo
 
 struct parallel_read_result
 {
+    parallel_read_result();
+
     // Holds the data points local to this node
     std::vector<data_point> data;
 
     // Holds the number of points in total across all nodes
     size_t global_point_count;
+
+    // Optionally set to the maximum distance of the data points
+    double max_distance;
 };
 
 /**

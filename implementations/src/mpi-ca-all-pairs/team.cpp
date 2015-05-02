@@ -29,6 +29,7 @@ team::team(MPI_Comm active_comm, parallel_options options, int team_index)
 void team::broadcast(parallel_read_result &result, MPI_Datatype data_point_type)
 {
     MPI_Bcast(&result.global_point_count, 1, MPI_UINT64_T, 0, _comm);
+    MPI_Bcast(&result.max_distance, 1, MPI_DOUBLE, 0, _comm);
 
     u_int64_t data_size = result.data.size();
 

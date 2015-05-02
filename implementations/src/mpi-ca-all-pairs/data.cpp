@@ -94,7 +94,7 @@ std::vector<data_point> read_local_points(const std::string & path, size_t point
             std::stringstream error_stream;
             error_stream << "Failed to read point " << i << " from the interval ["
                          << interval.a() << ", " << interval.b() << ")";
-            throw new std::ios_base::failure(error_stream.str());
+            throw std::ios_base::failure(error_stream.str());
         }
     }
 
@@ -189,4 +189,39 @@ void print_points(std::ostream &out, const std::vector<data_point> &points, bool
         print(point.y);
         out << std::endl;
     }
+}
+
+
+custom::rect<double> bounding_rectangle(const std::vector<data_point> &data_points)
+{
+    using custom::rect;
+
+    if (data_points.empty())
+        return rect<double>(0, 0, 0, 0);
+
+    double min_x = std::numeric_limits<double>::max();
+    double max_x = std::numeric_limits<double>::min();
+    double min_y = std::numeric_limits<double>::max();
+    double max_y = std::numeric_limits<double>::min();
+
+    for (const auto & point : data_points)
+    {
+        if (point.x > max_x)
+            max_x = point.x;
+        if (point.x < min_x)
+            min_x = point.x;
+        if (point.y > max_y)
+            max_y = point.y;
+        if (point.y < min_y)
+            min_y = point.y;
+    }
+
+    return rect<double>(min_x, min_y, max_x - min_x, max_y - min_y);
+}
+
+
+parallel_read_result::parallel_read_result()
+    :   global_point_count(0u), max_distance(std::numeric_limits<double>::signaling_NaN())
+{
+
 }
