@@ -6,6 +6,7 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <utility>
 #include <mpi.h>
 #include <functional>
 #include <rect.h>
@@ -14,6 +15,14 @@
 // Anonymous namespace to hold functions that should not be exported,
 // i.e. functions that are local to this file only.
 namespace {
+
+int mod(int a, int b)
+{
+    if (b == 0)
+        throw std::logic_error("Can not take (a mod b) with b zero.");
+    int r = a % b;
+    return r >= 0 ? r : r + std::abs(b);
+}
 
 MPI_Comm create_active_comm(size_t active_node_count)
 {
@@ -42,6 +51,57 @@ MPI_Comm create_leader_comm(MPI_Comm active_comm, size_t leader_count)
     MPI_Comm leader_comm;
     MPI_Comm_create(active_comm, leader_group, &leader_comm);
     return leader_comm;
+}
+
+int initial_shift(std::vector<data_point> &exchange_buffer,
+                  MPI_Comm active_comm,
+                  MPI_Datatype data_point_type,
+                  int active_rank,
+                  int team_count)
+{
+    int col = active_rank % team_count;
+    int row = active_rank / team_count;
+
+    // Given a kth-row processor, shift buffer by k along row
+    int k = row;
+
+    // Note: use mod function instead of % operator here,
+    // as % is non-Euclidean
+    int send_col = mod(col + k, team_count);
+    int send_rank = row * team_count + send_col;
+    int recv_col = mod(col - k, team_count);
+    int recv_rank = row * team_count + recv_col;
+
+    // No send/receives are required for first row
+    if (k == 0)
+        return active_rank;
+
+    // TODO: Consider taking a send buffer in so we don't
+    // need to allocate one for every shift. Probably
+    // miniscule on performance though, need to profile.
+    std::vector<data_point> send_buffer = exchange_buffer;
+
+    MPI_Request send_request = MPI_REQUEST_NULL;
+    MPI_Isend(send_buffer.data(), send_buffer.size(),
+              data_point_type, send_rank, 0, active_comm, &send_request);
+
+    // Probe the received message to determine
+    // how big to make our exchange buffer
+    MPI_Status recv_status;
+    MPI_Probe(recv_rank, 0, active_comm, &recv_status);
+
+    int recv_size;
+    MPI_Get_count(&recv_status, data_point_type, &recv_size);
+    if (recv_size == MPI_UNDEFINED)
+        throw std::runtime_error("unable to recover from undefined receive size");
+
+    exchange_buffer.resize(recv_size);
+
+    MPI_Recv(exchange_buffer.data(), exchange_buffer.size(),
+             data_point_type, recv_rank, 0, active_comm, MPI_STATUS_IGNORE);
+    MPI_Wait(&send_request, MPI_STATUS_IGNORE);
+
+    return recv_rank;
 }
 
 /**
@@ -232,7 +292,6 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     team my_team(active_comm, options, my_team_index);
 
     parallel_read_result read_result;
-
     if (my_team.my_node_is_leader()) {
         read_result = std::move(read_file_chunk_parallel(input_file, team_count, my_team_index));
 
@@ -243,7 +302,17 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
 
     my_team.broadcast(read_result, data_point_type);
 
+    const std::vector<data_point> & local_buffer = read_result.data;
+    std::vector<data_point> exchange_buffer = local_buffer;
     variogram_data local_variogram(num_bins);
+
+    int recv_rank = initial_shift(exchange_buffer, active_comm,
+                                  data_point_type, active_rank,
+                                  team_count);
+
+    std::cout << "Processor " << active_rank << " received "
+              << exchange_buffer.size()
+              << " points from " << recv_rank << std::endl;
 
     return local_variogram;
 }
