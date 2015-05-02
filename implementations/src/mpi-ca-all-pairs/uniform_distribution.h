@@ -11,7 +11,7 @@ public:
         : _a(a), _b(b)
     {
         if (b < a)
-            throw new std::logic_error("b must be greater than or equal to a");
+            throw std::logic_error("b must be greater than or equal to a");
     }
 
     T a() const { return _a; }
@@ -55,7 +55,7 @@ inline uniform_distribution::uniform_distribution(size_t object_count, size_t bu
     :   _object_count(object_count), _bucket_count(bucket_count)
 {
     if (bucket_count == 0u)
-        throw new std::logic_error("bucket_count must be non-zero");
+        throw std::logic_error("bucket_count must be non-zero");
 
     _objects_per_bucket = (object_count + bucket_count - 1) / (bucket_count);
     _objects_last_bucket = object_count - (bucket_count - 1) * _objects_per_bucket;
@@ -64,7 +64,7 @@ inline uniform_distribution::uniform_distribution(size_t object_count, size_t bu
 inline size_t uniform_distribution::objects_in_bucket(size_t bucket) const
 {
     if (bucket >= bucket_count())
-        throw new std::logic_error("bucket must not be larger than or equal to bucket_count");
+        throw std::logic_error("bucket must not be larger than or equal to bucket_count");
 
     return std::min(_objects_per_bucket, object_count() - bucket * _objects_per_bucket);
 }

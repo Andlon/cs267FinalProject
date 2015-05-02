@@ -2,6 +2,29 @@
 
 #include <mpi.h>
 #include <algorithm>
+#include <stdexcept>
+
+inline MPI_Group group_from_comm(MPI_Comm comm)
+{
+    MPI_Group group;
+    MPI_Comm_group(comm, &group);
+    return group;
+}
+
+inline MPI_Group consecutive_subset_group(MPI_Group group, int a, int b)
+{
+    if (a < 0)
+        throw std::logic_error("given interval [a, b) must only contain non-negative members");
+    if (b < a)
+        throw std::logic_error("given interval [a, b) must have b >= a");
+
+    std::vector<int> ranks(b - a);
+    std::iota(ranks.begin(), ranks.end(), a);
+
+    MPI_Group new_group;
+    MPI_Group_incl(group, ranks.size(), ranks.data(), &new_group);
+    return new_group;
+}
 
 /**
  * @brief rank_in_group Returns the rank of the calling processor in the given group,

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <mpi.h>
 #include <functional>
+#include <rect.h>
 #include "team.h"
 
 // Anonymous namespace to hold functions that should not be exported,
@@ -29,6 +30,18 @@ MPI_Comm create_active_comm(size_t active_node_count)
     MPI_Comm_create(MPI_COMM_WORLD, active_group, &active_comm);
 
     return active_comm;
+}
+
+MPI_Comm create_leader_comm(MPI_Comm active_comm, size_t leader_count)
+{
+    MPI_Group active_group = group_from_comm(active_comm);
+
+    // Leaders are the first leader_count ranks in the set of active ranks
+    MPI_Group leader_group = consecutive_subset_group(active_group, 0, leader_count);
+
+    MPI_Comm leader_comm;
+    MPI_Comm_create(active_comm, leader_group, &leader_comm);
+    return leader_comm;
 }
 
 /**
@@ -204,6 +217,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     assert(P % c == 0);
 
     MPI_Comm active_comm = create_active_comm(P);
+    MPI_Comm leader_comm = create_leader_comm(active_comm, P / c);
 
     // Kick any inactive processors out
     if (active_comm == MPI_COMM_NULL)
@@ -219,14 +233,17 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
 
     parallel_read_result read_result;
 
-    if (my_team.my_node_is_leader())
-        read_result = read_file_chunk_parallel(input_file, team_count, my_team_index);
+    if (my_team.my_node_is_leader()) {
+        read_result = std::move(read_file_chunk_parallel(input_file, team_count, my_team_index));
+
+        // Find local max distance and max-reduce among all leaders
+        read_result.max_distance = bounding_rectangle(read_result.data).diagonal();
+        MPI_Allreduce(MPI_IN_PLACE, &read_result.max_distance, 1, MPI_DOUBLE, MPI_MAX, leader_comm);
+    }
 
     my_team.broadcast(read_result, data_point_type);
 
-    std::cout << "Processor " << active_rank << " has " << read_result.data.size() << " of "
-              << read_result.global_point_count << " data points." << std::endl;
+    variogram_data local_variogram(num_bins);
 
-    variogram_data data(num_bins);
-    return data;
+    return local_variogram;
 }
