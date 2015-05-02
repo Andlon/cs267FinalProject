@@ -11,7 +11,7 @@ public:
     team();
     team(MPI_Comm active_comm, parallel_options options, int team_index);
 
-    void broadcast(std::vector<data_point> & data_points);
+    void broadcast(parallel_read_result & result, MPI_Datatype data_point_type);
 
     int my_rank() const;
     bool my_node_is_leader() const;

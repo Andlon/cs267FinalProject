@@ -15,22 +15,6 @@
 namespace {
 
 /**
- * @brief determine_team_leader_ranks
- * @param P The number of active processors
- * @param c The replication factor
- * @return
- */
-std::vector<int> determine_team_leader_ranks(int P, int c)
-{
-    int leader_count = P / c;
-    std::vector<int> ranks(leader_count);
-    std::iota(ranks.begin(), ranks.end(), 0);
-    std::transform(ranks.begin(), ranks.end(), ranks.begin(),
-                   [c] (auto i) { return i * c; });
-    return ranks;
-}
-
-/**
  * Calls function f for every pair k of data points in data_points,
  * where k is an integer in the closed interval [a, b] where
  * b >= a and both a, b are members of the implicit index set.
@@ -194,6 +178,8 @@ variogram_data::variogram_data(size_t num_bins)
 
 variogram_data empirical_variogram_parallel(const std::string &input_file, parallel_options options, size_t num_bins)
 {
+    MPI_Datatype data_point_type = create_mpi_data_point_type();
+
     // The variable names here are consistent with the terminology used in
     // Driscoll et al. "A Communication-Optimal N-Body Algorithm for Direct Interactions"
     int P = options.active_processor_count();
@@ -219,28 +205,22 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     int active_rank;
     MPI_Comm_rank(active_comm, &active_rank);
 
-//    // Create a communicator for team leaders
-//    MPI_Group leader_group;
-//    auto team_leader_ranks = determine_team_leader_ranks(P, c);
-//    MPI_Group_incl(active_group, team_leader_ranks.size(), team_leader_ranks.data(), &leader_group);
-
-//    MPI_Comm leader_comm;
-//    MPI_Comm_create(active_comm, leader_group, &leader_comm);
-
     // Create my team
     int team_count = P / c;
     int my_team_index = active_rank % (team_count);
     team my_team(active_comm, options, my_team_index);
 
+    parallel_read_result read_result;
+
     if (my_team.my_node_is_leader())
-    {
-        parallel_read_result read_result = read_file_chunk_parallel(input_file, team_count, my_team_index);
-        int rank, ranks;
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Comm_size(MPI_COMM_WORLD, &ranks);
-        std::cout << "Processor " << rank <<  " successfully read "
-                  << read_result.data.size() << " data points from input." << std::endl;
-    }
+        read_result = read_file_chunk_parallel(input_file, team_count, my_team_index);
+
+    my_team.broadcast(read_result, data_point_type);
+
+    std::cout << "Processor " << active_rank << " has " << read_result.data.size() << " of "
+              << read_result.global_point_count << " data points." << std::endl;
+
+    MPI_Barrier(active_comm);
 
     variogram_data data(num_bins);
     return data;

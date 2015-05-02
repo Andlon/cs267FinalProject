@@ -7,20 +7,20 @@
 #include "data.h"
 #include "variogram.h"
 
-void print_all_points(const parallel_read_result & read_result, MPI_Comm communicator)
-{
-    int rank, ranks;
-    MPI_Comm_rank(communicator, &rank);
-    MPI_Comm_size(communicator, &ranks);
+//void print_all_points(const parallel_read_result & read_result, MPI_Comm communicator)
+//{
+//    int rank, ranks;
+//    MPI_Comm_rank(communicator, &rank);
+//    MPI_Comm_size(communicator, &ranks);
 
-    // Sequentally print all points
-    for (int i = 0; i < ranks; ++i)
-    {
-        if (rank == i)
-            print_points(std::cout, read_result.data, true, read_result.start);
-        MPI_Barrier(communicator);
-    }
-}
+//    // Sequentally print all points
+//    for (int i = 0; i < ranks; ++i)
+//    {
+//        if (rank == i)
+//            print_points(std::cout, read_result.data, true, read_result.start);
+//        MPI_Barrier(communicator);
+//    }
+//}
 
 int main(int argc, char ** argv)
 {

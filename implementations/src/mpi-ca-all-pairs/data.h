@@ -53,20 +53,11 @@ std::vector<data_point> read_file_data_parallel(const std::string &path, int roo
 
 struct parallel_read_result
 {
-    parallel_read_result();
-    parallel_read_result(size_t point_count, size_t node_count);
-
     // Holds the data points local to this node
     std::vector<data_point> data;
 
-    // Represents the distribution of data points (objects) across nodes (buckets)
-    uniform_distribution distribution;
-
-    // [start, end) is the interval of data point indices
-    // in the larger set { 0, ..., n - 1 } that belongs
-    // to this processor.
-    size_t start;
-    size_t end;
+    // Holds the number of points in total across all nodes
+    size_t global_point_count;
 };
 
 /**
