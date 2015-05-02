@@ -1,0 +1,15 @@
+%What is a variogram, its application, why not yet parallel, comparison to particle simulation
+%Note on how this will actually be used in research
+%How we tested for correctness
+
+
+The field of geostatistics strives to characterize the spatial heterogeneity found in the physical world in terms of probability and statistics. A common method to represent how values of a field are correlated over space is called a variogram. The variogram is a function of distance between points in space and describes the increase in variance between points as distance grows. The shape of a variogram is highly informative for gauging the heterogeneity of a spatial field. For example, the near-origin slope of the variogram indicates if values change smoothly or sharply across the field. 
+
+One important application of variograms is in groundwater modeling. Measuring hydraulic properties of aquifers is difficult because most methods involve drilling into the subsurface, which is expensive and destructive. Measurements are often scarce and modelers have traditionally averaged their sparse data to assign constant values in their numerical models, however studies have shown that certain subsurface processes are highly dependent on aquifer heterogeneity. Variograms are used to construct covariance matrices of multi-normal distributions which are sampled to create realizations of random heterogeneous fields. An ensemble of these random fields can be used to study subsurface processes in a stochastic fashion.      
+
+To determine a field site's variogram, measurements are used to construct an empirical variogram: 
+\begin{equation}
+\hat{\gamma}(h)=\frac{1}{2|N(h)|}\sum_{(i,j)\in N(h)} |z_i-z_j|^2
+\end{equation}
+where $h$ is distance between two points in space ($i$ and $j$), the value of the field at point $i$ is $z_i$, $N(h)$ is the group of pairs of points separated by distance $h$, and $|N(h)|$ is the number of pairs in the group. Geostatistical software packages exist to convert spatial data measurements into empirical variograms already, but they are designed for small data sets. Since most field site's only have between $10^1 - 10^3$ data points, the straight-forward $O(n^2)$ algorithm for calculating the empirical variogram is computationally feasible. However, ...  
+
