@@ -14,6 +14,23 @@
 // i.e. functions that are local to this file only.
 namespace {
 
+MPI_Comm create_active_comm(size_t active_node_count)
+{
+    std::vector<int> active_ranks(active_node_count);
+    std::iota(active_ranks.begin(), active_ranks.end(), 0);
+
+    // Create a group that is the active subset of the complete set of available processors,
+    // and associate a communicator with this group
+    MPI_Group global_group, active_group;
+    MPI_Comm_group(MPI_COMM_WORLD, &global_group);
+    MPI_Group_incl(global_group, active_ranks.size(), active_ranks.data(), &active_group);
+
+    MPI_Comm active_comm;
+    MPI_Comm_create(MPI_COMM_WORLD, active_group, &active_comm);
+
+    return active_comm;
+}
+
 /**
  * Calls function f for every pair k of data points in data_points,
  * where k is an integer in the closed interval [a, b] where
@@ -186,17 +203,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     int c = options.replication_factor();
     assert(P % c == 0);
 
-    std::vector<int> active_ranks(P);
-    std::iota(active_ranks.begin(), active_ranks.end(), 0);
-
-    // Create a group that is the active subset of the complete set of available processors,
-    // and associate a communicator with this group
-    MPI_Group global_group, active_group;
-    MPI_Comm_group(MPI_COMM_WORLD, &global_group);
-    MPI_Group_incl(global_group, active_ranks.size(), active_ranks.data(), &active_group);
-
-    MPI_Comm active_comm;
-    MPI_Comm_create(MPI_COMM_WORLD, active_group, &active_comm);
+    MPI_Comm active_comm = create_active_comm(P);
 
     // Kick any inactive processors out
     if (active_comm == MPI_COMM_NULL)
@@ -219,8 +226,6 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
 
     std::cout << "Processor " << active_rank << " has " << read_result.data.size() << " of "
               << read_result.global_point_count << " data points." << std::endl;
-
-    MPI_Barrier(active_comm);
 
     variogram_data data(num_bins);
     return data;
