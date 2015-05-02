@@ -53,28 +53,25 @@ MPI_Comm create_leader_comm(MPI_Comm active_comm, size_t leader_count)
     return leader_comm;
 }
 
-int initial_shift(std::vector<data_point> &exchange_buffer,
-                  MPI_Comm active_comm,
-                  MPI_Datatype data_point_type,
-                  int active_rank,
-                  int team_count)
+int shift_right(std::vector<data_point> & exchange_buffer,
+          MPI_Datatype data_point_type,
+          MPI_Comm comm,
+          int rank,
+          int team_count,
+          int shift_amount)
 {
-    int col = active_rank % team_count;
-    int row = active_rank / team_count;
+    if (shift_amount == 0)
+        return rank;
 
-    // Given a kth-row processor, shift buffer by k along row
-    int k = row;
+    int col = rank % team_count;
+    int row = rank / team_count;
 
     // Note: use mod function instead of % operator here,
     // as % is non-Euclidean
-    int send_col = mod(col + k, team_count);
+    int send_col = mod(col + shift_amount, team_count);
     int send_rank = row * team_count + send_col;
-    int recv_col = mod(col - k, team_count);
+    int recv_col = mod(col - shift_amount, team_count);
     int recv_rank = row * team_count + recv_col;
-
-    // No send/receives are required for first row
-    if (k == 0)
-        return active_rank;
 
     // TODO: Consider taking a send buffer in so we don't
     // need to allocate one for every shift. Probably
@@ -83,12 +80,12 @@ int initial_shift(std::vector<data_point> &exchange_buffer,
 
     MPI_Request send_request = MPI_REQUEST_NULL;
     MPI_Isend(send_buffer.data(), send_buffer.size(),
-              data_point_type, send_rank, 0, active_comm, &send_request);
+              data_point_type, send_rank, 0, comm, &send_request);
 
     // Probe the received message to determine
     // how big to make our exchange buffer
     MPI_Status recv_status;
-    MPI_Probe(recv_rank, 0, active_comm, &recv_status);
+    MPI_Probe(recv_rank, 0, comm, &recv_status);
 
     int recv_size;
     MPI_Get_count(&recv_status, data_point_type, &recv_size);
@@ -98,7 +95,7 @@ int initial_shift(std::vector<data_point> &exchange_buffer,
     exchange_buffer.resize(recv_size);
 
     MPI_Recv(exchange_buffer.data(), exchange_buffer.size(),
-             data_point_type, recv_rank, 0, active_comm, MPI_STATUS_IGNORE);
+             data_point_type, recv_rank, 0, comm, MPI_STATUS_IGNORE);
     MPI_Wait(&send_request, MPI_STATUS_IGNORE);
 
     return recv_rank;
@@ -306,9 +303,10 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     std::vector<data_point> exchange_buffer = local_buffer;
     variogram_data local_variogram(num_bins);
 
-    int recv_rank = initial_shift(exchange_buffer, active_comm,
-                                  data_point_type, active_rank,
-                                  team_count);
+    // Shift right by k where k is equal to the row of the current processor
+    int recv_rank = shift_right(exchange_buffer, data_point_type,
+                                active_comm, active_rank,
+                                team_count, my_team.my_rank());
 
     std::cout << "Processor " << active_rank << " received "
               << exchange_buffer.size()
