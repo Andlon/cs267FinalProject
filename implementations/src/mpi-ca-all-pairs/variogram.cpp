@@ -274,11 +274,12 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     assert(P % c == 0);
 
     MPI_Comm active_comm = create_active_comm(P);
-    MPI_Comm leader_comm = create_leader_comm(active_comm, P / c);
 
     // Kick any inactive processors out
     if (active_comm == MPI_COMM_NULL)
         return variogram_data(num_bins);
+
+    MPI_Comm leader_comm = create_leader_comm(active_comm, P / c);
 
     int active_rank;
     MPI_Comm_rank(active_comm, &active_rank);
