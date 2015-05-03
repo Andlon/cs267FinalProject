@@ -1,7 +1,9 @@
-#include "grid.h"
+#include "node_grid.h"
 #include <mpi_util.h>
 #include <vector>
 #include <cassert>
+
+namespace pev {
 
 namespace {
 
@@ -55,16 +57,23 @@ node_grid::node_grid(parallel_options options)
         _leader_comm = create_leader_comm(_active_comm, P / c);
 }
 
-int node_grid::local_rank() const
+int node_grid::node_rank() const
 {
-    int rank;
-    MPI_Comm_rank(_active_comm, &rank);
-    return rank;
+    if (node_is_active())
+    {
+        int rank;
+        MPI_Comm_rank(_active_comm, &rank);
+        return rank;
+    }
+    else
+        return -1;
 }
 
-int node_grid::local_column() const
+int node_grid::node_column() const
 {
-    return local_rank() % team_count();
+    return node_is_active()
+            ? node_rank() % team_count()
+            : -1;
 }
 
 int node_grid::team_count() const
@@ -72,23 +81,23 @@ int node_grid::team_count() const
     return P / c;
 }
 
-bool node_grid::local_is_active() const
+bool node_grid::node_is_active() const
 {
     return _active_comm != MPI_COMM_NULL;
 }
 
-bool node_grid::local_is_leader() const
+bool node_grid::node_is_leader() const
 {
     return _leader_comm != MPI_COMM_NULL;
 }
 
 column_team node_grid::create_team()
 {
-    int team_index = local_rank() % team_count();
+    int team_index = node_rank() % team_count();
     return column_team(_active_comm, _data_point_type, c, team_index);
 }
 
-custom::rect<double> node_grid::reduce_bounds(custom::rect<double> local_bounds)
+pev::rect<double> node_grid::reduce_bounds(pev::rect<double> local_bounds)
 {
     assert(_leader_comm != MPI_COMM_NULL);
 
@@ -103,12 +112,12 @@ custom::rect<double> node_grid::reduce_bounds(custom::rect<double> local_bounds)
     MPI_Allreduce(MPI_IN_PLACE, &y_min, 1, MPI_DOUBLE, MPI_MIN, _leader_comm);
     MPI_Allreduce(MPI_IN_PLACE, &y_max, 1, MPI_DOUBLE, MPI_MAX, _leader_comm);
 
-    return custom::rect<double>::from_corners(x_min, x_max, y_min, y_max);
+    return pev::rect<double>::from_corners(x_min, x_max, y_min, y_max);
 }
 
 std::vector<data_point> node_grid::shift_along_row(std::vector<data_point> &&exchange_buffer, int shift_amount)
 {
-    int rank = local_rank();
+    int rank = node_rank();
 
     if (shift_amount == 0)
         return std::move(exchange_buffer);
@@ -151,6 +160,11 @@ std::vector<data_point> node_grid::shift_along_row(std::vector<data_point> &&exc
     return recv_buffer;
 }
 
+std::vector<data_point> node_grid::shift_along_row(const std::vector<data_point> &exchange_buffer, int shift_amount)
+{
+    return shift_along_row(std::vector<data_point>(exchange_buffer), shift_amount);
+}
+
 variogram_data node_grid::reduce_variogram(variogram_data local_variogram)
 {
     int num_bins = local_variogram.bin_count;
@@ -165,3 +179,5 @@ variogram_data node_grid::reduce_variogram(variogram_data local_variogram)
 
     return global_variogram;
 }
+
+} // End namespace pev

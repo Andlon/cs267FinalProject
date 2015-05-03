@@ -10,8 +10,10 @@
 #include <mpi.h>
 #include <functional>
 #include <rect.h>
-#include "team.h"
-#include "grid.h"
+#include "column_team.h"
+#include "node_grid.h"
+
+namespace pev {
 
 // Anonymous namespace to hold functions that should not be exported,
 // i.e. functions that are local to this file only.
@@ -22,7 +24,13 @@ double compute_gamma_contribution(const data_point &p1, const data_point &p2)
     return pow(p2.value - p1.value, 2);
 }
 
-void compute_contribution(variogram_data & variogram,
+/**
+ * @brief compute_contribution
+ * @param variogram
+ * @param local_buffer
+ * @param exchange_buffer
+ */
+variogram_data compute_contribution(variogram_data variogram,
                           const std::vector<data_point> & local_buffer,
                           const std::vector<data_point> & exchange_buffer)
 {
@@ -51,6 +59,8 @@ void compute_contribution(variogram_data & variogram,
             variogram.gamma[bin] += gamma;
         }
     }
+
+    return variogram;
 }
 
 void finalize_data(variogram_data & data)
@@ -91,18 +101,18 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     int c = options.replication_factor();
 
     // Kick out inactive processors
-    if (!grid.local_is_active())
+    if (!grid.node_is_active())
         return variogram_data();
 
     // Read and distribute data within each team
     column_team my_team = grid.create_team();
-    parallel_read_result result;
+    chunked_read_result result;
     if (my_team.my_node_is_leader())
     {
         result = read_file_chunk_parallel(
                     input_file,
                     grid.team_count(),
-                    grid.local_column());
+                    grid.node_column());
 
         // Determine global bounds and use diagonal for global max distance
         auto bounds = bounding_rectangle(result.data);
@@ -120,17 +130,19 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
 
     // Given kth row processor, shift exchange_buffer by k along row
     int k = my_team.my_rank();
-    exchange_buffer = grid.shift_along_row(std::move(exchange_buffer), k);
+    exchange_buffer = grid.shift_along_row(exchange_buffer, k);
 
     int steps = P / (c * c);
     for (int s = 0; s < steps; ++s)
     {
         // Shift by c and compute interactions between the two buffers
-        exchange_buffer = grid.shift_along_row(std::move(exchange_buffer), c);
-        compute_contribution(local_variogram, local_buffer, exchange_buffer);
+        exchange_buffer = grid.shift_along_row(exchange_buffer, c);
+        local_variogram = compute_contribution(local_variogram, local_buffer, exchange_buffer);
     }
 
     auto global_variogram = grid.reduce_variogram(local_variogram);
     finalize_data(global_variogram);
     return global_variogram;
+}
+
 }

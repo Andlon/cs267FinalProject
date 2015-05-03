@@ -8,6 +8,8 @@
 #include "uniform_distribution.h"
 #include <rect.h>
 
+namespace pev {
+
 struct data_point {
     double x;
     double y;
@@ -27,7 +29,7 @@ inline double distance (const data_point &p1, const data_point &p2)
     return sqrt(pow((p1.x - p2.x), 2) + pow(p1.y - p2.y, 2));
 }
 
-custom::rect<double> bounding_rectangle(const std::vector<data_point> & data_points);
+pev::rect<double> bounding_rectangle(const std::vector<data_point> & data_points);
 
 /**
  * @brief print_points Prints the given data points to the given output stream.
@@ -44,24 +46,14 @@ void print_points(std::ostream & out, const std::vector<data_point> & points, bo
  */
 std::vector<data_point> read_file_data(const std::string &path);
 
-/**
- * @brief read_file_data_parallel Reads input file on root node and broadcasts to local nodes.
- * Returned vector contains all data points on all ranks.
- *
- * Note that since MPI is used behind the scenes, MPI must be initialized prior to calling the function.
- * @param path Path to input file.
- * @return Vector of data points.
- */
-std::vector<data_point> read_file_data_parallel(const std::string &path, int root = 0);
-
-struct parallel_read_result
+struct chunked_read_result
 {
-    parallel_read_result();
+    chunked_read_result();
 
-    // Holds the data points local to this node
+    // Holds the data points for this chunk
     std::vector<data_point> data;
 
-    // Holds the number of points in total across all nodes
+    // Holds the total number of points contained in the file
     size_t global_point_count;
 
     // Optionally set to the maximum distance of the data points
@@ -69,19 +61,19 @@ struct parallel_read_result
 };
 
 /**
- * @brief read_file_chunk_parallel Reads roughly equal sized chunks of a file distributed across
- * processors. The returned struct holds information about how many points each processor was
- * awarded, as well as the local interval of indices and the actual data points read for this
- * particular processor.
- *
- * You can specify a communicator to only split the file across the ranks in the given communicator.
- * Note that you should only call this function for the processors that are part of the given
- * communicator.
+ * @brief read_file_chunk_parallel Reads a chunk of a file, in the sense that it reads
+ * a certain amount of data points from the file, where each line holds a data point.
+ * The result includes the local data and the global number of data points. Note that the
+ * max_distance field is not set by this function.
  *
  * @param path The path to the file to read.
- * @param communicator The communicator to split the file across.
- * @return A parallel_read_result struct that contains the aforementioned information.
+ * @param chunk_count The number of chunks to split the file into.
+ * @param chunk_index The chunk index in { 0, ..., chunk_count - 1 } that this node should read.
+ * @return A parallel_read_result struct that contains the aforementioned information. Note that
+ * max_distance is not set.
  */
-parallel_read_result read_file_chunk_parallel(const std::string & path, int chunk_count, int chunk_index);
+chunked_read_result read_file_chunk_parallel(const std::string & path, int chunk_count, int chunk_index);
+
+}
 
 
