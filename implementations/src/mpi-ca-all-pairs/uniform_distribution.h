@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <stdexcept>
 
+namespace pev {
+
 template <typename T>
 class interval
 {
@@ -74,4 +76,6 @@ inline interval<size_t> uniform_distribution::interval_for_bucket(size_t bucket)
     size_t a = bucket * _objects_per_bucket;
     size_t b = std::min(a + _objects_per_bucket, object_count());
     return interval<size_t>(a, b);
+}
+
 }

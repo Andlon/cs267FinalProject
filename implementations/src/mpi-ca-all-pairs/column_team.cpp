@@ -1,7 +1,8 @@
-#include "team.h"
+#include "column_team.h"
 #include <mpi_util.h>
 #include <algorithm>
 
+namespace pev {
 
 column_team::column_team()
     : _comm(MPI_COMM_NULL)
@@ -32,7 +33,7 @@ column_team::column_team(MPI_Comm active_comm, MPI_Datatype datatype, parallel_o
 {
 }
 
-void column_team::broadcast(parallel_read_result &result)
+void column_team::broadcast(chunked_read_result &result)
 {
     u_int64_t data_size = result.data.size();
     MPI_Bcast(&result.global_point_count, 1, MPI_UINT64_T, 0, _comm);
@@ -44,20 +45,19 @@ void column_team::broadcast(parallel_read_result &result)
 
 int column_team::my_rank() const
 {
-    MPI_Group team_group;
-    MPI_Comm_group(_comm, &team_group);
-    return rank_in_group(team_group);
+    if (_comm != MPI_COMM_NULL)
+    {
+        MPI_Group team_group;
+        MPI_Comm_group(_comm, &team_group);
+        return rank_in_group(team_group);
+    } else
+        return -1;
 }
 
 bool column_team::my_node_is_leader() const
 {
     // Leader has relative rank 0
     return my_rank() == 0;
-}
-
-bool column_team::my_node_belongs() const
-{
-    return _comm != MPI_COMM_NULL;
 }
 
 std::vector<int> column_team::ranks() const
@@ -74,4 +74,6 @@ std::vector<int> column_team::ranks() const
                               global_group, global_ranks.data());
 
     return global_ranks;
+}
+
 }

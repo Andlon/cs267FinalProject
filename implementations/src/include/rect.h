@@ -6,7 +6,8 @@
 
 // Put in a namespace because 'rect' is such an exceedingly common name
 // that collisions may easily occur
-namespace custom {
+
+namespace pev {
 
 template <typename T>
 class rect

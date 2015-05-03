@@ -44,7 +44,7 @@ int main(int argc, char ** argv)
 
     const std::string input_path = argv[1];
 
-    parallel_options options(ranks, 16);
+    pev::parallel_options options(ranks, 16);
 
     if (rank == 0)
     {
@@ -53,7 +53,7 @@ int main(int argc, char ** argv)
                   << std::endl;
     }
 
-    variogram_data variogram = empirical_variogram_parallel(input_path, options, NUM_BINS);
+    pev::variogram_data variogram = pev::empirical_variogram_parallel(input_path, options, NUM_BINS);
 
     if (rank == 0)
     {
