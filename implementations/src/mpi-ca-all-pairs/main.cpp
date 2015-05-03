@@ -53,8 +53,6 @@ int main(int argc, char ** argv)
                   << std::endl;
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
-
     variogram_data variogram = empirical_variogram_parallel(input_path, options, NUM_BINS);
 
     if (rank == 0)

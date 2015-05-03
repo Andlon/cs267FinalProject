@@ -5,13 +5,14 @@
 #include "data.h"
 #include "parallel_options.h"
 
-class team
+class column_team
 {
 public:
-    team();
-    team(MPI_Comm active_comm, parallel_options options, int team_index);
+    column_team();
+    column_team(MPI_Comm active_comm, MPI_Datatype datatype, int replication_factor, int team_index);
+    column_team(MPI_Comm active_comm, MPI_Datatype datatype, parallel_options options, int team_index);
 
-    void broadcast(parallel_read_result & result, MPI_Datatype data_point_type);
+    void broadcast(parallel_read_result & result);
 
     int my_rank() const;
     bool my_node_is_leader() const;
@@ -21,4 +22,5 @@ public:
 
 private:
     MPI_Comm _comm;
+    MPI_Datatype _datatype;
 };

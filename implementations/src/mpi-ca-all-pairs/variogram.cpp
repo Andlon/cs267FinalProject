@@ -11,6 +11,7 @@
 #include <functional>
 #include <rect.h>
 #include "team.h"
+#include "grid.h"
 
 // Anonymous namespace to hold functions that should not be exported,
 // i.e. functions that are local to this file only.
@@ -143,14 +144,9 @@ void compute_contribution(variogram_data & variogram,
 void finalize_data(variogram_data & data)
 {
     for (size_t i = 0; i < data.num_bins; ++i) {
-        // Correct the fact that we've counted pairs twice
-        data.num_pairs[i] /= 2;
-
-        // Note the extra factor of 2, which appears because
-        // we're doing redundant work and the value of gamma is
-        // twice as large as it should be
-        data.gamma[i] /= (2 * 2 * data.num_pairs[i]);
+        data.gamma[i] /= (2 * data.num_pairs[i]);
         data.distance_averages[i] /= data.num_pairs[i];
+        data.num_pairs[i] /= 2;
     }
 }
 
@@ -173,85 +169,50 @@ variogram_data::variogram_data(size_t num_bins)
 
 variogram_data empirical_variogram_parallel(const std::string &input_file, parallel_options options, size_t num_bins)
 {
-    MPI_Datatype data_point_type = create_mpi_data_point_type();
-
-    // The variable names here are consistent with the terminology used in
-    // Driscoll et al. "A Communication-Optimal N-Body Algorithm for Direct Interactions"
+    node_grid grid(options);
     int P = options.active_processor_count();
     int c = options.replication_factor();
-    assert(P % c == 0);
 
-    MPI_Comm active_comm = create_active_comm(P);
+    // Kick out inactive processors
+    if (!grid.local_is_active())
+        return variogram_data();
 
-    // Kick any inactive processors out
-    if (active_comm == MPI_COMM_NULL)
-        return variogram_data(num_bins);
+    // Read and distribute data within each team
+    column_team my_team = grid.create_team();
+    parallel_read_result result;
+    if (my_team.my_node_is_leader())
+    {
+        result = read_file_chunk_parallel(
+                    input_file,
+                    grid.team_count(),
+                    grid.local_column());
 
-    MPI_Comm leader_comm = create_leader_comm(active_comm, P / c);
-
-    int active_rank;
-    MPI_Comm_rank(active_comm, &active_rank);
-
-    // Create my team
-    int team_count = P / c;
-    int my_team_index = active_rank % (team_count);
-    team my_team(active_comm, options, my_team_index);
-
-    parallel_read_result read_result;
-    if (my_team.my_node_is_leader()) {
-        read_result = std::move(read_file_chunk_parallel(input_file, team_count, my_team_index));
-
-        // Find local max distance and max-reduce among all leaders
-        auto bounds = bounding_rectangle(read_result.data);
-
-        // Form a rectangle that covers the whole domain by reducing across leaders
-        double x_min = bounds.x();
-        double x_max = bounds.x() + bounds.width();
-        double y_min = bounds.y();
-        double y_max = bounds.y() + bounds.height();
-
-        MPI_Allreduce(MPI_IN_PLACE, &x_min, 1, MPI_DOUBLE, MPI_MIN, leader_comm);
-        MPI_Allreduce(MPI_IN_PLACE, &x_max, 1, MPI_DOUBLE, MPI_MAX, leader_comm);
-        MPI_Allreduce(MPI_IN_PLACE, &y_min, 1, MPI_DOUBLE, MPI_MIN, leader_comm);
-        MPI_Allreduce(MPI_IN_PLACE, &y_max, 1, MPI_DOUBLE, MPI_MAX, leader_comm);
-
-        auto global_bounds = custom::rect<double>::from_corners(x_min, x_max, y_min, y_max);
-        read_result.max_distance = global_bounds.diagonal();
+        // Determine global bounds and use diagonal for global max distance
+        auto bounds = bounding_rectangle(result.data);
+        auto global_bounds = grid.reduce_bounds(bounds);
+        result.max_distance = global_bounds.diagonal();
     }
 
-    my_team.broadcast(read_result, data_point_type);
+    my_team.broadcast(result);
 
-    const std::vector<data_point> & local_buffer = read_result.data;
+    const std::vector<data_point> & local_buffer = result.data;
     std::vector<data_point> exchange_buffer = local_buffer;
     variogram_data local_variogram(num_bins);
-    local_variogram.max_distance = read_result.max_distance;
+    local_variogram.max_distance = result.max_distance;
 
-    // Shift right by k where k is equal to the row of the current processor
-    shift_right(exchange_buffer, data_point_type,
-                active_comm, active_rank,
-                team_count, my_team.my_rank());
+    // Given kth row processor, shift exchange_buffer by k along row
+    int k = my_team.my_rank();
+    exchange_buffer = grid.shift_along_row(std::move(exchange_buffer), k);
 
     int steps = P / (c * c);
     for (int s = 0; s < steps; ++s)
     {
-        // Shift by c
-        shift_right(exchange_buffer, data_point_type,
-                    active_comm, active_rank,
-                    team_count, c);
+        // Shift by c and compute interactions between the two buffers
+        exchange_buffer = grid.shift_along_row(std::move(exchange_buffer), c);
         compute_contribution(local_variogram, local_buffer, exchange_buffer);
     }
 
-    variogram_data global_variogram(num_bins);
-    global_variogram.max_distance = local_variogram.max_distance;
-
-    MPI_Reduce(local_variogram.distance_averages.data(), global_variogram.distance_averages.data(),
-               num_bins, MPI_DOUBLE, MPI_SUM, 0, active_comm);
-    MPI_Reduce(local_variogram.gamma.data(), global_variogram.gamma.data(),
-               num_bins, MPI_DOUBLE, MPI_SUM, 0, active_comm);
-    MPI_Reduce(local_variogram.num_pairs.data(), global_variogram.num_pairs.data(),
-               num_bins, MPI_UINT64_T, MPI_SUM, 0, active_comm);
-
+    auto global_variogram = grid.reduce_variogram(local_variogram);
     finalize_data(global_variogram);
-
     return global_variogram;
 }
