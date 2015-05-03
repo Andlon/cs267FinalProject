@@ -4,23 +4,27 @@
 #include <fstream>
 #include <mpi.h>
 #include <ios>
+#include <iomanip>
 #include "data.h"
 #include "variogram.h"
 
-//void print_all_points(const parallel_read_result & read_result, MPI_Comm communicator)
-//{
-//    int rank, ranks;
-//    MPI_Comm_rank(communicator, &rank);
-//    MPI_Comm_size(communicator, &ranks);
+void print_gamma(std::ostream & out,
+                 const std::vector<double> & values,
+                 const std::vector<size_t> & counts,
+                 const std::vector<double> & dists,
+                 size_t num_bins)
+{
+    using std::setw;
+    using std::left;
 
-//    // Sequentally print all points
-//    for (int i = 0; i < ranks; ++i)
-//    {
-//        if (rank == i)
-//            print_points(std::cout, read_result.data, true, read_result.start);
-//        MPI_Barrier(communicator);
-//    }
-//}
+    for(int i = 0; i < num_bins; i++)
+    {
+        out << left << setw(10) << counts[i] << "\t"
+            << left << setw(10) << dists[i] << "\t"
+            << left << setw(10) << values[i] << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 int main(int argc, char ** argv)
 {
@@ -51,7 +55,19 @@ int main(int argc, char ** argv)
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    empirical_variogram_parallel(input_path, options, NUM_BINS);
+    variogram_data variogram = empirical_variogram_parallel(input_path, options, NUM_BINS);
+
+    if (rank == 0)
+    {
+        print_gamma(std::cout,
+                    variogram.gamma,
+                    variogram.num_pairs,
+                    variogram.distance_averages,
+                    variogram.num_bins);
+        int count = std::accumulate(variogram.num_pairs.begin(), variogram.num_pairs.end(),
+                        0);
+        std::cout << "Pair count: " << count << std::endl;
+    }
 
     MPI_Finalize();
 

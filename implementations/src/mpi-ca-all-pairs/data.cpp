@@ -216,7 +216,7 @@ custom::rect<double> bounding_rectangle(const std::vector<data_point> &data_poin
             min_y = point.y;
     }
 
-    return rect<double>(min_x, min_y, max_x - min_x, max_y - min_y);
+    return rect<double>(min_x, min_y, std::abs(max_x - min_x), std::abs(max_y - min_y));
 }
 
 
