@@ -3,14 +3,15 @@
 #include <algorithm>
 
 
-team::team()
+column_team::column_team()
     : _comm(MPI_COMM_NULL)
 {
 }
 
-team::team(MPI_Comm active_comm, parallel_options options, int team_index)
+column_team::column_team(MPI_Comm active_comm, MPI_Datatype datatype, int replication_factor, int team_index)
+    :   _datatype(datatype)
 {
-    int c = options.replication_factor();
+    int c = replication_factor;
 
     // Number of team members is equal to replication factor, c
     std::vector<int> team_ranks(c);
@@ -26,38 +27,40 @@ team::team(MPI_Comm active_comm, parallel_options options, int team_index)
     MPI_Comm_create(active_comm, team_group, &_comm);
 }
 
-void team::broadcast(parallel_read_result &result, MPI_Datatype data_point_type)
+column_team::column_team(MPI_Comm active_comm, MPI_Datatype datatype, parallel_options options, int team_index)
+    : column_team(active_comm, datatype, options.replication_factor(), team_index)
 {
-    MPI_Bcast(&result.global_point_count, 1, MPI_UINT64_T, 0, _comm);
-    MPI_Bcast(&result.max_distance, 1, MPI_DOUBLE, 0, _comm);
-
-    u_int64_t data_size = result.data.size();
-
-    // TODO: Remove this broadcast. Can compute the data size using uniform_distribution
-    MPI_Bcast(&data_size, 1, MPI_UINT64_T, 0, _comm);
-    result.data.resize(data_size);
-    MPI_Bcast(result.data.data(), data_size, data_point_type, 0, _comm);
 }
 
-int team::my_rank() const
+void column_team::broadcast(parallel_read_result &result)
+{
+    u_int64_t data_size = result.data.size();
+    MPI_Bcast(&result.global_point_count, 1, MPI_UINT64_T, 0, _comm);
+    MPI_Bcast(&result.max_distance, 1, MPI_DOUBLE, 0, _comm);
+    MPI_Bcast(&data_size, 1, MPI_UINT64_T, 0, _comm);
+    result.data.resize(data_size);
+    MPI_Bcast(result.data.data(), data_size, _datatype, 0, _comm);
+}
+
+int column_team::my_rank() const
 {
     MPI_Group team_group;
     MPI_Comm_group(_comm, &team_group);
     return rank_in_group(team_group);
 }
 
-bool team::my_node_is_leader() const
+bool column_team::my_node_is_leader() const
 {
     // Leader has relative rank 0
     return my_rank() == 0;
 }
 
-bool team::my_node_belongs() const
+bool column_team::my_node_belongs() const
 {
     return _comm != MPI_COMM_NULL;
 }
 
-std::vector<int> team::ranks() const
+std::vector<int> column_team::ranks() const
 {
     MPI_Group global_group;
     MPI_Comm_group(MPI_COMM_WORLD, &global_group);
