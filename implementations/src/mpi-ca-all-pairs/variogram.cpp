@@ -17,91 +17,6 @@
 // i.e. functions that are local to this file only.
 namespace {
 
-int mod(int a, int b)
-{
-    if (b == 0)
-        throw std::logic_error("Can not take (a mod b) with b zero.");
-    int r = a % b;
-    return r >= 0 ? r : r + std::abs(b);
-}
-
-MPI_Comm create_active_comm(size_t active_node_count)
-{
-    std::vector<int> active_ranks(active_node_count);
-    std::iota(active_ranks.begin(), active_ranks.end(), 0);
-
-    // Create a group that is the active subset of the complete set of available processors,
-    // and associate a communicator with this group
-    MPI_Group global_group, active_group;
-    MPI_Comm_group(MPI_COMM_WORLD, &global_group);
-    MPI_Group_incl(global_group, active_ranks.size(), active_ranks.data(), &active_group);
-
-    MPI_Comm active_comm;
-    MPI_Comm_create(MPI_COMM_WORLD, active_group, &active_comm);
-
-    return active_comm;
-}
-
-MPI_Comm create_leader_comm(MPI_Comm active_comm, size_t leader_count)
-{
-    MPI_Group active_group = group_from_comm(active_comm);
-
-    // Leaders are the first leader_count ranks in the set of active ranks
-    MPI_Group leader_group = consecutive_subset_group(active_group, 0, leader_count);
-
-    MPI_Comm leader_comm;
-    MPI_Comm_create(active_comm, leader_group, &leader_comm);
-    return leader_comm;
-}
-
-int shift_right(std::vector<data_point> & exchange_buffer,
-                MPI_Datatype data_point_type,
-                MPI_Comm comm,
-                int rank,
-                int team_count,
-                int shift_amount)
-{
-    if (shift_amount == 0)
-        return rank;
-
-    int col = rank % team_count;
-    int row = rank / team_count;
-
-    // Note: use mod function instead of % operator here,
-    // as % is non-Euclidean
-    int send_col = mod(col + shift_amount, team_count);
-    int send_rank = row * team_count + send_col;
-    int recv_col = mod(col - shift_amount, team_count);
-    int recv_rank = row * team_count + recv_col;
-
-    // TODO: Consider taking a send buffer in so we don't
-    // need to allocate one for every shift. Probably
-    // miniscule on performance though, need to profile.
-    std::vector<data_point> send_buffer = exchange_buffer;
-
-    MPI_Request send_request = MPI_REQUEST_NULL;
-    MPI_Isend(send_buffer.data(), send_buffer.size(),
-              data_point_type, send_rank, 0, comm, &send_request);
-
-    // Probe the received message to determine
-    // how big to make our exchange buffer
-    MPI_Status recv_status;
-    MPI_Probe(recv_rank, 0, comm, &recv_status);
-
-    int recv_size;
-    MPI_Get_count(&recv_status, data_point_type, &recv_size);
-    if (recv_size == MPI_UNDEFINED)
-        throw std::runtime_error("unable to recover from undefined receive size");
-
-    exchange_buffer.resize(recv_size);
-
-    MPI_Recv(exchange_buffer.data(), exchange_buffer.size(),
-             data_point_type, recv_rank, 0, comm, MPI_STATUS_IGNORE);
-    MPI_Wait(&send_request, MPI_STATUS_IGNORE);
-
-    return recv_rank;
-}
-
 double compute_gamma_contribution(const data_point &p1, const data_point &p2)
 {
     return pow(p2.value - p1.value, 2);
@@ -115,7 +30,7 @@ void compute_contribution(variogram_data & variogram,
     // the maximum distance falls within a valid interval. In this case we use some
     // arbitrary factor of machine epsilon.
     const auto eps = 10.0 * std::numeric_limits<double>::epsilon();
-    const auto interval = variogram.max_distance / variogram.num_bins + eps;
+    const auto interval = variogram.max_distance / variogram.bin_count + eps;
     auto compute_bin = [interval] (double distance) -> size_t {
         return floor(distance / interval);
     };
@@ -125,25 +40,27 @@ void compute_contribution(variogram_data & variogram,
         const auto local_point = local_buffer[i];
         for (size_t j = 0; j < exchange_buffer.size(); ++j)
         {
-            if (i != j)
-            {
-                const auto exchange_point = exchange_buffer[j];
-                double dist = distance(local_point, exchange_point);
-                double gamma = compute_gamma_contribution(local_point, exchange_point);
+            const auto exchange_point = exchange_buffer[j];
+            double dist = distance(local_point, exchange_point);
+            double gamma = compute_gamma_contribution(local_point, exchange_point);
 
-                auto bin = compute_bin(dist);
-                assert(bin < variogram.num_bins);
-                variogram.distance_averages[bin] += dist;
-                variogram.num_pairs[bin] += 1;
-                variogram.gamma[bin] += gamma;
-            }
+            auto bin = compute_bin(dist);
+            assert(bin < variogram.bin_count);
+            variogram.distance_averages[bin] += dist;
+            variogram.num_pairs[bin] += 1;
+            variogram.gamma[bin] += gamma;
         }
     }
 }
 
 void finalize_data(variogram_data & data)
 {
-    for (size_t i = 0; i < data.num_bins; ++i) {
+    // Adjust for the fact that we've added self-interactions,
+    // which would be n interactions of distance zero (and contribution zero),
+    // where n is the number of points in the data set.
+    data.num_pairs[0] -= data.point_count;
+
+    for (size_t i = 0; i < data.bin_count; ++i) {
         data.gamma[i] /= (2 * data.num_pairs[i]);
         data.distance_averages[i] /= data.num_pairs[i];
         data.num_pairs[i] /= 2;
@@ -153,18 +70,18 @@ void finalize_data(variogram_data & data)
 } // End anonymous namespace
 
 variogram_data::variogram_data()
-    : num_bins(0), max_distance(0.0)
+    : bin_count(0), point_count(0), max_distance(0.0)
 {
 
 }
 
 variogram_data::variogram_data(size_t num_bins)
-    : num_bins(num_bins), max_distance(0.0)
+    : bin_count(num_bins), point_count(0), max_distance(0.0)
 {
     this->gamma = std::vector<double>(num_bins, 0);
     this->distance_averages = std::vector<double>(num_bins, 0);
     this->num_pairs = std::vector<size_t>(num_bins, 0u);
-    this->num_bins = num_bins;
+    this->bin_count = num_bins;
 }
 
 variogram_data empirical_variogram_parallel(const std::string &input_file, parallel_options options, size_t num_bins)
@@ -199,6 +116,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     std::vector<data_point> exchange_buffer = local_buffer;
     variogram_data local_variogram(num_bins);
     local_variogram.max_distance = result.max_distance;
+    local_variogram.point_count = result.global_point_count;
 
     // Given kth row processor, shift exchange_buffer by k along row
     int k = my_team.my_rank();

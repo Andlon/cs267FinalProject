@@ -61,7 +61,7 @@ int main(int argc, char ** argv)
                     variogram.gamma,
                     variogram.num_pairs,
                     variogram.distance_averages,
-                    variogram.num_bins);
+                    variogram.bin_count);
         int count = std::accumulate(variogram.num_pairs.begin(), variogram.num_pairs.end(),
                         0);
         std::cout << "Pair count: " << count << std::endl;
