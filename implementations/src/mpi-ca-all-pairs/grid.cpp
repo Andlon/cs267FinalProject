@@ -153,9 +153,8 @@ std::vector<data_point> node_grid::shift_along_row(std::vector<data_point> &&exc
 
 variogram_data node_grid::reduce_variogram(variogram_data local_variogram)
 {
-    int num_bins = local_variogram.num_bins;
-    variogram_data global_variogram(num_bins);
-    global_variogram.max_distance = local_variogram.max_distance;
+    int num_bins = local_variogram.bin_count;
+    variogram_data global_variogram = local_variogram;
 
     MPI_Reduce(local_variogram.distance_averages.data(), global_variogram.distance_averages.data(),
                num_bins, MPI_DOUBLE, MPI_SUM, 0, _active_comm);

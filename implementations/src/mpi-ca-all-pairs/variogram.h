@@ -9,9 +9,10 @@
 struct variogram_data
 {
     variogram_data();
-    explicit variogram_data(size_t num_bins);
+    explicit variogram_data(size_t bin_count);
 
-    size_t num_bins;
+    size_t bin_count;
+    size_t point_count;
     std::vector<u_int64_t> num_pairs;
     std::vector<double> distance_averages;
     std::vector<double> gamma;
