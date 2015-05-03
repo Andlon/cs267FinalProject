@@ -4,7 +4,6 @@
 #include <fstream>
 #include <mpi.h>
 #include <ios>
-#include "pair_index_set.h"
 #include "data.h"
 #include "variogram.h"
 

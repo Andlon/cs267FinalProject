@@ -26,3 +26,9 @@ The output executable will be placed in implementations/bin. For instance, you c
 
     cd implementations/bin
     aprun -n <numcores> ./mpi-naive <input-path>
+    
+## Specifying compiler to use
+The Makefile is set up to use 'CC' as a compiler. If you want to use a different compiler, you can override the MPICXX (defines the MPI C++ compiler to use) or CXX (defines the C++ compiler to use, for non-MPI modules) variables as arguments to make. For example, if you want to use the *mpic++* compiler:
+
+    make MPICXX=mpic++
+
