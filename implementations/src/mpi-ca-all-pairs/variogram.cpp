@@ -34,11 +34,11 @@ variogram_data compute_contribution(variogram_data variogram,
                           const std::vector<data_point> & local_buffer,
                           const std::vector<data_point> & exchange_buffer)
 {
-    // Note that we perturb the size of the interval slightly to make sure that
-    // the maximum distance falls within a valid interval. In this case we use some
-    // arbitrary factor of machine epsilon.
-    const auto eps = 10.0 * std::numeric_limits<double>::epsilon();
-    const auto interval = variogram.max_distance / variogram.bin_count + eps;
+    // Note that we perturb the size of the maximum distance when computing the
+    // interval for handling cases where the largest distance might not
+    // "floor down", yielding an incorrect bin.
+    const auto eps = 1e-3 * variogram.max_distance;
+    const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
     auto compute_bin = [interval] (double distance) -> size_t {
         return floor(distance / interval);
     };
