@@ -9,22 +9,19 @@
 #include "data.h"
 #include "variogram.h"
 
-void print_gamma(std::ostream & out,
-                 const std::vector<double> & values,
-                 const std::vector<size_t> & counts,
-                 const std::vector<double> & dists,
-                 size_t num_bins)
+void print_formats()
 {
-    using std::setw;
-    using std::left;
-
-    for(int i = 0; i < num_bins; i++)
-    {
-        out << left << setw(10) << counts[i] << "\t"
-            << left << setw(10) << dists[i] << "\t"
-            << left << setw(10) << values[i] << std::endl;
-    }
-    std::cout << std::endl;
+    std::cout << std::endl
+              << "OUTPUT FORMATS USED BY PEV" << std::endl
+              << "================================================" << std::endl
+              << "Variogram output data format" << std::endl
+              << "------------------------------------------------" << std::endl
+              << pev::variogram_data::format_description() << std::endl
+              << std::endl
+              << "Timing output data format (only if -t specified)" << std::endl
+              << "------------------------------------------------" << std::endl
+              << pev::timing_info::format_description()
+              << std::endl << std::endl;
 }
 
 struct positive_constraint : TCLAP::Constraint<int> {
@@ -47,6 +44,7 @@ int main(int argc, char ** argv)
         const std::string repl_desc = "Desired replication factor. Defaults to 1.";
         const std::string bins_desc = "Number of distance bins to use for empirical variogram. "
                                       "Defaults to 15.";
+        const std::string format_desc = "Prints information about output formats instead of performing computations.";
 
         // TODO: Improve input file descriptions to describe output formats
         TCLAP::CmdLine cmd(description, ' ', "0.1");
@@ -56,7 +54,10 @@ int main(int argc, char ** argv)
         TCLAP::ValueArg<int> repl_factor_arg("c", "replication", repl_desc,
                                              false, 1, &positive_constraint);
         TCLAP::ValueArg<int> num_bins_arg("b", "bins", bins_desc, false, 15, &positive_constraint);
-        cmd.add(input_file_arg);
+        TCLAP::SwitchArg format_arg("p", "print-formats", format_desc, false);
+
+        // We only want EITHER input file or format
+        cmd.xorAdd(input_file_arg, format_arg);
         cmd.add(output_file_arg);
         cmd.add(timing_file_arg);
         cmd.add(repl_factor_arg);
@@ -67,11 +68,20 @@ int main(int argc, char ** argv)
         const int replication_factor = repl_factor_arg.getValue();
         const std::string input_path = input_file_arg.getValue();
         const std::string output_path = output_file_arg.getValue();
+        const std::string timing_path = timing_file_arg.getValue();
 
         MPI_Init(&argc, &argv);
         int rank, ranks;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &ranks);
+
+        if (format_arg.isSet())
+        {
+            if (rank == 0)
+                print_formats();
+            MPI_Finalize();
+            return 0;
+        }
 
         pev::parallel_options options(ranks, replication_factor);
         if (rank == 0)
@@ -94,11 +104,22 @@ int main(int argc, char ** argv)
                     ? outfile
                     : std::cout;
 
-            print_gamma(out,
-                        variogram.gamma,
-                        variogram.num_pairs,
-                        variogram.distance_averages,
-                        variogram.bin_count);
+            pev::print_variogram(out, variogram);
+
+            if (timing_file_arg.isSet())
+            {
+                std::ofstream outfile;
+
+                // Append to timing file if path is given
+                if (timing_path != "-")
+                    outfile.open(timing_path, std::ios_base::out | std::ios_base::app);
+
+                std::ostream & out = timing_path == "-"
+                        ? std::cout
+                        : outfile;
+
+                pev::print_timing_info(out, variogram);
+            }
         }
 
         MPI_Finalize();
