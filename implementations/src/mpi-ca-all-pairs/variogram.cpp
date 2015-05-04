@@ -1,17 +1,18 @@
 #include "variogram.h"
 #include <pair_index_set.h>
 #include <mpi_util.h>
+#include <mpi.h>
+#include <rect.h>
+#include "column_team.h"
+#include "node_grid.h"
 
 #include <limits>
 #include <cassert>
 #include <iostream>
 #include <algorithm>
 #include <utility>
-#include <mpi.h>
 #include <functional>
-#include <rect.h>
-#include "column_team.h"
-#include "node_grid.h"
+#include <chrono>
 
 namespace pev {
 
@@ -31,14 +32,14 @@ double compute_gamma_contribution(const data_point &p1, const data_point &p2)
  * @param exchange_buffer
  */
 variogram_data compute_contribution(variogram_data variogram,
-                          const std::vector<data_point> & local_buffer,
-                          const std::vector<data_point> & exchange_buffer)
+                                    const std::vector<data_point> & local_buffer,
+                                    const std::vector<data_point> & exchange_buffer)
 {
-    // Note that we perturb the size of the interval slightly to make sure that
-    // the maximum distance falls within a valid interval. In this case we use some
-    // arbitrary factor of machine epsilon.
-    const auto eps = 10.0 * std::numeric_limits<double>::epsilon();
-    const auto interval = variogram.max_distance / variogram.bin_count + eps;
+    // Note that we perturb the size of the maximum distance when computing the
+    // interval for handling cases where the largest distance might not
+    // "floor down", yielding an incorrect bin.
+    const auto eps = 1e-3 * variogram.max_distance;
+    const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
     auto compute_bin = [interval] (double distance) -> size_t {
         return floor(distance / interval);
     };
@@ -80,14 +81,17 @@ void finalize_data(variogram_data & data)
 } // End anonymous namespace
 
 variogram_data::variogram_data()
-    : bin_count(0), point_count(0), max_distance(0.0)
+    : bin_count(0), point_count(0), max_distance(0.0),
+      contains_timing(false),
+      options(1, 1)
 {
 
 }
 
 variogram_data::variogram_data(size_t num_bins)
-    : bin_count(num_bins), point_count(0), max_distance(0.0)
+    : variogram_data()
 {
+    this->bin_count = num_bins;
     this->gamma = std::vector<double>(num_bins, 0);
     this->distance_averages = std::vector<double>(num_bins, 0);
     this->num_pairs = std::vector<size_t>(num_bins, 0u);
@@ -96,6 +100,9 @@ variogram_data::variogram_data(size_t num_bins)
 
 variogram_data empirical_variogram_parallel(const std::string &input_file, parallel_options options, size_t num_bins)
 {
+    using std::chrono::steady_clock;
+    typedef std::chrono::duration<double> fsecs;
+
     node_grid grid(options);
     int P = options.active_processor_count();
     int c = options.replication_factor();
@@ -104,6 +111,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     if (!grid.node_is_active())
         return variogram_data();
 
+    auto input_read_start = steady_clock::now();
     // Read and distribute data within each team
     column_team my_team = grid.create_team();
     chunked_read_result result;
@@ -119,8 +127,11 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
         auto global_bounds = grid.reduce_bounds(bounds);
         result.max_distance = global_bounds.diagonal();
     }
+    auto input_read_time = steady_clock::now() - input_read_start;
 
+    auto input_broadcast_start = steady_clock::now();
     my_team.broadcast(result);
+    auto input_broadcast_time = steady_clock::now() - input_broadcast_start;
 
     const std::vector<data_point> & local_buffer = result.data;
     std::vector<data_point> exchange_buffer = local_buffer;
@@ -130,19 +141,94 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
 
     // Given kth row processor, shift exchange_buffer by k along row
     int k = my_team.my_rank();
+    auto shift_start = steady_clock::now();
     exchange_buffer = grid.shift_along_row(exchange_buffer, k);
+    auto shift_time = steady_clock::now() - shift_start;
 
     int steps = P / (c * c);
+    steady_clock::duration computation_time = steady_clock::duration::zero();
     for (int s = 0; s < steps; ++s)
     {
         // Shift by c and compute interactions between the two buffers
+        shift_start = steady_clock::now();
         exchange_buffer = grid.shift_along_row(exchange_buffer, c);
+        shift_time += steady_clock::now() - shift_start;
+
+        auto computation_start = steady_clock::now();
         local_variogram = compute_contribution(local_variogram, local_buffer, exchange_buffer);
+        computation_time += steady_clock::now() - computation_start;
     }
 
+    auto reduction_start = steady_clock::now();
     auto global_variogram = grid.reduce_variogram(local_variogram);
+    auto reduction_time = steady_clock::now() - reduction_start;
+
     finalize_data(global_variogram);
+
+    // Append timing and globally reduce timing information
+    // TODO: Add switch for whether timing is necessary
+    timing_info timing;
+    timing.input_read_time = fsecs(input_read_time).count();
+    timing.input_broadcast_time = fsecs(input_broadcast_time).count();
+    timing.shifting_time = fsecs(shift_time).count();
+    timing.computation_time = fsecs(computation_time).count();
+    timing.reduction_time = fsecs(reduction_time).count();
+    global_variogram.timing = grid.reduce_timing(timing);
+    global_variogram.contains_timing = true;
+    global_variogram.options = options;
     return global_variogram;
+}
+
+std::string timing_info::format_description()
+{
+    return "Appends one line to the given timing output file: \n\n"
+           "<N> <P> <c> <input read> <input broadcast> <shift> <computation> <reduction>\n\n"
+           "Here N is the global number of points, P is the number of \n"
+           "ACTIVE processors and c is the replication factor, \n"
+           "with the remaining parameters being time measurements. \n"
+           "All timing values are measured in fractional seconds. The sum of \n"
+           "the values constitutes roughly the total time. Values are delimited \n"
+           "by TAB characters.";
+}
+
+void print_timing_info(std::ostream &out, const variogram_data &variogram)
+{
+    // NOTE: This must be kept up-to-date with timing_info::format_description
+    out << variogram.point_count << "\t"
+        << variogram.options.active_processor_count() << "\t"
+        << variogram.options.replication_factor() << "\t"
+        << variogram.timing
+        << std::endl;
+}
+
+std::ostream &operator <<(std::ostream &out, const timing_info &timing_info)
+{
+    out << timing_info.input_read_time << "\t"
+        << timing_info.input_broadcast_time << "\t"
+        << timing_info.shifting_time << "\t"
+        << timing_info.computation_time << "\t"
+        << timing_info.reduction_time;
+    return out;
+}
+
+std::string variogram_data::format_description()
+{
+    return "Truncates the given output file and writes one line per \n"
+           "bin in the variogram. Each line has the form: \n\n"
+           "<pairs in bin> <distance average for bin> <gamma for bin>\n\n"
+           "Values are delimited by TAB characters.";
+}
+
+void print_variogram(std::ostream &out, const variogram_data &variogram)
+{
+    // NOTE: This must be kept up-to-date with variogram_data::format_description
+    for(int i = 0; i < variogram.bin_count; i++)
+    {
+        out << variogram.num_pairs[i] << "\t"
+            << variogram.distance_averages[i] << "\t"
+            << variogram.gamma[i] << std::endl;
+    }
+    out << std::endl;
 }
 
 }

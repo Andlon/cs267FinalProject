@@ -3,10 +3,28 @@
 #include <cstdlib>
 #include <vector>
 #include <cstdint>
+#include <limits>
 #include "parallel_options.h"
 #include "data.h"
 
 namespace pev {
+
+/**
+ * @brief Contains timing information for various stages of the
+ * parallel empirical variogram
+ */
+struct timing_info
+{
+    double input_read_time = std::numeric_limits<double>::signaling_NaN();
+    double input_broadcast_time = std::numeric_limits<double>::signaling_NaN();
+    double shifting_time = std::numeric_limits<double>::signaling_NaN();
+    double computation_time = std::numeric_limits<double>::signaling_NaN();
+    double reduction_time = std::numeric_limits<double>::signaling_NaN();
+
+    static std::string format_description();
+};
+
+std::ostream & operator << (std::ostream & out, const timing_info & timing_info);
 
 struct variogram_data
 {
@@ -19,7 +37,17 @@ struct variogram_data
     std::vector<double> distance_averages;
     std::vector<double> gamma;
     double max_distance;
+
+    timing_info timing;
+    bool contains_timing;
+
+    parallel_options options;
+
+    static std::string format_description();
 };
+
+void print_timing_info(std::ostream & out, const variogram_data & variogram);
+void print_variogram(std::ostream & out, const variogram_data & variogram);
 
 /**
  * @brief empirical_variogram_parallel Computes an empirical variogram of the data in the

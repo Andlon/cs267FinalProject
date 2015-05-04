@@ -128,6 +128,8 @@ public:
      */
     variogram_data reduce_variogram(variogram_data local_variogram);
 
+    timing_info reduce_timing(timing_info local_timing);
+
 
 private:
     MPI_Datatype _data_point_type;

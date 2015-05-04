@@ -13,12 +13,15 @@ column_team::column_team(MPI_Comm active_comm, MPI_Datatype datatype, int replic
     :   _datatype(datatype)
 {
     int c = replication_factor;
+    int P;
+    MPI_Comm_size(active_comm, &P);
+    int team_count = P / c;
 
     // Number of team members is equal to replication factor, c
     std::vector<int> team_ranks(c);
     std::iota(team_ranks.begin(), team_ranks.end(), 0);
     std::transform(team_ranks.begin(), team_ranks.end(), team_ranks.begin(),
-                   [c, team_index] (auto i) { return team_index + i * c; });
+                   [team_count, team_index] (auto i) { return team_index + i * team_count; });
 
     MPI_Group active_group;
     MPI_Comm_group(active_comm, &active_group);
