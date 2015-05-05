@@ -1,3 +1,22 @@
 %Brief description
 %pseudo-code
 %Expected performance
+
+Here we discuss the naive serial implementation for a two-dimensional empirical variogram calculation in order to introduce the concept. 
+
+\begin{algorithm}[H]
+ \KwData{A list of data points with their field value and coordinates}
+ \KwResult{Distance bins with associated semivariance}
+ Read data from file\;
+ Initialize semivariance $\gamma[]$ and point counter $count[]$ arrays to zero\;
+ \ForAll{point pairs}{
+  Calculate Euclidean distance between points in pair\;
+  Determine appropriate distance bin $bin$\;
+  Calculate squared difference in points' values $sqdiff$\;
+  Add the squared difference to the appropriate semivariance bin $\gamma[bin] \mathrel{+}= sqdiff$\;
+  Increment the pair count for the appropriate bin $count[bin] \mathrel{+}= 1$\;
+ }
+ Average the squared differences by pair counts $\gamma[bin]  \mathrel{/}= 2count[bin]$\;
+ \caption{Serial empirical variogram calculation}
+\end{algorithm}
+   

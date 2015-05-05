@@ -38,3 +38,22 @@ for(i in 1:length(bases)){
   write.table(gst,"test.gst",col.names=FALSE,row.names=FALSE,quote=FALSE)
 }
 
+
+### Try cressie = TRUE
+# read in the test_data.txt
+bases <- seq(5,50,5)
+i <- 1
+  base <- bases[i]
+  width <- base*10
+  n <- width*width
+subDir <- paste("n",n,sep="")
+setwd(file.path(mainDir, subDir))
+rin <- read.fwf("test_data.txt",c(14,3,3),colClasses="numeric")
+yy <- data.frame(sim1=rin[,1],
+                 x=rin[,2],
+                 y=rin[,3])
+gridded(yy) = ~x+y
+max <- (sqrt(2*(width-1)^2))/15
+bounds <- (1:15)*max
+variogram(sim1~1,data=yy,cutoff=sqrt(2*(width-1)^2)+0.001)
+# recalculate variogram
