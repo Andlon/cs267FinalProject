@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -V
+#PBS -l mppwidth=24
+#PBS -l mppdepth=1
+#PBS -l walltime=0:10:00
+#PBS -o mpi_n2500.stdout
+#PBS -j oe
+#PBS -A mp309
+
+cd $PBS_O_WORKDIR
+aprun -d 1 -n 24 -N 24 ../implementations/bin/mpi-ca-all-pairs -i ../test_cases/n2500/test_data.txt -t times.txt
+
+paste <( cut -c18- ../test_cases/n2500/correct.txt| cut -c-5) <(cut -f3 output.txt | cut -c-5) > n2500.diff
+awk '{a=$2;print $1-a}' n2500.diff
