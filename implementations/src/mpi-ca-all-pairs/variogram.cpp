@@ -38,7 +38,7 @@ variogram_data compute_contribution(variogram_data variogram,
     // Note that we perturb the size of the maximum distance when computing the
     // interval for handling cases where the largest distance might not
     // "floor down", yielding an incorrect bin.
-    const auto eps = 1e-3 * variogram.max_distance;
+    const auto eps = 1e-6 * variogram.max_distance;
     const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
     auto compute_bin = [interval] (double distance) -> size_t {
         return floor(distance / interval);
