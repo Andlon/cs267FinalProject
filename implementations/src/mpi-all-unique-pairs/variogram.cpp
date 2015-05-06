@@ -60,7 +60,21 @@ private:
     std::function<size_t(double)> bin_func;
 };
 
-
+/**
+ * @brief compute_partial_contribution Computes the contribution to the (partial)
+ * variogram from the interactions [a, b) in the index set of all possible
+ * unique pair-interactions between local_buffer and exchange_buffer.
+ * 
+ * The result is equal to the input partial variogram combined with the new
+ * contributions computed.
+ * 
+ * @param variogram
+ * @param local_buffer
+ * @param exchange_buffer
+ * @param a
+ * @param b
+ * @return
+ */
 variogram_data compute_partial_contribution(variogram_data variogram,
                                             const std::vector<data_point> &local_buffer,
                                             const std::vector<data_point> &exchange_buffer,
@@ -100,6 +114,15 @@ variogram_data compute_partial_contribution(variogram_data variogram,
     return variogram;
 }
 
+/**
+ * @brief compute_self_contribution Computes all unique interactions in the given data set,
+ * and returns a variogram that is the combination of the given input variogram and the
+ * newly computed contributions.
+ *
+ * @param variogram
+ * @param data
+ * @return
+ */
 variogram_data compute_self_contribution(variogram_data variogram,
                                          const std::vector<data_point> & data)
 {
@@ -119,7 +142,10 @@ variogram_data compute_self_contribution(variogram_data variogram,
 }
 
 /**
- * @brief compute_contribution
+ * @brief compute_contribution Computes the contribution from all
+ * interactions between data points in the two buffers. The data sets
+ * are assumed to be disjoint.
+ *
  * @param variogram
  * @param local_buffer
  * @param exchange_buffer
@@ -133,7 +159,13 @@ variogram_data compute_contribution(variogram_data variogram,
                                         exchange_buffer, 0, interaction_count);
 }
 
-void finalize_data(variogram_data & data)
+/**
+ * @brief finalize_data Finalizes the given variogram, in the sense that
+ * accumulated distance and gamma values are averaged, and in the case of gamma,
+ * also halved.
+ * @param data
+ */
+void finalize_variogram(variogram_data & data)
 {
     // Adjust for the fact that we've added self-interactions,
     // which would be n interactions of distance zero (and contribution zero),
@@ -230,7 +262,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     auto global_variogram = grid.reduce_variogram(local_variogram);
     auto reduction_time = steady_clock::now() - reduction_start;
 
-    finalize_data(global_variogram);
+    finalize_variogram(global_variogram);
 
     // Append timing and globally reduce timing information
     // TODO: Add switch for whether timing is necessary
@@ -312,13 +344,14 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
     auto bounds = bounding_rectangle(result.data);
     result.max_distance = grid.reduce_bounds(bounds).diagonal();
 
+    // Prepare buffers and local variogram
     const std::vector<data_point> & local_buffer = result.data;
     auto exchange_buffer = local_buffer;
     variogram_data local_variogram(num_bins);
     local_variogram.max_distance = result.max_distance;
     local_variogram.point_count = result.global_point_count;
 
-    // First interactions between particles in the same chunk
+    // First compute interactions between particles in the same chunk
     local_variogram = compute_self_contribution(local_variogram, local_buffer);
 
     // Do floor(P / 2) - 1 steps of shifting and computing contributions of disjoint data sets
@@ -365,7 +398,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
     }
 
     auto global_variogram = grid.reduce_variogram(local_variogram);
-    finalize_data(global_variogram);
+    finalize_variogram(global_variogram);
     return global_variogram;
 }
 
