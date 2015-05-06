@@ -64,13 +64,13 @@
       \begin{flushleft} Modified algorithm from \cite{Koanantakool}:
         \begin{enumerate}
           \item points distributed evenly to team leaders' local buffers
-          \item maximum distance between points determined with reduce sum
-          \item team leaders broadcast local points to team members
+          \item global maximum distance between points determined by min-max all-reduce between team leaders to determine global bounds
+          \item team leaders broadcast local points and max distance to team members
           \item local buffer copied into an exchange buffer
           \item shift exchange buffer by rank in team across teams
-          \item loop $p/c^2$ times: shift exchange buffer by c across teams, compute squared differences and store in local buffer
+          \item loop $p/c^2$ times: shift exchange buffer by c along row, compute squared differences and store in local $\hat{\gamma}(h)$ distance bin
           \item reduce sum for global $\hat{\gamma}(h)$ and $N(h)$
-          \item divide $\hat{\gamma}(h)$ by $2N(h)$
+          \item root node: divide $\hat{\gamma}(h)$ by $2N(h)$ to obtain final result
         \end{enumerate}
         \end{flushleft}
       \end{block}
