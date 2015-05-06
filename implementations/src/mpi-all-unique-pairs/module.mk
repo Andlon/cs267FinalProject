@@ -1,6 +1,6 @@
 # Get relative directory of this module.mk
 DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-MODULE := $(BIN)/mpi-ca-all-pairs
+MODULE := $(BIN)/mpi-all-unique-pairs
 OBJDIR := $(OBJ)/$(DIR)
 
 # For now just add all headers as dependency of every object.
@@ -17,6 +17,6 @@ $(MODULE): $(OBJDIR)/main.o $(OBJDIR)/data.o $(OBJDIR)/variogram.o $(OBJDIR)/col
 	mkdir -p $(BIN)
 	$(MPICXX) $^ -o $@ $(LFLAGS)
 
-mpi-ca-all-pairs: $(MODULE)
+mpi-all-unique-pairs: $(MODULE)
 
 TARGETS += $(MODULE)
