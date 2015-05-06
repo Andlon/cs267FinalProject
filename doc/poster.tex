@@ -37,7 +37,7 @@
             \label{fig:example}
          \end{figure}
          
-         \item The data set above can be used to study realistic geologic patterns, but it is too big for serial geostatistical algorithms
+         \item The data set above can be used to study realistic geologic patterns, but it is too large for serial geostatistical algorithms
          \item \textbf{Goal}: Implement parallel algorithm to analyze the data set in reasonable time
           \end{itemize}
       \end{block}
@@ -60,32 +60,25 @@
 
       %-- Block 2-1
       \begin{block}{Implementation}
-      \center{Work is divided for pairs, not points}
-	
-	~
 	
       \begin{flushleft} Modified algorithm from \cite{Koanantakool}:
         \begin{enumerate}
-          \item $p$ processors divided into teams of size $p/c$, where $c$ is an integer up to how many copies of points that can fit in memory
-          \item points distributed evenly to team leaders
+          \item points distributed evenly to team leaders' local buffers
           \item maximum distance between points determined with reduce sum
           \item team leaders broadcast local points to team members
-          \item local points copied into an exchange buffer
+          \item local buffer copied into an exchange buffer
           \item shift exchange buffer by rank in team across teams
           \item loop $p/c^2$ times: shift exchange buffer by c across teams, compute squared differences and store in local buffer
           \item reduce sum for global $\hat{\gamma}(h)$ and $N(h)$
-          \item divide $\hat{\gamma}(h)$ by $N(h)$
+          \item divide $\hat{\gamma}(h)$ by $2N(h)$
         \end{enumerate}
         \end{flushleft}
       \end{block}
-
-    \end{column}%2
-
-    %-- Column 3 ---------------------------------------------------
-    \begin{column}{0.32\linewidth}
-
-      %-- Block 3-1
-      \begin{block}{Timing Results}
+      
+    
+      
+      %-- Block 2-2
+       \begin{block}{Scaling Results}
         \begin{figure}[htbp]
             \centering
             \includegraphics[height=10cm]{comm_c1_scaling.png} % requires the graphicx package
@@ -94,11 +87,26 @@
          \end{figure}
       \end{block}
 
+    \end{column}%2
+
+    %-- Column 3 ---------------------------------------------------
+    \begin{column}{0.32\linewidth}
+
+      %-- Block 3-1
+      \begin{block}{Extrapolation Results}
+        \begin{figure}[htbp]
+            \centering
+            \includegraphics[height=10cm]{comm_c1_timings.png} % requires the graphicx package
+            %\caption{}
+            \label{fig:plot}
+         \end{figure}
+      \end{block}
+
       %-- Block 3-2
       \begin{block}{Conclusion and Outlook}
         \begin{itemize}
+         \item Correctness checked by comparing our $\hat{\gamma}(h)$ to a standard geostatistical package's $\hat{\gamma}(h)$
          \item Near-perfect scaling for large n
-         \item 
          \item Effect of c:
          \item Empirical variogram for data set in Figure \ref{fig:example} can be obtained in ... with ? processors
         \end{itemize}
