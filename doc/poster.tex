@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \graphicspath{{./fig/}}
 \usepackage[orientation=landscape,size=custom,width=40,height=30,scale=.6,debug]{beamerposter}
+\setbeamertemplate{caption}[numbered]
 
 %-- Header and footer information ----------------------------------
 \newcommand{\footleft}{https://github.com/hsavoy/cs267FinalProject}
@@ -26,17 +27,18 @@
       \begin{block}{Motivation}
    
 	 \begin{itemize}
-	 	\item Spatial heterogeneity in an aquifer significantly affect contaminant transport in groundwater
+	 	\item Spatial heterogeneity in an aquifer significantly affects contaminant transport in groundwater
 		\item A way is needed to incorporate the uncertainty about the aquifer in groundwater modeling (geostatistics!)
          
          \begin{figure}[htbp]
             \centering
-            \includegraphics[height=5cm]{herten.png} % requires the graphicx package
+            \includegraphics[height=7cm]{herten.png} % requires the graphicx package
             \caption{Large aquifer data set : $n=8.96\times 10^6$ \cite{Comunian2011a}}
             \label{fig:example}
          \end{figure}
          
          \item The data set above can be used to study realistic geologic patterns, but it is too big for serial geostatistical algorithms
+         \item \textbf{Goal}: Implement parallel algorithm to analyze the data set in reasonable time
           \end{itemize}
       \end{block}
 
@@ -46,7 +48,8 @@
         \begin{equation*}
 		\hat{\gamma}(h)=\frac{1}{2|N(h)|}\sum_{(i,j)\in N(h)} |z_i-z_j|^2
 	\end{equation*}
-	The algorithm is $O(n^2)$ and involves all-to-all communications
+	where $h$ is distance between points $i$ and $j$, which have value $z_i$ and $z_j$. The algorithm is $O(n^2)$ and involves all-to-all communications.
+	
       \end{block}
   
 
@@ -57,14 +60,23 @@
 
       %-- Block 2-1
       \begin{block}{Implementation}
-      Communication Optimal \cite{Driscoll2013}
-        \begin{itemize}
-          \item 
-        \end{itemize}
-      Computation Optimal \cite{Koanantakool}
-        \begin{itemize}
-          \item 
-        \end{itemize}
+      \center{Work is divided for pairs, not points}
+	
+	~
+	
+      \begin{flushleft} Modified algorithm from \cite{Koanantakool}:
+        \begin{enumerate}
+          \item $p$ processors divided into teams of size $p/c$, where $c$ is an integer up to how many copies of points that can fit in memory
+          \item points distributed evenly to team leaders
+          \item maximum distance between points determined with reduce sum
+          \item team leaders broadcast local points to team members
+          \item local points copied into an exchange buffer
+          \item shift exchange buffer by rank in team across teams
+          \item loop $p/c^2$ times: shift exchange buffer by c across teams, compute squared differences and store in local buffer
+          \item reduce sum for global $\hat{\gamma}(h)$ and $N(h)$
+          \item divide $\hat{\gamma}(h)$ by $N(h)$
+        \end{enumerate}
+        \end{flushleft}
       \end{block}
 
     \end{column}%2
@@ -74,12 +86,22 @@
 
       %-- Block 3-1
       \begin{block}{Timing Results}
-        Remember to put lots of figures on your poster... Nobody reads anymore!
+        \begin{figure}[htbp]
+            \centering
+            \includegraphics[height=10cm]{comm_c1_scaling.png} % requires the graphicx package
+            %\caption{}
+            \label{fig:plot}
+         \end{figure}
       \end{block}
 
       %-- Block 3-2
       \begin{block}{Conclusion and Outlook}
-        
+        \begin{itemize}
+         \item Near-perfect scaling for large n
+         \item 
+         \item Effect of c:
+         \item Empirical variogram for data set in Figure \ref{fig:example} can be obtained in ... with ? processors
+        \end{itemize}
       \end{block}
 
       %-- Block 3-3
