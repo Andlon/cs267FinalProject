@@ -22,6 +22,7 @@ all: main-build
 # Include modules here
 include src/mpi-naive/module.mk
 include src/mpi-ca-all-pairs/module.mk
+include src/mpi-all-unique-pairs/module.mk
 include src/index-set-tool/module.mk
 
 main-build: $(TARGETS)
