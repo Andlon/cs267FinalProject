@@ -50,7 +50,6 @@ private:
     size_t _object_count;
     size_t _bucket_count;
     size_t _objects_per_bucket;
-    size_t _objects_last_bucket;
 };
 
 inline uniform_distribution::uniform_distribution(size_t object_count, size_t bucket_count)
@@ -60,7 +59,6 @@ inline uniform_distribution::uniform_distribution(size_t object_count, size_t bu
         throw std::logic_error("bucket_count must be non-zero");
 
     _objects_per_bucket = (object_count + bucket_count - 1) / (bucket_count);
-    _objects_last_bucket = object_count - (bucket_count - 1) * _objects_per_bucket;
 }
 
 inline size_t uniform_distribution::objects_in_bucket(size_t bucket) const
