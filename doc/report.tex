@@ -6,6 +6,8 @@
 \usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
 								% TeX will automatically convert eps --> pdf in pdflatex		
 \usepackage{amssymb}
+\usepackage[ruled]{algorithm2e}
+
 
 %SetFonts
 
@@ -23,7 +25,6 @@
 
 \begin{document}
 \maketitle
-
 \section{Project Description}
 \input{./tex/intro.tex}
 
@@ -32,8 +33,8 @@
 %Any assumptions we made for all?
   \subsection{Serial}
     \input{./tex/serial.tex}
-  \subsection{Naive MPI}
-    \input{./tex/naive.tex}
+ % \subsection{Naive MPI}
+  %  \input{./tex/naive.tex}
   \subsection{Communication Optimal}
     \input{./tex/comm_opt.tex}
   \subsection{Computation Optimal}
