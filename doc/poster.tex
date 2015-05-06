@@ -24,21 +24,31 @@
 
       %-- Block 1-1
       \begin{block}{Motivation}
+   
+	 \begin{itemize}
+	 	\item Spatial heterogeneity in an aquifer significantly affect contaminant transport in groundwater
+		\item A way is needed to incorporate the uncertainty about the aquifer in groundwater modeling (geostatistics!)
+         
          \begin{figure}[htbp]
             \centering
-            \includegraphics{herten.png} % requires the graphicx package
-            \caption{A large aquifer data set: 16x10x7m at 5cm resolution \cite{Comunian2011a}}
+            \includegraphics[height=5cm]{herten.png} % requires the graphicx package
+            \caption{Large aquifer data set : $n=8.96\times 10^6$ \cite{Comunian2011a}}
             \label{fig:example}
          \end{figure}
+         
+         \item The data set above can be used to study realistic geologic patterns, but it is too big for serial geostatistical algorithms
+          \end{itemize}
       \end{block}
 
       %-- Block 1-2
       \begin{block}{Geostatistics}
+      Variograms describe how properties are correlated over space:
         \begin{equation*}
 		\hat{\gamma}(h)=\frac{1}{2|N(h)|}\sum_{(i,j)\in N(h)} |z_i-z_j|^2
 	\end{equation*}
+	The algorithm is $O(n^2)$ and involves all-to-all communications
       \end{block}
-
+  
 
     \end{column}%1
 
