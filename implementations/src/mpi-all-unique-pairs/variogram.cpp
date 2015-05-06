@@ -332,6 +332,9 @@ void print_variogram(std::ostream &out, const variogram_data &variogram)
 
 variogram_data empirical_variogram_parallel(const std::string &input_file, size_t num_bins)
 {
+    using std::chrono::steady_clock;
+    typedef std::chrono::duration<double> fsecs;
+
     int P;
     MPI_Comm_size(MPI_COMM_WORLD, &P);
 
@@ -340,9 +343,11 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
     int p = grid.node_column();
 
     // Read data and determine global diagonal
+    auto input_read_start = steady_clock::now();
     chunked_read_result result = read_file_chunk_parallel(input_file, P, p);
     auto bounds = bounding_rectangle(result.data);
     result.max_distance = grid.reduce_bounds(bounds).diagonal();
+    auto input_read_time = steady_clock::now() - input_read_start;
 
     // Prepare buffers and local variogram
     const std::vector<data_point> & local_buffer = result.data;
@@ -352,14 +357,22 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
     local_variogram.point_count = result.global_point_count;
 
     // First compute interactions between particles in the same chunk
+    auto computation_start = steady_clock::now();
     local_variogram = compute_self_contribution(local_variogram, local_buffer);
+    auto computation_time = steady_clock::now() - computation_start;
+    auto shift_time = steady_clock::duration::zero();
 
     // Do floor(P / 2) - 1 steps of shifting and computing contributions of disjoint data sets
     size_t steps = P % 2 == 0 ? P / 2 - 1 : P / 2;
     for (size_t i = 0; i < steps; ++i)
     {
+        auto shift_start = steady_clock::now();
         exchange_buffer = grid.shift_along_row(exchange_buffer, 1);
+        shift_time += steady_clock::now() - shift_start;
+
+        computation_start = steady_clock::now();
         local_variogram = compute_contribution(local_variogram, local_buffer, exchange_buffer);
+        computation_time += steady_clock::now() - computation_start;
     }
 
     if (P % 2 == 0)
@@ -371,7 +384,9 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
         // lower interval and an upper interval, corresponding to
         // the first half and second half of the interaction set respectively.
 
+        auto shift_start = steady_clock::now();
         exchange_buffer = grid.shift_along_row(exchange_buffer, 1);
+        shift_time += steady_clock::now() - shift_start;
         size_t interaction_count = local_buffer.size() * exchange_buffer.size();
 
         size_t lower_interval_start = 0;
@@ -379,6 +394,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
         size_t upper_interval_start = interaction_count / 2;
         size_t upper_interval_end = interaction_count;
 
+        computation_start = steady_clock::now();
         if (p < P / 2)
         {
             local_variogram = compute_partial_contribution(local_variogram,
@@ -395,10 +411,25 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
                                                            upper_interval_start,
                                                            upper_interval_end);
         }
+        computation_time += steady_clock::now() - computation_start;
     }
 
+    auto reduction_start = steady_clock::now();
     auto global_variogram = grid.reduce_variogram(local_variogram);
+    auto reduction_time = steady_clock::now() - reduction_start;
     finalize_variogram(global_variogram);
+
+    // Append timing and globally reduce timing information
+    // TODO: Add switch for whether timing is necessary
+    timing_info timing;
+    timing.input_read_time = fsecs(input_read_time).count();
+    timing.shifting_time = fsecs(shift_time).count();
+    timing.computation_time = fsecs(computation_time).count();
+    timing.reduction_time = fsecs(reduction_time).count();
+    global_variogram.timing = grid.reduce_timing(timing);
+    global_variogram.contains_timing = true;
+    global_variogram.options = parallel_options(P, 1);
+
     return global_variogram;
 }
 

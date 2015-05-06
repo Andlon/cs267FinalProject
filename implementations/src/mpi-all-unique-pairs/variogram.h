@@ -16,7 +16,7 @@ namespace pev {
 struct timing_info
 {
     double input_read_time = std::numeric_limits<double>::signaling_NaN();
-    double input_broadcast_time = std::numeric_limits<double>::signaling_NaN();
+    double input_broadcast_time = 0.0;
     double shifting_time = std::numeric_limits<double>::signaling_NaN();
     double computation_time = std::numeric_limits<double>::signaling_NaN();
     double reduction_time = std::numeric_limits<double>::signaling_NaN();
