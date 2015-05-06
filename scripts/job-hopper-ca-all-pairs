@@ -11,8 +11,10 @@ cd $PBS_O_WORKDIR
 
 TIME=times_c1.txt
 
-for P in 1 2 4 16 24; do
-	for N in 202500 250000; do
+# 2500 10000 22500 40000 62500 90000 122500 160000 202500 250000
+
+for P in 4 16 24; do
+	for N in 250000; do
 		aprun -d 1 -n $P -N $P ../implementations/bin/mpi-ca-all-pairs -i ../test_cases/n$N/test_data.txt -t ${TIME}
 	done
 done
