@@ -25,6 +25,42 @@ double compute_gamma_contribution(const data_point &p1, const data_point &p2)
     return pow(p2.value - p1.value, 2);
 }
 
+class compute_helper
+{
+public:
+    explicit compute_helper(variogram_data & variogram)
+        :   variogram(variogram)
+    {
+        // Note that we perturb the size of the maximum distance when computing the
+        // interval for handling cases where the largest distance might not
+        // "floor down", yielding an incorrect bin.
+        const auto eps = 1e-6 * variogram.max_distance;
+        const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
+        bin_func = [interval] (double distance) -> size_t {
+            return floor(distance / interval);
+        };
+    }
+
+    size_t compute_bin(double dist) { return bin_func(dist); }
+
+    void interact(const data_point &p1, const data_point &p2)
+    {
+        auto dist = distance(p1, p2);
+        auto gamma = compute_gamma_contribution(p1, p2);
+
+        auto bin = compute_bin(dist);
+        assert(bin < variogram.bin_count);
+        variogram.distance_averages[bin] += dist;
+        variogram.num_pairs[bin] += 1;
+        variogram.gamma[bin] += gamma;
+    }
+
+private:
+    variogram_data & variogram;
+    std::function<size_t(double)> bin_func;
+};
+
+
 variogram_data compute_partial_contribution(variogram_data variogram,
                                             const std::vector<data_point> &local_buffer,
                                             const std::vector<data_point> &exchange_buffer,
@@ -50,52 +86,7 @@ variogram_data compute_partial_contribution(variogram_data variogram,
     if (b <= a)
         throw std::logic_error("Interval must be non-empty.");
 
-//    // Debug
-//    int rank, size;
-//    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-//    for (int i = 0; i < size; ++i)
-//    {
-//        using std::endl;
-//        if (rank == i)
-//        {
-//            std::cout << "========================" << endl
-//                      << "Rank " << rank << " of " << size << endl
-//                      << "N = " << N << ", M = " << M << endl
-//                      << "(a, b) = (" << a << ", " << b << ")" << endl
-//                      << "start_i: " << start_i << endl
-//                      << "start_j: " << start_j << endl
-//                      << "end_i: " << end_i << endl
-//                      << "end_j: " << end_j << endl
-//                      << "N * M = " << N * M << endl;
-//        }
-
-//        MPI_Barrier(MPI_COMM_WORLD);
-//    }
-
-
-
-    // Note that we perturb the size of the maximum distance when computing the
-    // interval for handling cases where the largest distance might not
-    // "floor down", yielding an incorrect bin.
-    const auto eps = 1e-6 * variogram.max_distance;
-    const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
-    auto compute_bin = [interval] (double distance) -> size_t {
-        return floor(distance / interval);
-    };
-
-    auto compute_pair_interaction = [&variogram, &compute_bin] (const auto &p1, const auto &p2)
-    {
-        double dist = distance(p1, p2);
-        double gamma = compute_gamma_contribution(p1, p2);
-
-        auto bin = compute_bin(dist);
-        assert(bin < variogram.bin_count);
-        variogram.distance_averages[bin] += dist;
-        variogram.num_pairs[bin] += 1;
-        variogram.gamma[bin] += gamma;
-    };
+    compute_helper comp(variogram);
 
     for (size_t i = start_i; i <= end_i; ++i)
     {
@@ -103,7 +94,7 @@ variogram_data compute_partial_contribution(variogram_data variogram,
         size_t begin = i == start_i ? start_j : 0;
         size_t end = i == end_i ? end_j : M;
         for (size_t j = begin; j < end; ++j)
-            compute_pair_interaction(local_point, exchange_buffer[j]);
+            comp.interact(local_point, exchange_buffer[j]);
     }
 
     return variogram;
@@ -152,33 +143,9 @@ variogram_data compute_contribution(variogram_data variogram,
                                     const std::vector<data_point> & local_buffer,
                                     const std::vector<data_point> & exchange_buffer)
 {
-    // Note that we perturb the size of the maximum distance when computing the
-    // interval for handling cases where the largest distance might not
-    // "floor down", yielding an incorrect bin.
-    const auto eps = 1e-6 * variogram.max_distance;
-    const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
-    auto compute_bin = [interval] (double distance) -> size_t {
-        return floor(distance / interval);
-    };
-
-    for (size_t i = 0; i < local_buffer.size(); ++i)
-    {
-        const auto local_point = local_buffer[i];
-        for (size_t j = 0; j < exchange_buffer.size(); ++j)
-        {
-            const auto exchange_point = exchange_buffer[j];
-            double dist = distance(local_point, exchange_point);
-            double gamma = compute_gamma_contribution(local_point, exchange_point);
-
-            auto bin = compute_bin(dist);
-            assert(bin < variogram.bin_count);
-            variogram.distance_averages[bin] += dist;
-            variogram.num_pairs[bin] += 1;
-            variogram.gamma[bin] += gamma;
-        }
-    }
-
-    return variogram;
+    size_t interaction_count = local_buffer.size() * exchange_buffer.size();
+    return compute_partial_contribution(variogram, local_buffer,
+                                        exchange_buffer, 0, interaction_count);
 }
 
 void finalize_data(variogram_data & data)
@@ -379,6 +346,13 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
 
     if (P % 2 == 0)
     {
+        // If P % 2 the two processors which share the same set of data points
+        // need to compute half the number of interactions each. So we split the number of computations
+        // to be performed roughly equally across the two processors by
+        // dividing the interactions instead of the data. We create a
+        // lower interval and an upper interval, corresponding to
+        // the first half and second half of the interaction set respectively.
+
         exchange_buffer = grid.shift_along_row(exchange_buffer, 1);
         size_t interaction_count = local_buffer.size() * exchange_buffer.size();
 
@@ -386,19 +360,6 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
         size_t lower_interval_end = interaction_count / 2;
         size_t upper_interval_start = interaction_count / 2;
         size_t upper_interval_end = interaction_count;
-
-        // This is a temporary extremely hacky solution
-//        variogram_data temp_variogram = local_variogram;
-//        std::fill(temp_variogram.distance_averages.begin(), temp_variogram.distance_averages.end(), 0);
-//        std::fill(temp_variogram.gamma.begin(), temp_variogram.gamma.end(), 0);
-//        std::fill(temp_variogram.num_pairs.begin(), temp_variogram.num_pairs.end(), 0);
-//        temp_variogram = compute_contribution(temp_variogram, local_buffer, exchange_buffer);
-//        for (size_t i = 0; i < local_variogram.bin_count; ++i)
-//        {
-//            local_variogram.distance_averages[i] += temp_variogram.distance_averages[i] / 2.0;
-//            local_variogram.num_pairs[i] += temp_variogram.num_pairs[i] / 2;
-//            local_variogram.gamma[i] += temp_variogram.gamma[i] / 2.0;
-//        }
 
         if (p < P / 2)
         {
