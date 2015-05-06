@@ -30,44 +30,51 @@ variogram_data compute_partial_contribution(variogram_data variogram,
                                             const std::vector<data_point> &exchange_buffer,
                                             size_t a, size_t b)
 {
-
-
     // Distribute the interactions as N buckets of M interactions
     size_t N = local_buffer.size();
     size_t M = exchange_buffer.size();
 
+    // By using closed intervals for buckets (local particles)
+    // and half-open intervals for indices within buckets (exchange particles),
+    // we make sure that each processor computes a disjoint subset,
+    // with the union of all subsets equal to the entire set.
+
+    // Bucket interval [start_i, end_i] is closed
     size_t start_i = a / M;
+    size_t end_i = (b - 1) / M;
+
+    // Index interval within bucket [start_j, end_j) is half-open.
     size_t start_j = a - start_i * M;
-
-    size_t end_i = b / M;
-    size_t end_j = b - (end_i - 1) * M;
-
-    // Debug
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    for (int i = 0; i < size; ++i)
-    {
-        using std::endl;
-        if (rank == i)
-        {
-            std::cout << "========================" << endl
-                      << "Rank " << rank << " of " << size << endl
-                      << "N = " << N << ", M = " << M << endl
-                      << "(a, b) = (" << a << ", " << b << ")" << endl
-                      << "start_i: " << start_i << endl
-                      << "start_j: " << start_j << endl
-                      << "end_i: " << end_i << endl
-                      << "end_j: " << end_j << endl
-                      << "N * M = " << N * M << endl;
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-    }
+    size_t end_j = b - end_i * M;
 
     if (b <= a)
         throw std::logic_error("Interval must be non-empty.");
+
+//    // Debug
+//    int rank, size;
+//    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+//    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+//    for (int i = 0; i < size; ++i)
+//    {
+//        using std::endl;
+//        if (rank == i)
+//        {
+//            std::cout << "========================" << endl
+//                      << "Rank " << rank << " of " << size << endl
+//                      << "N = " << N << ", M = " << M << endl
+//                      << "(a, b) = (" << a << ", " << b << ")" << endl
+//                      << "start_i: " << start_i << endl
+//                      << "start_j: " << start_j << endl
+//                      << "end_i: " << end_i << endl
+//                      << "end_j: " << end_j << endl
+//                      << "N * M = " << N * M << endl;
+//        }
+
+//        MPI_Barrier(MPI_COMM_WORLD);
+//    }
+
+
 
     // Note that we perturb the size of the maximum distance when computing the
     // interval for handling cases where the largest distance might not
@@ -90,25 +97,14 @@ variogram_data compute_partial_contribution(variogram_data variogram,
         variogram.gamma[bin] += gamma;
     };
 
-    auto local_point = local_buffer[start_i];
-//    for (size_t j = start_j; j < M; ++j)
-//        compute_pair_interaction(local_point, exchange_buffer[j]);
-
-    for (size_t i = start_i; i < end_i; ++i)
+    for (size_t i = start_i; i <= end_i; ++i)
     {
-        local_point = local_buffer[i];
+        auto local_point = local_buffer[i];
         size_t begin = i == start_i ? start_j : 0;
-        size_t end = i == end_i - 1 ? end_j : M;
+        size_t end = i == end_i ? end_j : M;
         for (size_t j = begin; j < end; ++j)
             compute_pair_interaction(local_point, exchange_buffer[j]);
     }
-
-//    if (end_i > start_i && end_i < N)
-//    {
-//        local_point = local_buffer[end_i];
-//        for (size_t j = 0; j < end_j; ++j)
-//            compute_pair_interaction(local_point, exchange_buffer[j]);
-//    }
 
     return variogram;
 }
@@ -392,34 +388,34 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, size_
         size_t upper_interval_end = interaction_count;
 
         // This is a temporary extremely hacky solution
-        variogram_data temp_variogram = local_variogram;
-        std::fill(temp_variogram.distance_averages.begin(), temp_variogram.distance_averages.end(), 0);
-        std::fill(temp_variogram.gamma.begin(), temp_variogram.gamma.end(), 0);
-        std::fill(temp_variogram.num_pairs.begin(), temp_variogram.num_pairs.end(), 0);
-        temp_variogram = compute_contribution(temp_variogram, local_buffer, exchange_buffer);
-        for (size_t i = 0; i < local_variogram.bin_count; ++i)
-        {
-            local_variogram.distance_averages[i] += temp_variogram.distance_averages[i] / 2.0;
-            local_variogram.num_pairs[i] += temp_variogram.num_pairs[i] / 2;
-            local_variogram.gamma[i] += temp_variogram.gamma[i] / 2.0;
-        }
+//        variogram_data temp_variogram = local_variogram;
+//        std::fill(temp_variogram.distance_averages.begin(), temp_variogram.distance_averages.end(), 0);
+//        std::fill(temp_variogram.gamma.begin(), temp_variogram.gamma.end(), 0);
+//        std::fill(temp_variogram.num_pairs.begin(), temp_variogram.num_pairs.end(), 0);
+//        temp_variogram = compute_contribution(temp_variogram, local_buffer, exchange_buffer);
+//        for (size_t i = 0; i < local_variogram.bin_count; ++i)
+//        {
+//            local_variogram.distance_averages[i] += temp_variogram.distance_averages[i] / 2.0;
+//            local_variogram.num_pairs[i] += temp_variogram.num_pairs[i] / 2;
+//            local_variogram.gamma[i] += temp_variogram.gamma[i] / 2.0;
+//        }
 
-//        if (p < P / 2)
-//        {
-//            local_variogram = compute_partial_contribution(local_variogram,
-//                                                           local_buffer,
-//                                                           exchange_buffer,
-//                                                           lower_interval_start,
-//                                                           lower_interval_end);
-//        }
-//        else
-//        {
-//            local_variogram = compute_partial_contribution(local_variogram,
-//                                                           exchange_buffer,
-//                                                           local_buffer,
-//                                                           upper_interval_start,
-//                                                           upper_interval_end);
-//        }
+        if (p < P / 2)
+        {
+            local_variogram = compute_partial_contribution(local_variogram,
+                                                           local_buffer,
+                                                           exchange_buffer,
+                                                           lower_interval_start,
+                                                           lower_interval_end);
+        }
+        else
+        {
+            local_variogram = compute_partial_contribution(local_variogram,
+                                                           exchange_buffer,
+                                                           local_buffer,
+                                                           upper_interval_start,
+                                                           upper_interval_end);
+        }
     }
 
     auto global_variogram = grid.reduce_variogram(local_variogram);
