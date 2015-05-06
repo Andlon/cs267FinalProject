@@ -185,7 +185,7 @@ timing_info node_grid::reduce_timing(timing_info local_timing)
     timing_info global_timing = local_timing;
     MPI_Reduce(&local_timing.input_read_time, &global_timing.input_read_time,
                1, MPI_DOUBLE, MPI_MAX, 0, _active_comm);
-    MPI_Reduce(&local_timing.input_broadcast_time, &global_timing.input_read_time,
+    MPI_Reduce(&local_timing.input_broadcast_time, &global_timing.input_broadcast_time,
                1, MPI_DOUBLE, MPI_MAX, 0, _active_comm);
     MPI_Reduce(&local_timing.shifting_time, &global_timing.shifting_time,
                1, MPI_DOUBLE, MPI_MAX, 0, _active_comm);
