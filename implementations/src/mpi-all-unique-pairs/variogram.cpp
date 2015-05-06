@@ -103,14 +103,7 @@ variogram_data compute_partial_contribution(variogram_data variogram,
 variogram_data compute_self_contribution(variogram_data variogram,
                                          const std::vector<data_point> & data)
 {
-    // Note that we perturb the size of the maximum distance when computing the
-    // interval for handling cases where the largest distance might not
-    // "floor down", yielding an incorrect bin.
-    const auto eps = 1e-6 * variogram.max_distance;
-    const auto interval = (variogram.max_distance + eps) / variogram.bin_count;
-    auto compute_bin = [interval] (double distance) -> size_t {
-        return floor(distance / interval);
-    };
+    compute_helper comp(variogram);
 
     for (size_t i = 0; i < data.size(); ++i)
     {
@@ -118,15 +111,7 @@ variogram_data compute_self_contribution(variogram_data variogram,
         for (size_t j = i + 1; j < data.size(); ++j)
         {
             const auto p2 = data[j];
-
-            double dist = distance(p1, p2);
-            double gamma = compute_gamma_contribution(p1, p2);
-
-            auto bin = compute_bin(dist);
-            assert(bin < variogram.bin_count);
-            variogram.distance_averages[bin] += dist;
-            variogram.num_pairs[bin] += 1;
-            variogram.gamma[bin] += gamma;
+            comp.interact(p1, p2);
         }
     }
 
