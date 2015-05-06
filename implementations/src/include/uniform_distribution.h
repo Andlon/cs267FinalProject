@@ -95,11 +95,6 @@ inline interval<size_t> uniform_distribution::interval_for_bucket(size_t bucket)
         b = a + _lower;
     }
 
-    if (a >= b) {
-        std::cout << "(a, b) = (" << a << ", " << b << ") for bucket " << bucket
-                   << std::endl;
-    }
-
     return interval<size_t>(a, b);
 }
 
