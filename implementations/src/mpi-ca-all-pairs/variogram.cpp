@@ -64,7 +64,7 @@ variogram_data compute_contribution(variogram_data variogram,
     return variogram;
 }
 
-void finalize_data(variogram_data & data)
+void finalize_variogram(variogram_data & data)
 {
     // Adjust for the fact that we've added self-interactions,
     // which would be n interactions of distance zero (and contribution zero),
@@ -163,7 +163,7 @@ variogram_data empirical_variogram_parallel(const std::string &input_file, paral
     auto global_variogram = grid.reduce_variogram(local_variogram);
     auto reduction_time = steady_clock::now() - reduction_start;
 
-    finalize_data(global_variogram);
+    finalize_variogram(global_variogram);
 
     // Append timing and globally reduce timing information
     // TODO: Add switch for whether timing is necessary
