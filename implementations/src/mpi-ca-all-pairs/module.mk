@@ -5,7 +5,7 @@ OBJDIR := $(OBJ)/$(DIR)
 
 # For now just add all headers as dependency of every object.
 # Not optimal, but not a problem for such a small project.
-LOCAL_HEADERS := $(DIR)/data.h $(DIR)/variogram.h $(DIR)/uniform_distribution.h $(DIR)/column_team.h $(DIR)/node_grid.h
+LOCAL_HEADERS := $(DIR)/data.h $(DIR)/variogram.h $(DIR)/column_team.h $(DIR)/node_grid.h
 
 # Compile object files
 $(OBJDIR)/%.o:: $(DIR)/%.cpp $(LOCAL_HEADERS) $(HEADERS)

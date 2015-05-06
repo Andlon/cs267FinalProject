@@ -5,7 +5,7 @@
 #include <cmath>
 #include <mpi.h>
 #include <ostream>
-#include "uniform_distribution.h"
+#include <uniform_distribution.h>
 #include <rect.h>
 
 namespace pev {

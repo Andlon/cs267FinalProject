@@ -1,5 +1,4 @@
 #include "variogram.h"
-#include <pair_index_set.h>
 #include <mpi_util.h>
 #include <mpi.h>
 #include <rect.h>
