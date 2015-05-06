@@ -7,7 +7,7 @@ TARGETS :=
 MPICXX = CC
 
 LFLAGS = 
-CXXFLAGS = -O3 -std=c++1y -Wno-literal-suffix
+CXXFLAGS = -O3 -std=c++1y -Wno-literal-suffix -march=native -ffast-math
 DEBUG_CXXFLAGS = -g -std=c++1y -O0
 DEBUG_LFLAGS =
 
