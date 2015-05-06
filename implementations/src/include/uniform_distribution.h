@@ -49,7 +49,9 @@ public:
 private:
     size_t _object_count;
     size_t _bucket_count;
-    size_t _objects_per_bucket;
+    size_t _divider;
+    size_t _lower;
+    size_t _upper;
 };
 
 inline uniform_distribution::uniform_distribution(size_t object_count, size_t bucket_count)
@@ -58,7 +60,15 @@ inline uniform_distribution::uniform_distribution(size_t object_count, size_t bu
     if (bucket_count == 0u)
         throw std::logic_error("bucket_count must be non-zero");
 
-    _objects_per_bucket = (object_count + bucket_count - 1) / (bucket_count);
+    _lower = object_count / bucket_count;
+    _upper = (object_count + bucket_count - 1) / bucket_count;
+
+    // Buckets with index < _divider have _upper items in their buckets,
+    // while buckets with index >= _divider have _lower items in their buckets
+    if (_lower == _upper)
+        _divider = object_count;
+    else
+        _divider = object_count - bucket_count * _lower;
 }
 
 inline size_t uniform_distribution::objects_in_bucket(size_t bucket) const
@@ -66,13 +76,30 @@ inline size_t uniform_distribution::objects_in_bucket(size_t bucket) const
     if (bucket >= bucket_count())
         throw std::logic_error("bucket must not be larger than or equal to bucket_count");
 
-    return std::min(_objects_per_bucket, object_count() - bucket * _objects_per_bucket);
+    return bucket < _divider ? _upper : _lower;
 }
 
 inline interval<size_t> uniform_distribution::interval_for_bucket(size_t bucket) const
 {
-    size_t a = bucket * _objects_per_bucket;
-    size_t b = std::min(a + _objects_per_bucket, object_count());
+    if (bucket >= bucket_count())
+        throw std::logic_error("bucket must not be larger than or equal to bucket_count");
+
+    size_t a, b;
+    if (bucket < _divider)
+    {
+        a = bucket * _upper;
+        b = a + _upper;
+    } else
+    {
+        a = _divider * _upper + (bucket - _divider) * _lower;
+        b = a + _lower;
+    }
+
+    if (a >= b) {
+        std::cout << "(a, b) = (" << a << ", " << b << ") for bucket " << bucket
+                   << std::endl;
+    }
+
     return interval<size_t>(a, b);
 }
 
