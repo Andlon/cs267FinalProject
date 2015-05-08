@@ -2,22 +2,31 @@
 %pseudo-code
 %Expected performance
 
-Here we discuss the naive serial implementation for a two-dimensional empirical variogram calculation in order to introduce the concept. 
+Here we discuss the serial implementation for an empirical variogram calculation in order to introduce the general steps (see Algorithm~\ref{alg:serial}). 
+
+The empirical variogram is divided into distance bins. These bins are determined by calculating the dimensions of the box that encapsulates all the data points with no padding on the sides, taking the length of the diagonal across the box, and splitting that length into sub lengths or bins (with a default number of 15 bins). After the bin size is determined, the pairs of points can be looped through and the squared difference between their values are calculated. For each pair, the distance between the coordinates of the pairs is also calculated and is used to determine to which distance bin to add their squared difference. A counter for each distance bin is also incremented for each pair added, since a weighted averaging needs to be taken across the distance bins to yield Equation~\eqref{eq:variogram}.  
 
 \begin{algorithm}[H]
- \KwData{A list of data points with their field value and coordinates}
- \KwResult{Distance bins with associated semivariance}
- Read data from file\;
- Initialize semivariance $\gamma[]$ and point counter $count[]$ arrays to zero\;
- \ForAll{point pairs}{
-  Calculate Euclidean distance between points in pair\;
-  Determine appropriate distance bin $bin$\;
-  Calculate squared difference in points' values $sqdiff$\;
-  Add the squared difference to the appropriate semivariance bin $\gamma[bin] \mathrel{+}= sqdiff$\;
-  Increment the pair count for the appropriate bin $count[bin] \mathrel{+}= 1$\;
- }
+ \KwData{A file with a list of data points with their field value and coordinates, $z_{i}, i\in1,...,N$}
+ \KwData{The requested number of distance bins $b$}
+ \KwResult{Distance bins with associated semivariance, $\hat{\gamma}[b]$}
+ Read point data $z_i$ from input file\;
+ Determine the greatest range of coordinates in each dimension, $d_{max}$\;
+ Calculate the length of the diagonal $diag$ spanning $d_{max}$ \;
+ Set distance bin width to $diag/b$\;
+ Initialize semivariance $\gamma[~]$ and point counter $count[~]$ arrays to length $b$ and value zero\;
+ \For{point $i \in 1,...,N$}{
+ 	\For{point $j \in i+1,...,N$}{
+  	Calculate Euclidean distance between points $i$ and $j$\;
+  	Determine appropriate distance bin $bin$\;
+  	Calculate squared difference in points' values $sqdiff$\;
+  	Add the squared difference to the appropriate semivariance bin $\gamma[bin] \mathrel{+}= sqdiff$\;
+  	Increment the pair count for the appropriate bin $count[bin] \mathrel{+}= 1$\;
+ 	}
+}
  Average the squared differences by pair counts $\gamma[bin]  \mathrel{/}= 2count[bin]$\;
  \caption{Serial empirical variogram calculation}
  \label{alg:serial}
 \end{algorithm}
+   
    
