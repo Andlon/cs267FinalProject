@@ -13,6 +13,8 @@ Each processor $(i, j)$ performs an \emph{initial shift} by calling $\text{shift
 
 Finally, all processors participate in a sum-reduction of the binned semivariance data, and the root node completes the variogram by dividing each bin by $2 N_b$, where $N_b$ is the number of elements in the distance bin $b$.
 
+Note that the algorithm reduces to the simple cyclic shifting algorithm for $c = 1$, and so comparing different values for $c$ essentially measures the effect of the tuning parameter against the "naive" algorithm.
+
 \begin{algorithm}[H]
  \DontPrintSemicolon
  \KwIn{Replication factor $c$}

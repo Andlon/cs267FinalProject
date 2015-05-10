@@ -2,4 +2,60 @@
 %pseudo-code
 %Expected performance
 
-\cite{Koanantakool}
+An obvious drawback of the communication-optimal algorithm presented in \ref{alg:commopt} is the fact that it does not exploit the symmetry of the problem. Hence you would expect it to perform roughly twice the amount of computation necessary. Since we expected real-world computations to be dominated by computation, and this is backed up by our experiments as we will soon show, we implemented a variation of the cyclic shifting algorithm that exploits symmetry. In other words, this is a symmetric adaption of the previously presented algorithm with $c = 1$. This method is similar to the algorithm proposed by Koanantakool and Yelick \cite{Koanantakool} for 3-body problems, except adapted to 2-body problems with slightly different semantics and constrained to $c = 1$.
+
+\begin{algorithm}[H]
+ \DontPrintSemicolon
+ \KwIn{P processors}
+ \KwIn{A set S of data points distributed evenly among processors into subsets $S_t$}
+ \KwIn{B, the number of distance bins to use in variogram computation}
+ \KwOut{$\gamma(b)$ for $b = 1, ..., B$}
+
+ \tcp{In parallel on all processors} 
+ 
+ $\gamma \gets \text{zero-initialized array of size B}$ \;
+ $N \gets \text{zero-initialized array of size B}$ \;
+ $p \gets \text{processor rank}$
+  
+ $\text{bounds} \gets \operatorname{minimum-bounding-box}(S_t)$ \;
+ all-reduce(bounds) among all processors \;
+ $d_{\max} \gets \text{diagonal}(\text{bounds})$ \;
+ 
+ $\text{local}$, $\text{buffer}$ $\gets S_t$ \;
+ 
+ $\gamma, N \gets \gamma, N + \text{compute-unique-semivariance}(\text{local}, B)$ \;
+ 
+ \For{$\lfloor P  / 2 \rfloor$ iterations} {
+    shift(buffer, 1) \;
+    \uIf{$2 \divides P$ and last iteration}{
+        $\gamma, N \gets \gamma, N + \text{compute semivariance for half of the interactions}$ \;
+        \Indp \Indp $\text{between local and buffer}$ \;
+        (first half if $p < \lfloor P / 2 \rfloor$, otherwise second half) \;
+    } \Else {
+	    $\gamma, N \gets \text{compute semivariance between local and buffer}$ \;
+	}
+ }
+ 
+ $\gamma, N \gets \text{sum-reduce across all processors to root node}$ \;
+ $\gamma \gets \gamma[b] / (2 \cdot N[b]), \quad b = 1, ..., B$\;
+ \caption{Computation-optimal Algorithm}
+ \label{alg:compopt}
+\end{algorithm}
+
+Given $P$ processors, each processor is assigned a subset $S_t$ of the full data set $S$. Each processor computes the minimum bounding box for its local points, and through an all-reduce operation all processors agree on the global minimum bounding box for the set $S$. The diagonal of this bounding box is used as the maximum distance of any two points.
+
+As before, the local data set $S_t$ is copied into a local buffer and an exchange buffer. The next step is slightly different: each processor computes semivariances for points in local, exploiting the symmetry and thus only considering unique interactions. 
+
+Each processor goes on to perform $\lfloor P / 2 \rfloor$ loops, where each iteration is identical to the iterations performed in algorith \ref{alg:commopt}, except if $2 \divides P$, in which case the last iteration needs to be augmented to only compute half of the interaction pairs, since in that case every processor will have the same points in its exchange buffer as exactly one other processor. The rest of the algorithm is identical to \ref{alg:commopt}.
+
+Observe that if $P \divides n$, where $n$ is the size of $S$, each processor is assigned an equal amount of work, and hence the algorithm conceptually achieves perfect load balance in terms of computation.
+
+While the cyclic shifting algorithm is communication-optimal in the absence of replicated data, as is noted by Driscoll et al. \cite{Driscoll2013}, a lower bound can be attained by introducing memory replication like in algorithm \ref{alg:commopt}. Algorithm \ref{alg:compopt} can be extended to minimize communication by using the concepts introduced by Koanantakool and Yelick \cite{Koanantakool}. However, since our primary motivation is to build an implementation for real world scenarios where problems are typically computation bound, we leave this for future work.
+
+%Since the basis of algorithm \ref{alg:commopt} was proved in \cite{Driscoll2013}, we only need to prove that our modified algorithm \ref{alg:compopt} computes interactions between each unique pair of subsets $S_t$ and $S_t'$. Here we only provide an informal proof. 
+
+%Let processor ranks be zero-indices in the following. If $p = 0$, $S = S_t$ and we are trivially done. Consider a processor $p \in {1, ..., P - 1}$, and let $h = \lfloor P / 2 \rfloor$. Then, after $h$ iterations, processor $p$ will have computed interactions between the $p$th subset and the subsets $I_0 = \{p \mod P, p + 1 \mod P, ..., p + h \mod P\}$, while processor $p + h + 1$ will have computed interactions between the $h$th subset and the subsets $I_1 = \{p + h + 1 \mod P, p + h + 2 \mod P, ..., p + 2h + 1 \mod P\}$. 
+
+%Let $P$ be an odd number. Then $2h \mod P = P - 2$, so $I_1 = \{ p + h + 1 \mod P, ..., p - 1 \mod P \}$ and so $I_0$ and $I_1$ consist of distinct subsets but cover all $i \in \{1, ..., P\}$. 
+
+%Now, let $P$ be an even number. Then $2h \mod P = 0$, so $I_1 = \{ p + h + 1 \mod P, ..., p + 1 \}$. 
