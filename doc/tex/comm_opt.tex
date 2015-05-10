@@ -46,8 +46,7 @@ Finally, all processors participate in a sum-reduction of the binned semivarianc
 	}
  }
  
- $\gamma \gets \text{sum-reduce across all processors to root node}$ \;
- $N \gets \text{sum-reduce across all processors to root node}$ \;
+ $\gamma, N \gets \text{sum-reduce across all processors to root node}$ \;
  $\gamma \gets \gamma[b] / (2 \cdot N[b]), \quad b = 1, ..., B$\;
  \caption{Communication-optimal Non-symmetric Algorithm}
  \label{alg:commopt}
