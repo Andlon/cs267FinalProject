@@ -40,7 +40,7 @@ Finally, all processors participate in a sum-reduction of the binned semivarianc
 	\ForEach{$(i, j) \in \text{local} \times \text{buffer}$}
 	{
         $d \gets \operatorname{dist}(i, j)$ \;
-        $b \gets \operatorname{bin}(d)$ \;
+        $b \gets \operatorname{bin}(d, d_{\max})$ \;
 		$\gamma[b] \gets \gamma[b] + |z_i - z_j|^2$ \;
 		$N[b] \gets N[b] + 1$ \;
 	}
