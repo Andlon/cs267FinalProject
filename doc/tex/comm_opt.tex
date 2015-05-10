@@ -1,5 +1,54 @@
 %Brief description
 %pseudo-code
 %Expected performance
+Driscoll et al. \cite{Driscoll2013} presented a communicational-optimal algorithm for computing all-pairs N-body interactions. The algorithm is a variation of the more well-known cyclic shifting algorithm. Here they introduced the concept of a replication factor, $c$, which essentially has the effect of reducing the total communication required by trading parts of the point-to-point communication for broadcasts, which are asymptotically more efficient. This comes at the expense of a factor $c$ higher memory usage.
 
-\cite{Driscoll2013}
+We implemented a variant of this algorithm, modified to fit the pattern of the empirical variogram computation. The resulting algorithm is presented is presented in \ref{alg:commopt}. Given $P$ processors, the processors are arranged in a $c \times \frac{P}{c}$ grid, where each column represents a \emph{team}. For each team, the processor in the given column at the top of the row is designated as a team leader. The set of all data points is evenly distributed among the team leaders. 
+
+Next, each team leader determines the minimum bounding box (or rectangle, depending on dimensions) that covers all the data points associated with the team. A global minimum bounding box is obtained by min-max all-reduction across team leaders. The diagonal of this global bounding box is used as the maximum distance between any two data points. The data points associated with each team, as well as the maximum distance, is then broadcast from the team leader to the rest of the team. 
+
+At this point, each processor copies his set of local points to an exchange buffer, and \emph{shifts} his exchange buffer by $i$, where $i$ is the processor's row in the grid. Consider a processor in row $i$ and column $j$, denoted $(i, j)$. The $\text{shift}(k)$ procedure sends the data in the exchange buffer of processor $(i, j)$ to the processor in the same row with column $(j + k \mod P / c)$, and receives data from column $(j - k \mod P / c)$ and stores it in the exchange buffer. In other words, it is a cyclic shift along row $i$. 
+
+Each processor $(i, j)$ performs an \emph{initial shift} by calling $\text{shift}(i)$. This is followed by $P / c^2$ iterations, for which each processor calls $\text{shift}(c)$ and subsequently computes interactions between its local buffer and its exchange buffer, as in the serial case.
+
+Finally, all processors participate in a sum-reduction of the binned semivariance data, and the root node completes the variogram by dividing each bin by $2 N_b$, where $N_b$ is the number of elements in the distance bin $b$.
+
+\begin{algorithm}[H]
+ \DontPrintSemicolon
+ \KwIn{Replication factor $c$}
+ \KwIn{P processors arranged in a $c \times \frac{P}{c}$ grid }
+ \KwIn{A set S of data points distributed evenly among team leaders into subsets $S_t$}
+ \KwIn{B, the number of distance bins to use in variogram computation}
+ \KwOut{$\gamma(b)$ for $b = 1, ..., B$}
+
+ \tcp{In parallel on all processors} 
+ 
+ $\gamma \gets \text{zero-initialized array of size B}$ \;
+ $N \gets \text{zero-initialized array of size B}$ \;
+  
+ \If{team leader}{
+	$\text{bounds} \gets \operatorname{minimum-bounding-box}(S_t)$ \;
+	all-reduce(bounds) among team leaders \;
+	$d_{\max} \gets \text{diagonal}(\text{bounds})$
+ }
+ 
+ Broadcast $S_t$, $d_{\max}$ from team leaders to team \;
+ $\text{local}$, $\text{buffer}$ $\gets S_t$
+ 
+ \For{$p / c^2$ iterations} {
+    shift(buffer, c) \;
+	\ForEach{$(i, j) \in \text{local} \times \text{buffer}$}
+	{
+        $d \gets \operatorname{dist}(i, j)$ \;
+        $b \gets \operatorname{bin}(d)$ \;
+		$\gamma[b] \gets \gamma[b] + |z_i - z_j|^2$ \;
+		$N[b] \gets N[b] + 1$ \;
+	}
+ }
+ 
+ $\gamma \gets \text{sum-reduce across all processors to root node}$ \;
+ $N \gets \text{sum-reduce across all processors to root node}$ \;
+ $\gamma \gets \gamma[b] / (2 \cdot N[b]), \quad b = 1, ..., B$\;
+ \caption{Communication-optimal Non-symmetric Algorithm}
+ \label{alg:commopt}
+\end{algorithm}
